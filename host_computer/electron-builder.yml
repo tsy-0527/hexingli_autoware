@@ -1,0 +1,36 @@
+﻿appId: com.hexingli.yunle.console
+productName: 核星力小车监控系统
+
+asar: true
+
+directories:
+  output: release
+
+files:
+  - dist/**/*
+  - electron/**/*
+  - package.json
+
+extraResources:
+  - from: agent/ros_agent_mcp
+    to: ros_agent_mcp
+    filter:
+      - server.py
+      - requirements.txt
+      - config.example.json
+      - README.md
+
+win:
+  executableName: 核星力小车监控系统
+  target:
+    - target: nsis
+      arch:
+        - x64
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: 核星力小车监控系统
+  artifactName: "${productName}-Setup-${version}.${ext}"

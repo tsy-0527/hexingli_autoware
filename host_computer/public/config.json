@@ -1,0 +1,47 @@
+{
+  "vehicleChannels": [
+    { "name": "网络信号", "url": "ws://10.66.0.2:9090" }
+  ],
+  "trajectoryTopics": [
+    "/planning/scenario_planning/trajectory",
+    "/planning/scenario_planning/parking/trajectory"
+  ],
+  "rosUdpTelemetry": {
+    "enabled": true,
+    "listenAddress": "0.0.0.0",
+    "listenPort": 15000,
+    "allowedSource": "10.66.0.2",
+    "fallbackMs": 3000,
+    "objectsEnabled": true,
+    "objectsFallbackMs": 3000,
+    "trajectoryEnabled": true,
+    "trajectoryFallbackMs": 3000,
+    "pathEnabled": true,
+    "pathFallbackMs": 4000
+  },
+  "cameraChannels": [
+    { "name": "网络信号", "url": "http://10.66.0.2:8889/cam/" }
+  ],
+  "chassisGateway": {
+    "enabled": true,
+    "url": "ws://10.66.0.2:8765",
+    "token": "yunle-test-2026"
+  },
+  "mapOrigin": {
+    "lat": 31.9338911,
+    "lng": 118.6331728
+  },
+  "mapProjection": "LocalCartesian",
+  "laneCoordinates": "local",
+  "mapOriginAlt": 0,
+  "tiandituKey": "a23db9e9e77571917b2663926e1636e3",
+  "indoorGrid": {
+    "enabled": true,
+    "image": "/indoor_nav_map.pgm",
+    "resolution": 0.05,
+    "originX": 0.8,
+    "originY": -86.0,
+    "opacity": 0.92,
+    "liftMeters": 0.03
+  }
+}

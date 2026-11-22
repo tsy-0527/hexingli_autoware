@@ -1,0 +1,22 @@
+{
+  "rosbridge_url": "ws://10.66.0.2:9090",
+  "audit_log": "audit.jsonl",
+  "stale_seconds": 3.0,
+  "service_timeout_seconds": 8.0,
+  "min_command_interval_seconds": 1.0,
+  "chassis_feedback_topic": "/yunle_chassis/feedback/ccu_status",
+  "chassis_feedback_type": "chassis_interfaces/msg/CcuStatus",
+  "brake_interlock_fields": [
+    "emergency_brake_request_status",
+    "remote_brake_request_status",
+    "touch_brake_request_status",
+    "handle_brake_request_status"
+  ],
+  "map_bounds": null,
+  "stations_configured": false,
+  "stations": [
+    { "id": "gate3",   "name": "3号门",   "aliases": ["三号门", "东门"], "x": 120.5, "y": -34.2, "yaw": 1.57 },
+    { "id": "charger", "name": "充电桩", "aliases": ["充电", "回充"],   "x": 10.0,  "y": 5.0,   "yaw": 0.0 },
+    { "id": "dock_a",  "name": "A装卸区", "aliases": ["装货点"],        "x": 60.0,  "y": 22.0,  "yaw": -1.57 }
+  ]
+}

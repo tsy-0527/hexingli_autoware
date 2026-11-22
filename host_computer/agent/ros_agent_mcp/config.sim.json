@@ -1,0 +1,37 @@
+{
+  "rosbridge_url": "ws://127.0.0.1:19090",
+  "audit_log": "audit.sim.jsonl",
+  "stale_seconds": 3.0,
+  "service_timeout_seconds": 8.0,
+  "min_command_interval_seconds": 0.5,
+  "chassis_feedback_topic": null,
+  "chassis_feedback_type": "chassis_interfaces/msg/CcuStatus",
+  "map_bounds": null,
+  "stations_configured": true,
+  "stations": [
+    {
+      "id": "gate3",
+      "name": "3号门（仿真）",
+      "aliases": ["三号门", "东门"],
+      "x": 120.5,
+      "y": -34.2,
+      "yaw": 1.57
+    },
+    {
+      "id": "charger",
+      "name": "充电桩（仿真）",
+      "aliases": ["充电", "回充"],
+      "x": 10.0,
+      "y": 5.0,
+      "yaw": 0.0
+    },
+    {
+      "id": "dock_a",
+      "name": "A装卸区（仿真）",
+      "aliases": ["装货点"],
+      "x": 60.0,
+      "y": 22.0,
+      "yaw": -1.57
+    }
+  ]
+}

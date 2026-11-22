@@ -1,0 +1,35 @@
+{
+  "name": "hexingli-vehicle-monitor",
+  "private": true,
+  "version": "0.0.2",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "oxlint",
+    "preview": "vite preview",
+    "dev:web": "vite --host 127.0.0.1 --port 5173 --strictPort",
+    "electron:dev": "concurrently -k \"npm:dev:web\" \"wait-on http://127.0.0.1:5173 && electron .\"",
+    "build:web": "vite build",
+    "electron:build": "npm run build:web && electron-builder --win nsis"
+  },
+  "dependencies": {
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "three": "^0.185.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.4",
+    "concurrently": "^9.2.5",
+    "electron": "^41.7.1",
+    "electron-builder": "^26.18.0",
+    "oxlint": "^1.75.0",
+    "vite": "^8.2.0",
+    "wait-on": "^9.5.1"
+  },
+  "main": "electron/main.cjs",
+  "productName": "核星力小车监控系统",
+  "description": "核星力小车监控系统"
+}
