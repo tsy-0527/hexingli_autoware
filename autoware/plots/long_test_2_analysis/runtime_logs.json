@@ -1,0 +1,2367 @@
+[
+  {
+    "t": 0.5445809364318848,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262655.023399448] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 1.0615909099578857,
+    "file": "/home/tang/.ros/log/component_container_mt_19392_1793261967867.log",
+    "text": "[WARN] [1793262655.540409416] [behavior_path_planner.utils]: Invalid erase indices: start_idx=1, end_idx=0, vector_size=33. Skipping this polygon."
+  },
+  {
+    "t": 1.5272548198699951,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262656.006073120] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 1.7129735946655273,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[INFO] [1793262656.191792041] [system.mrm_handler]: MRM State changed: NORMAL -> MRM_OPERATING"
+  },
+  {
+    "t": 1.7150170803070068,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[WARN] [1793262656.193835493] [system.mrm_handler]: EMERGENCY_STOP is operated."
+  },
+  {
+    "t": 1.7259082794189453,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[WARN] [1793262656.204726749] [control.vehicle_cmd_gate]: Emergency!"
+  },
+  {
+    "t": 1.7879388332366943,
+    "file": "/home/tang/.ros/log/logging_node_18656_1793261967088.log",
+    "text": "[INFO] [1793262656.266757356] [logging_diag_graph]: The target mode is available now."
+  },
+  {
+    "t": 1.812932014465332,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[INFO] [1793262656.291750477] [system.mrm_handler]: MRM State changed: MRM_OPERATING -> NORMAL"
+  },
+  {
+    "t": 1.8136444091796875,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[WARN] [1793262656.292462867] [system.mrm_handler]: EMERGENCY_STOP is canceled."
+  },
+  {
+    "t": 2.1698849201202393,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262656.648703237] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 2.553957223892212,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262657.032775756] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 2.687929153442383,
+    "file": "/home/tang/.ros/log/logging_node_18656_1793261967088.log",
+    "text": "[WARN] [1793262657.166747489] [logging_diag_graph]: The target mode is not available for the following reasons:\n- /autoware/modes/autonomous ERROR\n    - /autoware/planning ERROR\n        - /autoware/planning/routing/state STALE\n"
+  },
+  {
+    "t": 2.7137856483459473,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[INFO] [1793262657.192603975] [system.mrm_handler]: MRM State changed: NORMAL -> MRM_OPERATING"
+  },
+  {
+    "t": 2.71457839012146,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[WARN] [1793262657.193396805] [system.mrm_handler]: EMERGENCY_STOP is operated."
+  },
+  {
+    "t": 2.7364039421081543,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[WARN] [1793262657.215222288] [control.vehicle_cmd_gate]: Emergency!"
+  },
+  {
+    "t": 2.7879276275634766,
+    "file": "/home/tang/.ros/log/logging_node_18656_1793261967088.log",
+    "text": "[INFO] [1793262657.266746067] [logging_diag_graph]: The target mode is available now."
+  },
+  {
+    "t": 2.8129584789276123,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[INFO] [1793262657.291776855] [system.mrm_handler]: MRM State changed: MRM_OPERATING -> NORMAL"
+  },
+  {
+    "t": 2.8135476112365723,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[WARN] [1793262657.292365986] [system.mrm_handler]: EMERGENCY_STOP is canceled."
+  },
+  {
+    "t": 3.83040452003479,
+    "file": "/home/tang/.ros/log/python3_18628_1793261968189.log",
+    "text": "[INFO] [1793262658.309222979] [yunle_autoware_bridge]: VCU actual drive mode changed to OTHER(3)"
+  },
+  {
+    "t": 4.4627463817596436,
+    "file": "/home/tang/.ros/log/python3_18628_1793261968189.log",
+    "text": "[INFO] [1793262658.941564812] [yunle_autoware_bridge]: VCU actual drive mode changed to AUTO"
+  },
+  {
+    "t": 4.4796998500823975,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262658.958518189] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Velocity change limit by longitudinal acceleration: constraint(delta)=\u00b10.147 [m/s], input_vel=0.256 [m/s], output_vel=1.241 [m/s]"
+  },
+  {
+    "t": 4.563394546508789,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262659.042213024] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 4.627298593521118,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262659.106116905] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 5.170567750930786,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262659.649386182] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 6.158722400665283,
+    "file": "/home/tang/.ros/log/component_container_mt_19392_1793261967867.log",
+    "text": "[WARN] [1793262660.637540790] [behavior_path_planner.utils]: Invalid erase indices: start_idx=1, end_idx=0, vector_size=33. Skipping this polygon."
+  },
+  {
+    "t": 6.574773073196411,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262661.053591537] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 7.727187395095825,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262662.206005791] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 8.270043849945068,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262662.748862158] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 8.582899808883667,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262663.061718155] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 10.595088005065918,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262665.073906432] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 10.727215766906738,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262665.206034227] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 11.257271766662598,
+    "file": "/home/tang/.ros/log/component_container_mt_19392_1793261967867.log",
+    "text": "[WARN] [1793262665.736090195] [behavior_path_planner.utils]: Invalid erase indices: start_idx=1, end_idx=0, vector_size=33. Skipping this polygon."
+  },
+  {
+    "t": 11.36984896659851,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262665.848667367] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 12.603336095809937,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262667.082154609] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 13.220412731170654,
+    "file": "/home/tang/.ros/log/python3_18630_1793261969053.log",
+    "text": "[INFO] [1793262667.699231135] [yunle_control_mode_gate]: Yunle physical handoff changed to MANUAL (chassis_button=False, handle_mode_flag=False)"
+  },
+  {
+    "t": 13.220413446426392,
+    "file": "/home/tang/.ros/log/python3_18628_1793261968189.log",
+    "text": "[INFO] [1793262667.699231845] [yunle_autoware_bridge]: Physical control handoff changed to MANUAL (chassis_button=False, handle_mode_flag=False)"
+  },
+  {
+    "t": 13.23048710823059,
+    "file": "/home/tang/.ros/log/python3_18630_1793261969053.log",
+    "text": "[INFO] [1793262667.709305630] [yunle_control_mode_gate]: Requesting disable Autoware control: Yunle physical handoff is MANUAL"
+  },
+  {
+    "t": 13.230828046798706,
+    "file": "/home/tang/.ros/log/python3_18628_1793261968189.log",
+    "text": "[INFO] [1793262667.709646443] [yunle_autoware_bridge]: VCU actual drive mode changed to OTHER(3)"
+  },
+  {
+    "t": 13.23396635055542,
+    "file": "/home/tang/.ros/log/python3_18630_1793261969053.log",
+    "text": "[INFO] [1793262667.712784740] [yunle_control_mode_gate]: Autoware control disable request succeeded"
+  },
+  {
+    "t": 13.234704494476318,
+    "file": "/home/tang/.ros/log/python3_18628_1793261968189.log",
+    "text": "[INFO] [1793262667.713523005] [yunle_autoware_bridge]: Manual control confirmed by physical switches"
+  },
+  {
+    "t": 13.32154655456543,
+    "file": "/home/tang/.ros/log/component_container_19376_1793261967493.log",
+    "text": "[INFO] [1793262667.800364995] [planning.scenario_planning.velocity_smoother]: Not in autonomous control. Plan from ego velocity."
+  },
+  {
+    "t": 13.327281951904297,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262667.806100425] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Acceleration change limit by longitudinal jerk: constraint(delta)=\u00b10.149 [m/s^2], input_acc=0.347 [m/s^2], output_acc=0.172 [m/s^2]"
+  },
+  {
+    "t": 13.36050534248352,
+    "file": "/home/tang/.ros/log/component_container_mt_19480_1793261968055.log",
+    "text": "[INFO] [1793262667.839323791] [adapi.node.autoware_state]: AutowareState: Driving => Planning"
+  },
+  {
+    "t": 13.420296907424927,
+    "file": "/home/tang/.ros/log/chassis_driver_node_18626_1793261967076.log",
+    "text": "[WARN] [1793262667.899115324] [chassis_driver_node]: SCU command input timed out after 209 ms; stop sending 0x121 so VCU fail-safe can engage"
+  },
+  {
+    "t": 13.536381483078003,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262668.015199942] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Velocity change limit by longitudinal acceleration: constraint(delta)=\u00b10.152 [m/s], input_vel=0.000 [m/s], output_vel=0.590 [m/s]"
+  },
+  {
+    "t": 13.597472429275513,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262668.076290915] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Steering angle change rate limit: constraint(delta)=\u00b10.031 [rad], input_steer=-0.022 [rad], output_steer=-0.022 [rad]"
+  },
+  {
+    "t": 13.82710337638855,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262668.305921690] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 13.960493803024292,
+    "file": "/home/tang/.ros/log/component_container_mt_19480_1793261968055.log",
+    "text": "[INFO] [1793262668.439312116] [adapi.node.autoware_state]: AutowareState: Planning => WaitingForEngage"
+  },
+  {
+    "t": 14.519746541976929,
+    "file": "/home/tang/.ros/log/python3_18628_1793261968189.log",
+    "text": "[INFO] [1793262668.998564857] [yunle_autoware_bridge]: Physical control handoff changed to AUTONOMOUS (chassis_button=True, handle_mode_flag=False)"
+  },
+  {
+    "t": 14.519970178604126,
+    "file": "/home/tang/.ros/log/python3_18630_1793261969053.log",
+    "text": "[INFO] [1793262668.998788621] [yunle_control_mode_gate]: Yunle physical handoff changed to AUTONOMOUS (chassis_button=True, handle_mode_flag=False)"
+  },
+  {
+    "t": 14.550647735595703,
+    "file": "/home/tang/.ros/log/python3_18628_1793261968189.log",
+    "text": "[INFO] [1793262669.029466202] [yunle_autoware_bridge]: VCU actual drive mode changed to AUTO"
+  },
+  {
+    "t": 14.61307668685913,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262669.091895062] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 14.66085147857666,
+    "file": "/home/tang/.ros/log/component_container_mt_19480_1793261968055.log",
+    "text": "[INFO] [1793262669.139669781] [adapi.node.autoware_state]: AutowareState: WaitingForEngage => Driving"
+  },
+  {
+    "t": 16.258702993392944,
+    "file": "/home/tang/.ros/log/component_container_mt_19392_1793261967867.log",
+    "text": "[WARN] [1793262670.737521518] [behavior_path_planner.utils]: Invalid erase indices: start_idx=1, end_idx=0, vector_size=33. Skipping this polygon."
+  },
+  {
+    "t": 16.26991581916809,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262670.748734183] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 16.623140573501587,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262671.101959024] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 16.827149629592896,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262671.305968028] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 18.633201599121094,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262673.112020053] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 19.369776487350464,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262673.848594929] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 19.927151679992676,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262674.405970067] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 20.643828868865967,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262675.122647390] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 21.260051488876343,
+    "file": "/home/tang/.ros/log/component_container_mt_19392_1793261967867.log",
+    "text": "[WARN] [1793262675.738869809] [behavior_path_planner.utils]: Invalid erase indices: start_idx=1, end_idx=0, vector_size=33. Skipping this polygon."
+  },
+  {
+    "t": 22.3698091506958,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262676.848627451] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 22.65322995185852,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262677.132048479] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 22.927202224731445,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262677.406020565] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 24.67646050453186,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262679.155278869] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 25.469849824905396,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262679.948668286] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 26.027139902114868,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262680.505958295] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 26.684757232666016,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262681.163575583] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 28.569714069366455,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262683.048532381] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 28.695775508880615,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262683.174593921] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 29.027149200439453,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262683.505967646] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 30.705501556396484,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262685.184319953] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 31.56975293159485,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262686.048571464] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 32.127121686935425,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262686.605939993] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 32.68790316581726,
+    "file": "/home/tang/.ros/log/logging_node_18656_1793261967088.log",
+    "text": "[WARN] [1793262687.166721673] [logging_diag_graph]: The target mode is not available for the following reasons:\n- /autoware/modes/autonomous ERROR\n    - /autoware/planning ERROR\n        - /autoware/planning/routing/state STALE\n"
+  },
+  {
+    "t": 32.712931871414185,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[INFO] [1793262687.191750259] [system.mrm_handler]: MRM State changed: NORMAL -> MRM_OPERATING"
+  },
+  {
+    "t": 32.71361041069031,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[WARN] [1793262687.192428850] [system.mrm_handler]: EMERGENCY_STOP is operated."
+  },
+  {
+    "t": 32.71502232551575,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262687.193840722] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 32.73623466491699,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[WARN] [1793262687.215052992] [control.vehicle_cmd_gate]: Emergency!"
+  },
+  {
+    "t": 32.787925481796265,
+    "file": "/home/tang/.ros/log/logging_node_18656_1793261967088.log",
+    "text": "[INFO] [1793262687.266743961] [logging_diag_graph]: The target mode is available now."
+  },
+  {
+    "t": 32.80562114715576,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262687.284439465] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Acceleration change limit by longitudinal jerk: constraint(delta)=\u00b10.007 [m/s^2], input_acc=0.092 [m/s^2], output_acc=0.135 [m/s^2]"
+  },
+  {
+    "t": 32.81295585632324,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[INFO] [1793262687.291774168] [system.mrm_handler]: MRM State changed: MRM_OPERATING -> NORMAL"
+  },
+  {
+    "t": 32.81367087364197,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[WARN] [1793262687.292489378] [system.mrm_handler]: EMERGENCY_STOP is canceled."
+  },
+  {
+    "t": 33.13251233100891,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262687.611330796] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Steering angle change rate limit: constraint(delta)=\u00b10.028 [rad], input_steer=0.000 [rad], output_steer=0.000 [rad]"
+  },
+  {
+    "t": 34.57453370094299,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262689.053352215] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 34.72354006767273,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262689.202358595] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 35.127888679504395,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262689.606706990] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 36.7332866191864,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262691.212105057] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 37.66995620727539,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262692.148774561] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 38.227113485336304,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262692.705931963] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 38.749719858169556,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262693.228538306] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 40.758161544799805,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262695.236979958] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 40.77002954483032,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262695.248848050] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 41.22748374938965,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262695.706302096] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 42.76331043243408,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262697.242128878] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 43.297022342681885,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262697.775840656] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Steering angle change rate limit: constraint(delta)=\u00b10.030 [rad], input_steer=-0.000 [rad], output_steer=-0.000 [rad]"
+  },
+  {
+    "t": 43.86976957321167,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262698.348587894] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 43.89419937133789,
+    "file": "/home/tang/.ros/log/python3_18628_1793261968189.log",
+    "text": "[INFO] [1793262698.373017861] [yunle_autoware_bridge]: VCU actual drive mode changed to OTHER(3)"
+  },
+  {
+    "t": 44.327110290527344,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262698.805928600] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 44.49228096008301,
+    "file": "/home/tang/.ros/log/python3_18628_1793261968189.log",
+    "text": "[INFO] [1793262698.971099330] [yunle_autoware_bridge]: VCU actual drive mode changed to AUTO"
+  },
+  {
+    "t": 44.52764058113098,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262699.006458985] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Velocity change limit by longitudinal acceleration: constraint(delta)=\u00b10.149 [m/s], input_vel=0.250 [m/s], output_vel=1.240 [m/s]"
+  },
+  {
+    "t": 44.77326798439026,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262699.252086480] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 46.78536915779114,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262701.264187693] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 46.969746112823486,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262701.448564437] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 47.42712998390198,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262701.905948500] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 48.802525997161865,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262703.281344524] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 50.069841384887695,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262704.548659773] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 50.427191495895386,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262704.906009893] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 50.81247639656067,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262705.291294878] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 52.82263898849487,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262707.301457342] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 53.070345878601074,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262707.549164272] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 53.52705454826355,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262708.005872846] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 54.83283615112305,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262709.311654681] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 56.16977024078369,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262710.648588708] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 56.52706813812256,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262711.005886585] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 56.84619617462158,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262711.325014624] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 58.85285711288452,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262713.331675493] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 59.169779539108276,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262713.648598059] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 59.5272102355957,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262714.006028721] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 60.704079389572144,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262715.182897745] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Steering angle change rate limit: constraint(delta)=\u00b10.029 [rad], input_steer=-0.000 [rad], output_steer=-0.000 [rad]"
+  },
+  {
+    "t": 60.8645544052124,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262715.343372808] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 62.26970720291138,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262716.748525645] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 62.527719259262085,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262717.006537732] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 62.87559390068054,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262717.354412272] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 64.88517832756042,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262719.363996631] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 65.26974654197693,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262719.748565017] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 65.62738013267517,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262720.106198512] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 66.8950297832489,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262721.373848092] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 68.26983618736267,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262722.748654616] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 68.72713446617126,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262723.205952971] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 68.90319967269897,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262723.382018103] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 70.91336274147034,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262725.392181238] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 71.2698769569397,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262725.748695287] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 71.72715091705322,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262726.205969240] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 72.92629384994507,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262727.405112370] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 74.36979722976685,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262728.848615560] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 74.72722315788269,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262729.206041510] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 74.94409346580505,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262729.422911798] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 75.66736125946045,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262730.146179747] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Steering angle change rate limit: constraint(delta)=\u00b10.030 [rad], input_steer=0.000 [rad], output_steer=0.000 [rad]"
+  },
+  {
+    "t": 76.9526629447937,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262731.431481367] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 77.46985507011414,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262731.948673485] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 77.82720565795898,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262732.306023983] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 78.96280312538147,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262733.441621574] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 80.56982278823853,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262735.048641101] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 80.92713665962219,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262735.405955138] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 80.97286176681519,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262735.451680191] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 82.98519802093506,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262737.464016506] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 83.196852684021,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262737.675671121] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Steering angle change rate limit: constraint(delta)=\u00b10.029 [rad], input_steer=-0.000 [rad], output_steer=-0.000 [rad]"
+  },
+  {
+    "t": 83.56985092163086,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262738.048669255] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 83.92730069160461,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262738.406119167] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 84.99371671676636,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262739.472535196] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 86.66981148719788,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262741.148630010] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 87.00302076339722,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262741.481839250] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 87.02712678909302,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262741.505945180] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 87.38788223266602,
+    "file": "/home/tang/.ros/log/logging_node_18656_1793261967088.log",
+    "text": "[WARN] [1793262741.866700737] [logging_diag_graph]: The target mode is not available for the following reasons:\n- /autoware/modes/autonomous ERROR\n    - /autoware/localization ERROR\n        - /autoware/localization/state STALE\n"
+  },
+  {
+    "t": 87.41290330886841,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[INFO] [1793262741.891721658] [system.mrm_handler]: MRM State changed: NORMAL -> MRM_OPERATING"
+  },
+  {
+    "t": 87.41318011283875,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[WARN] [1793262741.891998420] [system.mrm_handler]: EMERGENCY_STOP is operated."
+  },
+  {
+    "t": 87.4275631904602,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[WARN] [1793262741.906381638] [control.vehicle_cmd_gate]: Emergency!"
+  },
+  {
+    "t": 87.43574285507202,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262741.914561177] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Acceleration change limit by longitudinal jerk: constraint(delta)=\u00b10.041 [m/s^2], input_acc=0.277 [m/s^2], output_acc=0.299 [m/s^2]"
+  },
+  {
+    "t": 87.4878933429718,
+    "file": "/home/tang/.ros/log/logging_node_18656_1793261967088.log",
+    "text": "[INFO] [1793262741.966711763] [logging_diag_graph]: The target mode is available now."
+  },
+  {
+    "t": 87.51290249824524,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[INFO] [1793262741.991720834] [system.mrm_handler]: MRM State changed: MRM_OPERATING -> NORMAL"
+  },
+  {
+    "t": 87.51323938369751,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[WARN] [1793262741.992057876] [system.mrm_handler]: EMERGENCY_STOP is canceled."
+  },
+  {
+    "t": 89.01316428184509,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262743.491982758] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 89.76977801322937,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262744.248596403] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 90.02718997001648,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262744.506008361] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 91.02318239212036,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262745.502000850] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 92.86977505683899,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262747.348593511] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 92.88662886619568,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262747.365447372] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Steering angle change rate limit: constraint(delta)=\u00b10.029 [rad], input_steer=-0.000 [rad], output_steer=-0.000 [rad]"
+  },
+  {
+    "t": 93.0331518650055,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262747.511970227] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 93.12715125083923,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262747.605969760] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 95.04341268539429,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262749.522231125] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 95.96969795227051,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262750.448516304] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 96.12717533111572,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262750.605993659] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 97.05349898338318,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262751.532317289] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 98.96971035003662,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262753.448528722] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 99.07282614707947,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262753.551644531] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 99.22711253166199,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262753.705930955] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 99.68788862228394,
+    "file": "/home/tang/.ros/log/logging_node_18656_1793261967088.log",
+    "text": "[WARN] [1793262754.166707055] [logging_diag_graph]: The target mode is not available for the following reasons:\n- /autoware/modes/autonomous ERROR\n    - /autoware/planning ERROR\n        - /autoware/planning/routing/state STALE\n"
+  },
+  {
+    "t": 99.71293044090271,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[INFO] [1793262754.191748894] [system.mrm_handler]: MRM State changed: NORMAL -> MRM_OPERATING"
+  },
+  {
+    "t": 99.71310067176819,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[WARN] [1793262754.191919182] [system.mrm_handler]: EMERGENCY_STOP is operated."
+  },
+  {
+    "t": 99.72641110420227,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[WARN] [1793262754.205229601] [control.vehicle_cmd_gate]: Emergency!"
+  },
+  {
+    "t": 99.73571991920471,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262754.214538339] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Acceleration change limit by longitudinal jerk: constraint(delta)=\u00b10.046 [m/s^2], input_acc=0.298 [m/s^2], output_acc=0.314 [m/s^2]"
+  },
+  {
+    "t": 99.7879090309143,
+    "file": "/home/tang/.ros/log/logging_node_18656_1793261967088.log",
+    "text": "[INFO] [1793262754.266727519] [logging_diag_graph]: The target mode is available now."
+  },
+  {
+    "t": 99.81288003921509,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[INFO] [1793262754.291698537] [system.mrm_handler]: MRM State changed: MRM_OPERATING -> NORMAL"
+  },
+  {
+    "t": 99.81310224533081,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[WARN] [1793262754.291920672] [system.mrm_handler]: EMERGENCY_STOP is canceled."
+  },
+  {
+    "t": 101.08474826812744,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262755.563566789] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 101.9697813987732,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262756.448599901] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 102.22736835479736,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262756.706186702] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 102.93824982643127,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262757.417068290] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Steering angle change rate limit: constraint(delta)=\u00b10.032 [rad], input_steer=-0.000 [rad], output_steer=-0.000 [rad]"
+  },
+  {
+    "t": 103.09379029273987,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262757.572608800] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 104.97036337852478,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262759.449181830] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 105.10279846191406,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262759.581616829] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 105.32713890075684,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262759.805957426] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 107.11374306678772,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262761.592561386] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 108.06981444358826,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262762.548632955] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 108.42716574668884,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262762.905984088] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 108.58236050605774,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262763.061178892] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Steering angle change rate limit: constraint(delta)=\u00b10.032 [rad], input_steer=0.000 [rad], output_steer=0.000 [rad]"
+  },
+  {
+    "t": 109.12670731544495,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262763.605525635] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 111.06991910934448,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262765.548737512] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 111.13290858268738,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262765.611726929] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 111.52711868286133,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262766.005937101] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 111.94303488731384,
+    "file": "/home/tang/.ros/log/python3_18628_1793261968189.log",
+    "text": "[INFO] [1793262766.421853281] [yunle_autoware_bridge]: VCU actual drive mode changed to OTHER(3)"
+  },
+  {
+    "t": 112.50120687484741,
+    "file": "/home/tang/.ros/log/python3_18628_1793261968189.log",
+    "text": "[INFO] [1793262766.980025236] [yunle_autoware_bridge]: VCU actual drive mode changed to AUTO"
+  },
+  {
+    "t": 112.53709053993225,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262767.015908875] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Velocity change limit by longitudinal acceleration: constraint(delta)=\u00b10.151 [m/s], input_vel=0.250 [m/s], output_vel=1.238 [m/s]"
+  },
+  {
+    "t": 113.14382481575012,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262767.622643149] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 114.16994762420654,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262768.648766045] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 114.52715516090393,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262769.005973577] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 115.15338158607483,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262769.632199934] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 115.25681662559509,
+    "file": "/home/tang/.ros/log/component_container_mt_19392_1793261967867.log",
+    "text": "[WARN] [1793262769.735635105] [behavior_path_planner.utils]: Invalid erase indices: start_idx=6, end_idx=5, vector_size=21. Skipping this polygon."
+  },
+  {
+    "t": 117.16332817077637,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262771.642146497] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 117.170490026474,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262771.649308468] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 117.62721180915833,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262772.106030263] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 119.17371821403503,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262773.652536734] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 119.69199228286743,
+    "file": "/home/tang/.ros/log/logging_node_18656_1793261967088.log",
+    "text": "[WARN] [1793262774.170810701] [logging_diag_graph]: The target mode is not available for the following reasons:\n- /autoware/modes/autonomous ERROR\n    - /autoware/planning ERROR\n        - /autoware/planning/routing/state STALE\n"
+  },
+  {
+    "t": 119.71294093132019,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[INFO] [1793262774.191759323] [system.mrm_handler]: MRM State changed: NORMAL -> MRM_OPERATING"
+  },
+  {
+    "t": 119.7208251953125,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[WARN] [1793262774.199643708] [system.mrm_handler]: EMERGENCY_STOP is operated."
+  },
+  {
+    "t": 119.73632955551147,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[WARN] [1793262774.215147926] [control.vehicle_cmd_gate]: Emergency!"
+  },
+  {
+    "t": 119.7879798412323,
+    "file": "/home/tang/.ros/log/logging_node_18656_1793261967088.log",
+    "text": "[INFO] [1793262774.266798164] [logging_diag_graph]: The target mode is available now."
+  },
+  {
+    "t": 119.81312704086304,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[INFO] [1793262774.291945528] [system.mrm_handler]: MRM State changed: MRM_OPERATING -> NORMAL"
+  },
+  {
+    "t": 119.81423115730286,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[WARN] [1793262774.293049620] [system.mrm_handler]: EMERGENCY_STOP is canceled."
+  },
+  {
+    "t": 119.81893706321716,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262774.297755384] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Acceleration change limit by longitudinal jerk: constraint(delta)=\u00b10.047 [m/s^2], input_acc=0.355 [m/s^2], output_acc=0.215 [m/s^2]"
+  },
+  {
+    "t": 120.17110562324524,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262774.649924130] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 120.29381823539734,
+    "file": "/home/tang/.ros/log/component_container_mt_19392_1793261967867.log",
+    "text": "[WARN] [1793262774.772636600] [behavior_path_planner.utils]: Invalid erase indices: start_idx=5, end_idx=4, vector_size=21. Skipping this polygon."
+  },
+  {
+    "t": 120.41299438476562,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[INFO] [1793262774.891812767] [system.mrm_handler]: MRM State changed: NORMAL -> MRM_OPERATING"
+  },
+  {
+    "t": 120.41436100006104,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[WARN] [1793262774.893179426] [system.mrm_handler]: EMERGENCY_STOP is operated."
+  },
+  {
+    "t": 120.44264388084412,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262774.921462353] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Velocity change limit by longitudinal acceleration: constraint(delta)=\u00b10.028 [m/s], input_vel=1.425 [m/s], output_vel=1.417 [m/s]"
+  },
+  {
+    "t": 120.48799014091492,
+    "file": "/home/tang/.ros/log/logging_node_18656_1793261967088.log",
+    "text": "[INFO] [1793262774.966808453] [logging_diag_graph]: The target mode is available now."
+  },
+  {
+    "t": 120.51308226585388,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[INFO] [1793262774.991900798] [system.mrm_handler]: MRM State changed: MRM_OPERATING -> NORMAL"
+  },
+  {
+    "t": 120.5205626487732,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[WARN] [1793262774.999381099] [system.mrm_handler]: EMERGENCY_STOP is canceled."
+  },
+  {
+    "t": 120.727956533432,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262775.206774919] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 121.18748044967651,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262775.666298794] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 123.2034912109375,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262777.682309565] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 123.27133965492249,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262777.750158123] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 123.38790893554688,
+    "file": "/home/tang/.ros/log/logging_node_18656_1793261967088.log",
+    "text": "[WARN] [1793262777.866727330] [logging_diag_graph]: The target mode is not available for the following reasons:\n- /autoware/modes/autonomous ERROR\n    - /autoware/localization ERROR\n        - /autoware/localization/state STALE\n"
+  },
+  {
+    "t": 123.41293406486511,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[INFO] [1793262777.891752445] [system.mrm_handler]: MRM State changed: NORMAL -> MRM_OPERATING"
+  },
+  {
+    "t": 123.41345071792603,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[WARN] [1793262777.892269215] [system.mrm_handler]: EMERGENCY_STOP is operated."
+  },
+  {
+    "t": 123.42873930931091,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[WARN] [1793262777.907557780] [control.vehicle_cmd_gate]: Emergency!"
+  },
+  {
+    "t": 123.48792052268982,
+    "file": "/home/tang/.ros/log/logging_node_18656_1793261967088.log",
+    "text": "[INFO] [1793262777.966738933] [logging_diag_graph]: The target mode is available now."
+  },
+  {
+    "t": 123.5132691860199,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[INFO] [1793262777.992087605] [system.mrm_handler]: MRM State changed: MRM_OPERATING -> NORMAL"
+  },
+  {
+    "t": 123.51383709907532,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[WARN] [1793262777.992655526] [system.mrm_handler]: EMERGENCY_STOP is canceled."
+  },
+  {
+    "t": 123.82722067832947,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262778.306038986] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 124.7129487991333,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[INFO] [1793262779.191767328] [system.mrm_handler]: MRM State changed: NORMAL -> MRM_OPERATING"
+  },
+  {
+    "t": 124.71365785598755,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[WARN] [1793262779.192476386] [system.mrm_handler]: EMERGENCY_STOP is operated."
+  },
+  {
+    "t": 124.71874690055847,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[WARN] [1793262779.197565221] [control.vehicle_cmd_gate]: Emergency!"
+  },
+  {
+    "t": 124.78795409202576,
+    "file": "/home/tang/.ros/log/logging_node_18656_1793261967088.log",
+    "text": "[INFO] [1793262779.266772563] [logging_diag_graph]: The target mode is available now."
+  },
+  {
+    "t": 124.81290102005005,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[INFO] [1793262779.291719555] [system.mrm_handler]: MRM State changed: MRM_OPERATING -> NORMAL"
+  },
+  {
+    "t": 124.8133795261383,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[WARN] [1793262779.292197976] [system.mrm_handler]: EMERGENCY_STOP is canceled."
+  },
+  {
+    "t": 125.21530628204346,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262779.694124746] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 126.68968200683594,
+    "file": "/home/tang/.ros/log/logging_node_18656_1793261967088.log",
+    "text": "[WARN] [1793262781.168500317] [logging_diag_graph]: The target mode is not available for the following reasons:\n- /autoware/modes/autonomous ERROR\n    - /autoware/planning ERROR\n        - /autoware/planning/routing/state STALE\n"
+  },
+  {
+    "t": 126.71292090415955,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[INFO] [1793262781.191739285] [system.mrm_handler]: MRM State changed: NORMAL -> MRM_OPERATING"
+  },
+  {
+    "t": 126.71365118026733,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[WARN] [1793262781.192469659] [system.mrm_handler]: EMERGENCY_STOP is operated."
+  },
+  {
+    "t": 126.72961902618408,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[WARN] [1793262781.208437482] [control.vehicle_cmd_gate]: Emergency!"
+  },
+  {
+    "t": 126.78892016410828,
+    "file": "/home/tang/.ros/log/logging_node_18656_1793261967088.log",
+    "text": "[INFO] [1793262781.267738629] [logging_diag_graph]: The target mode is available now."
+  },
+  {
+    "t": 126.81315565109253,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[INFO] [1793262781.291974120] [system.mrm_handler]: MRM State changed: MRM_OPERATING -> NORMAL"
+  },
+  {
+    "t": 126.81381869316101,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[WARN] [1793262781.292637075] [system.mrm_handler]: EMERGENCY_STOP is canceled."
+  },
+  {
+    "t": 126.92719650268555,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262781.406014852] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 127.22430634498596,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262781.703124757] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 129.23522806167603,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262783.714046381] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 130.0272216796875,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262784.506040050] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 131.24550700187683,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262785.724325468] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 131.26970553398132,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262785.748523886] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 132.93826532363892,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262787.417083814] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Velocity change limit by longitudinal acceleration: constraint(delta)=\u00b10.155 [m/s], input_vel=0.250 [m/s], output_vel=0.919 [m/s]"
+  },
+  {
+    "t": 133.0567033290863,
+    "file": "/home/tang/.ros/log/component_container_mt_19392_1793261967867.log",
+    "text": "[WARN] [1793262787.535521627] [behavior_path_planner.utils]: Invalid erase indices: start_idx=3, end_idx=2, vector_size=17. Skipping this polygon."
+  },
+  {
+    "t": 133.1271629333496,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262787.605981284] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 133.25288152694702,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262787.731699832] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 134.36976599693298,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262788.848584500] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 135.26310658454895,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262789.741925091] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 136.2271158695221,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262790.705934340] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 137.27298188209534,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262791.751800300] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 138.75704336166382,
+    "file": "/home/tang/.ros/log/component_container_mt_19392_1793261967867.log",
+    "text": "[WARN] [1793262793.235861675] [behavior_path_planner.utils]: Invalid erase indices: start_idx=3, end_idx=2, vector_size=17. Skipping this polygon."
+  },
+  {
+    "t": 139.2271192073822,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262793.705937562] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 139.2863278388977,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262793.765146225] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 141.2963399887085,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262795.775158324] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 142.3271505832672,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262796.805969022] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 143.3030767440796,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262797.781895188] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 144.25874543190002,
+    "file": "/home/tang/.ros/log/component_container_mt_19392_1793261967867.log",
+    "text": "[WARN] [1793262798.737563873] [behavior_path_planner.utils]: Invalid erase indices: start_idx=3, end_idx=2, vector_size=17. Skipping this polygon."
+  },
+  {
+    "t": 144.56975483894348,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262799.048573271] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 145.31731605529785,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262799.796134566] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 145.42718720436096,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262799.906005505] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 145.68787813186646,
+    "file": "/home/tang/.ros/log/logging_node_18656_1793261967088.log",
+    "text": "[WARN] [1793262800.166696482] [logging_diag_graph]: The target mode is not available for the following reasons:\n- /autoware/modes/autonomous ERROR\n    - /autoware/planning ERROR\n        - /autoware/planning/routing/state STALE\n"
+  },
+  {
+    "t": 145.7128767967224,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[INFO] [1793262800.191695183] [system.mrm_handler]: MRM State changed: NORMAL -> MRM_OPERATING"
+  },
+  {
+    "t": 145.7130627632141,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[WARN] [1793262800.191881130] [system.mrm_handler]: EMERGENCY_STOP is operated."
+  },
+  {
+    "t": 145.7160861492157,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[WARN] [1793262800.194904671] [control.vehicle_cmd_gate]: Emergency!"
+  },
+  {
+    "t": 145.78789401054382,
+    "file": "/home/tang/.ros/log/logging_node_18656_1793261967088.log",
+    "text": "[INFO] [1793262800.266712444] [logging_diag_graph]: The target mode is available now."
+  },
+  {
+    "t": 145.81291580200195,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[INFO] [1793262800.291734256] [system.mrm_handler]: MRM State changed: MRM_OPERATING -> NORMAL"
+  },
+  {
+    "t": 145.81308794021606,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[WARN] [1793262800.291906373] [system.mrm_handler]: EMERGENCY_STOP is canceled."
+  },
+  {
+    "t": 145.8363528251648,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262800.315171133] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Acceleration change limit by longitudinal jerk: constraint(delta)=\u00b10.152 [m/s^2], input_acc=1.095 [m/s^2], output_acc=1.082 [m/s^2]"
+  },
+  {
+    "t": 147.32323837280273,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262801.802056899] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 147.3371126651764,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262801.815931116] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Steering angle change rate limit: constraint(delta)=\u00b10.030 [rad], input_steer=-0.001 [rad], output_steer=-0.001 [rad]"
+  },
+  {
+    "t": 147.56978607177734,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262802.048604507] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 148.52714824676514,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262803.005966708] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 149.34427976608276,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262803.823098133] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 150.66975569725037,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262805.148574188] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 151.3525607585907,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262805.831379147] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 151.52715396881104,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262806.005972388] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 151.85647296905518,
+    "file": "/home/tang/.ros/log/component_container_mt_19392_1793261967867.log",
+    "text": "[WARN] [1793262806.335291291] [behavior_path_planner.utils]: Invalid erase indices: start_idx=2, end_idx=1, vector_size=13. Skipping this polygon."
+  },
+  {
+    "t": 153.36300778388977,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262807.841826181] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 153.66983938217163,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262808.148657911] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 154.6271858215332,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262809.106004225] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 155.3792290687561,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262809.858047447] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 156.66995644569397,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262811.148774876] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 157.14937615394592,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262811.628194488] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Steering angle change rate limit: constraint(delta)=\u00b10.024 [rad], input_steer=0.000 [rad], output_steer=0.000 [rad]"
+  },
+  {
+    "t": 157.3872468471527,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262811.866065230] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 157.72713923454285,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262812.205957665] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 159.39530277252197,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262813.874121088] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 159.55550408363342,
+    "file": "/home/tang/.ros/log/component_container_mt_19392_1793261967867.log",
+    "text": "[WARN] [1793262814.034322526] [behavior_path_planner.utils]: Invalid erase indices: start_idx=2, end_idx=1, vector_size=12. Skipping this polygon."
+  },
+  {
+    "t": 159.67016053199768,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262814.148978996] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 160.72719478607178,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262815.206013232] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 161.40319991111755,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262815.882018219] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 162.76983523368835,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262817.248653710] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 163.4129433631897,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262817.891761880] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 163.82712697982788,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262818.305945491] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 165.42294716835022,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262819.901765497] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 165.86978840827942,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262820.348606870] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 165.93814778327942,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262820.416966314] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Steering angle change rate limit: constraint(delta)=\u00b10.030 [rad], input_steer=0.000 [rad], output_steer=0.000 [rad]"
+  },
+  {
+    "t": 166.92713689804077,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262821.405955346] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 167.43300652503967,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262821.911824865] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 168.8698010444641,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262823.348619534] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 169.44511222839355,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262823.923930577] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 169.92754483222961,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262824.406363293] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 171.45331144332886,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262825.932129948] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 171.96978759765625,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262826.448606033] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 172.23723196983337,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262826.716050490] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Steering angle change rate limit: constraint(delta)=\u00b10.029 [rad], input_steer=0.000 [rad], output_steer=0.000 [rad]"
+  },
+  {
+    "t": 173.02712845802307,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262827.505946756] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 173.47261214256287,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262827.951430537] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 174.9698724746704,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262829.448690891] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 175.48641896247864,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262829.965237341] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 176.1271996498108,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262830.606017948] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 177.4954252243042,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262831.974243574] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 177.97032594680786,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262832.449144316] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 178.2707495689392,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262832.749567988] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Steering angle change rate limit: constraint(delta)=\u00b10.031 [rad], input_steer=-0.000 [rad], output_steer=-0.000 [rad]"
+  },
+  {
+    "t": 179.1275351047516,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262833.606353565] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 179.50374603271484,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262833.982564567] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 181.0697591304779,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262835.548577510] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 181.51287961006165,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262835.991698043] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 182.22709679603577,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262836.705915267] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 183.5229365825653,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262838.001755031] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 184.16975665092468,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262838.648575106] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 185.2271478176117,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262839.705966245] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 185.5335602760315,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262840.012378697] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 187.26975917816162,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262841.748577476] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 187.54376673698425,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262842.022585244] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 188.16757202148438,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262842.646390469] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Steering angle change rate limit: constraint(delta)=\u00b10.031 [rad], input_steer=0.000 [rad], output_steer=0.000 [rad]"
+  },
+  {
+    "t": 188.22721934318542,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262842.706037768] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 189.35666704177856,
+    "file": "/home/tang/.ros/log/component_container_mt_19392_1793261967867.log",
+    "text": "[WARN] [1793262843.835485380] [behavior_path_planner.utils]: Invalid erase indices: start_idx=6, end_idx=5, vector_size=11. Skipping this polygon."
+  },
+  {
+    "t": 189.55393242835999,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262844.032750728] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 190.26985144615173,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262844.748669972] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 191.3272144794464,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262845.806032933] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 191.56490874290466,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262846.043727049] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 193.36974954605103,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262847.848567848] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 193.57427215576172,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262848.053090505] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 193.80514550209045,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[WARN] [1793262848.283963984] [control.trajectory_follower.controller_node_exe.lateral_controller]: Polish process failed in osqp. The required accuracy is met, but the solution can be inaccurate."
+  },
+  {
+    "t": 194.42713117599487,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262848.905949579] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 194.4550895690918,
+    "file": "/home/tang/.ros/log/component_container_mt_19392_1793261967867.log",
+    "text": "[WARN] [1793262848.933907938] [behavior_path_planner.utils]: Invalid erase indices: start_idx=6, end_idx=5, vector_size=11. Skipping this polygon."
+  },
+  {
+    "t": 194.91836810112,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262849.397186566] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Velocity change limit by longitudinal acceleration: constraint(delta)=\u00b10.148 [m/s], input_vel=0.000 [m/s], output_vel=0.692 [m/s]"
+  },
+  {
+    "t": 195.58323049545288,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262850.062048837] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 197.16977047920227,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262851.648589009] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 197.52714657783508,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262852.005965097] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 197.6037995815277,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262852.082617935] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 199.23727679252625,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262853.716095135] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Acceleration change limit by longitudinal jerk: constraint(delta)=\u00b10.142 [m/s^2], input_acc=0.083 [m/s^2], output_acc=0.083 [m/s^2]"
+  },
+  {
+    "t": 199.55498814582825,
+    "file": "/home/tang/.ros/log/component_container_mt_19392_1793261967867.log",
+    "text": "[WARN] [1793262854.033806663] [behavior_path_planner.utils]: Invalid erase indices: start_idx=6, end_idx=5, vector_size=11. Skipping this polygon."
+  },
+  {
+    "t": 199.61256909370422,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262854.091387437] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 200.1697907447815,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262854.648609076] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 200.62714886665344,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262855.105967379] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 201.62503099441528,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262856.103849374] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 202.23696732521057,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262856.715785681] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Steering angle change rate limit: constraint(delta)=\u00b10.030 [rad], input_steer=0.001 [rad], output_steer=0.001 [rad]"
+  },
+  {
+    "t": 203.1698009967804,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262857.648619311] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 203.62723565101624,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262858.106054020] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 203.63272142410278,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262858.111539774] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 204.3564691543579,
+    "file": "/home/tang/.ros/log/component_container_mt_19392_1793261967867.log",
+    "text": "[WARN] [1793262858.835287625] [planning.scenario_planning.lane_driving.behavior_planning.behavior_path_planner.static_obstacle_avoidance]: module doesn't have return shift line."
+  },
+  {
+    "t": 204.65590000152588,
+    "file": "/home/tang/.ros/log/component_container_mt_19392_1793261967867.log",
+    "text": "[WARN] [1793262859.134718411] [behavior_path_planner.utils]: Invalid erase indices: start_idx=2, end_idx=1, vector_size=7. Skipping this polygon."
+  },
+  {
+    "t": 205.6447467803955,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262860.123565128] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 205.68791127204895,
+    "file": "/home/tang/.ros/log/logging_node_18656_1793261967088.log",
+    "text": "[WARN] [1793262860.166729668] [logging_diag_graph]: The target mode is not available for the following reasons:\n- /autoware/modes/autonomous ERROR\n    - /autoware/planning ERROR\n        - /autoware/planning/routing/state STALE\n"
+  },
+  {
+    "t": 205.71288108825684,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[INFO] [1793262860.191699594] [system.mrm_handler]: MRM State changed: NORMAL -> MRM_OPERATING"
+  },
+  {
+    "t": 205.71329069137573,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[WARN] [1793262860.192109114] [system.mrm_handler]: EMERGENCY_STOP is operated."
+  },
+  {
+    "t": 205.7179777622223,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[WARN] [1793262860.196796141] [control.vehicle_cmd_gate]: Emergency!"
+  },
+  {
+    "t": 205.7879240512848,
+    "file": "/home/tang/.ros/log/logging_node_18656_1793261967088.log",
+    "text": "[INFO] [1793262860.266742584] [logging_diag_graph]: The target mode is available now."
+  },
+  {
+    "t": 205.81290435791016,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[INFO] [1793262860.291722705] [system.mrm_handler]: MRM State changed: MRM_OPERATING -> NORMAL"
+  },
+  {
+    "t": 205.81323766708374,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[WARN] [1793262860.292056190] [system.mrm_handler]: EMERGENCY_STOP is canceled."
+  },
+  {
+    "t": 205.83844637870789,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262860.317264833] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Acceleration change limit by longitudinal jerk: constraint(delta)=\u00b10.149 [m/s^2], input_acc=0.072 [m/s^2], output_acc=0.051 [m/s^2]"
+  },
+  {
+    "t": 206.26978063583374,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262860.748599137] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 206.72713685035706,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262861.205955153] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 207.65272450447083,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262862.131542950] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 208.95675086975098,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262863.435569318] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Steering angle change rate limit: constraint(delta)=\u00b10.029 [rad], input_steer=-0.003 [rad], output_steer=-0.003 [rad]"
+  },
+  {
+    "t": 209.26978158950806,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262863.748600122] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 209.66288089752197,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262864.141699405] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 209.72714853286743,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262864.205966901] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 209.75511693954468,
+    "file": "/home/tang/.ros/log/component_container_mt_19392_1793261967867.log",
+    "text": "[WARN] [1793262864.233935307] [behavior_path_planner.utils]: Invalid erase indices: start_idx=1, end_idx=0, vector_size=6. Skipping this polygon."
+  },
+  {
+    "t": 210.9982566833496,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262865.477075214] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Velocity change limit by longitudinal acceleration: constraint(delta)=\u00b10.150 [m/s], input_vel=0.253 [m/s], output_vel=1.239 [m/s]"
+  },
+  {
+    "t": 211.67303442955017,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262866.151852843] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 212.36972784996033,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262866.848546256] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 212.68798112869263,
+    "file": "/home/tang/.ros/log/logging_node_18656_1793261967088.log",
+    "text": "[WARN] [1793262867.166799442] [logging_diag_graph]: The target mode is not available for the following reasons:\n- /autoware/modes/autonomous ERROR\n    - /autoware/planning ERROR\n        - /autoware/planning/routing/state STALE\n"
+  },
+  {
+    "t": 212.71293878555298,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[INFO] [1793262867.191757085] [system.mrm_handler]: MRM State changed: NORMAL -> MRM_OPERATING"
+  },
+  {
+    "t": 212.71745705604553,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[WARN] [1793262867.196275576] [system.mrm_handler]: EMERGENCY_STOP is operated."
+  },
+  {
+    "t": 212.72728300094604,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262867.206101520] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 212.73665118217468,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[WARN] [1793262867.215469559] [control.vehicle_cmd_gate]: Emergency!"
+  },
+  {
+    "t": 212.78882122039795,
+    "file": "/home/tang/.ros/log/logging_node_18656_1793261967088.log",
+    "text": "[INFO] [1793262867.267639617] [logging_diag_graph]: The target mode is available now."
+  },
+  {
+    "t": 212.81298160552979,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[INFO] [1793262867.291799947] [system.mrm_handler]: MRM State changed: MRM_OPERATING -> NORMAL"
+  },
+  {
+    "t": 212.8137288093567,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[WARN] [1793262867.292547225] [system.mrm_handler]: EMERGENCY_STOP is canceled."
+  },
+  {
+    "t": 212.98393297195435,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262867.462751301] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Acceleration change limit by longitudinal jerk: constraint(delta)=\u00b10.077 [m/s^2], input_acc=0.843 [m/s^2], output_acc=0.871 [m/s^2]"
+  },
+  {
+    "t": 213.68686747550964,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262868.165685811] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 214.76477527618408,
+    "file": "/home/tang/.ros/log/component_container_mt_19392_1793261967867.log",
+    "text": "[WARN] [1793262869.243593806] [behavior_path_planner.utils]: Invalid erase indices: start_idx=1, end_idx=0, vector_size=6. Skipping this polygon."
+  },
+  {
+    "t": 215.37286734580994,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262869.851685829] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 215.41294074058533,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[INFO] [1793262869.891759150] [system.mrm_handler]: MRM State changed: NORMAL -> MRM_OPERATING"
+  },
+  {
+    "t": 215.41350626945496,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[WARN] [1793262869.892324678] [system.mrm_handler]: EMERGENCY_STOP is operated."
+  },
+  {
+    "t": 215.4411849975586,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[WARN] [1793262869.920003514] [control.vehicle_cmd_gate]: Emergency!"
+  },
+  {
+    "t": 215.48796391487122,
+    "file": "/home/tang/.ros/log/logging_node_18656_1793261967088.log",
+    "text": "[INFO] [1793262869.966782409] [logging_diag_graph]: The target mode is available now."
+  },
+  {
+    "t": 215.51320099830627,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[INFO] [1793262869.992019380] [system.mrm_handler]: MRM State changed: MRM_OPERATING -> NORMAL"
+  },
+  {
+    "t": 215.51444792747498,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[WARN] [1793262869.993266320] [system.mrm_handler]: EMERGENCY_STOP is canceled."
+  },
+  {
+    "t": 215.6950089931488,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262870.173827314] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 215.71291136741638,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[INFO] [1793262870.191729845] [system.mrm_handler]: MRM State changed: NORMAL -> MRM_OPERATING"
+  },
+  {
+    "t": 215.7133810520172,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[WARN] [1793262870.192199420] [system.mrm_handler]: EMERGENCY_STOP is operated."
+  },
+  {
+    "t": 215.78796219825745,
+    "file": "/home/tang/.ros/log/logging_node_18656_1793261967088.log",
+    "text": "[INFO] [1793262870.266780728] [logging_diag_graph]: The target mode is available now."
+  },
+  {
+    "t": 215.81378626823425,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[INFO] [1793262870.292604584] [system.mrm_handler]: MRM State changed: MRM_OPERATING -> NORMAL"
+  },
+  {
+    "t": 215.81534504890442,
+    "file": "/home/tang/.ros/log/autoware_mrm_handler_node_18654_1793261967089.log",
+    "text": "[WARN] [1793262870.294163436] [system.mrm_handler]: EMERGENCY_STOP is canceled."
+  },
+  {
+    "t": 215.82719945907593,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262870.306017782] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 217.70309495925903,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262872.181913374] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 217.89683270454407,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262872.375651224] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Steering angle change rate limit: constraint(delta)=\u00b10.027 [rad], input_steer=-0.000 [rad], output_steer=-0.000 [rad]"
+  },
+  {
+    "t": 218.46987438201904,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262872.948692753] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 218.82726573944092,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262873.306084201] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 219.71313452720642,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262874.191952943] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 220.38729238510132,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262874.866110733] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Velocity change limit by longitudinal acceleration: constraint(delta)=\u00b10.153 [m/s], input_vel=0.250 [m/s], output_vel=1.236 [m/s]"
+  },
+  {
+    "t": 220.4552562236786,
+    "file": "/home/tang/.ros/log/component_container_mt_19392_1793261967867.log",
+    "text": "[WARN] [1793262874.934074639] [behavior_path_planner.utils]: Invalid erase indices: start_idx=1, end_idx=0, vector_size=6. Skipping this polygon."
+  },
+  {
+    "t": 221.72323417663574,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262876.202052484] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 221.92712092399597,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262876.405939250] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 222.0698230266571,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262876.548641455] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 223.35674214363098,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262877.835560482] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Steering angle change rate limit: constraint(delta)=\u00b10.031 [rad], input_steer=0.000 [rad], output_steer=0.000 [rad]"
+  },
+  {
+    "t": 223.74743270874023,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262878.226251128] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 224.9271285533905,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262879.405946946] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 225.16974020004272,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262879.648558573] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 225.7526376247406,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262880.231455980] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 226.25476908683777,
+    "file": "/home/tang/.ros/log/component_container_mt_19392_1793261967867.log",
+    "text": "[WARN] [1793262880.733587555] [behavior_path_planner.utils]: Invalid erase indices: start_idx=3, end_idx=2, vector_size=4. Skipping this polygon."
+  },
+  {
+    "t": 227.76612758636475,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262882.244946034] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 228.02710914611816,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262882.505927502] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 228.16984510421753,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262882.648663409] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 229.77419233322144,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262884.253010855] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 231.02717995643616,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262885.505998276] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 231.2553813457489,
+    "file": "/home/tang/.ros/log/component_container_mt_19392_1793261967867.log",
+    "text": "[WARN] [1793262885.734199722] [behavior_path_planner.utils]: Invalid erase indices: start_idx=1, end_idx=0, vector_size=2. Skipping this polygon."
+  },
+  {
+    "t": 231.26968812942505,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262885.748506607] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 231.78484749794006,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262886.263665884] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 233.79354548454285,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262888.272363843] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 234.05464673042297,
+    "file": "/home/tang/.ros/log/component_container_mt_19392_1793261967867.log",
+    "text": "[WARN] [1793262888.533465253] [planning.scenario_planning.lane_driving.behavior_planning.behavior_path_planner.static_obstacle_avoidance]: module doesn't have return shift line."
+  },
+  {
+    "t": 234.12710762023926,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262888.605926103] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 234.26970529556274,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262888.748523802] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 235.80417680740356,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262890.282995250] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 236.26014041900635,
+    "file": "/home/tang/.ros/log/component_container_mt_19392_1793261967867.log",
+    "text": "[WARN] [1793262890.738958927] [behavior_path_planner.utils]: Invalid erase indices: start_idx=4, end_idx=3, vector_size=12. Skipping this polygon."
+  },
+  {
+    "t": 237.2271602153778,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262891.705978612] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 237.26974201202393,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[INFO] [1793262891.748560346] [control.autoware_operation_mode_transition_manager]: Engage unavailable: enable_engage_on_driving is false, and the vehicle is not stationary."
+  },
+  {
+    "t": 237.81291913986206,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262892.291737657] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 239.1968128681183,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262893.675631338] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Velocity change limit by longitudinal acceleration: constraint(delta)=\u00b10.153 [m/s], input_vel=0.000 [m/s], output_vel=0.661 [m/s]"
+  },
+  {
+    "t": 239.82325744628906,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262894.302075924] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 240.2273132801056,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262894.706131758] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 240.7604956626892,
+    "file": "/home/tang/.ros/log/component_container_mt_19480_1793261968055.log",
+    "text": "[INFO] [1793262895.239314080] [adapi.node.autoware_state]: AutowareState: Driving => ArrivedGoal"
+  },
+  {
+    "t": 240.7863790988922,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262895.265197544] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Acceleration change limit by longitudinal jerk: constraint(delta)=\u00b10.015 [m/s^2], input_acc=-1.500 [m/s^2], output_acc=-3.437 [m/s^2]"
+  },
+  {
+    "t": 240.78646326065063,
+    "file": "/home/tang/.ros/log/component_container_mt_19464_1793261967662.log",
+    "text": "[ERROR] [1793262895.265281602] [control.vehicle_cmd_gate]: [VehicleCmdFilter] Longitudinal acceleration limit: constraint=\u00b11.000 [m/s^2], input=-3.437 [m/s^2], output=-1.000 [m/s^2]"
+  },
+  {
+    "t": 241.35464882850647,
+    "file": "/home/tang/.ros/log/component_container_mt_19392_1793261967867.log",
+    "text": "[WARN] [1793262895.833467334] [behavior_path_planner.utils]: Invalid erase indices: start_idx=1, end_idx=0, vector_size=2. Skipping this polygon."
+  },
+  {
+    "t": 241.83306121826172,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262896.311879587] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 242.76041555404663,
+    "file": "/home/tang/.ros/log/component_container_mt_19480_1793261968055.log",
+    "text": "[INFO] [1793262897.239233852] [adapi.node.autoware_state]: AutowareState: ArrivedGoal => WaitingForRoute"
+  },
+  {
+    "t": 243.32714366912842,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262897.805962064] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 243.84390425682068,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262898.322722629] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 245.8530957698822,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262900.331914203] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 246.32714438438416,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262900.805962907] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 246.4547255039215,
+    "file": "/home/tang/.ros/log/component_container_mt_19392_1793261967867.log",
+    "text": "[WARN] [1793262900.933543891] [behavior_path_planner.utils]: Invalid erase indices: start_idx=1, end_idx=0, vector_size=2. Skipping this polygon."
+  },
+  {
+    "t": 247.87270736694336,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262902.351525740] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 249.32720232009888,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262903.806020756] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 249.8846399784088,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262904.363458394] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 251.55528569221497,
+    "file": "/home/tang/.ros/log/component_container_mt_19392_1793261967867.log",
+    "text": "[WARN] [1793262906.034104202] [behavior_path_planner.utils]: Invalid erase indices: start_idx=1, end_idx=0, vector_size=2. Skipping this polygon."
+  },
+  {
+    "t": 251.8941957950592,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262906.373014196] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 252.4276683330536,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262906.906486685] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 253.90284132957458,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262908.381659818] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  },
+  {
+    "t": 255.5271599292755,
+    "file": "/home/tang/.ros/log/component_container_18642_1793261967088.log",
+    "text": "[INFO] [1793262910.005978270] [system.topic_state_monitor_traffic_light_recognition_traffic_signals]: /perception/traffic_light_recognition/traffic_signals has not received. Set ERROR in diagnostics."
+  },
+  {
+    "t": 255.9126842021942,
+    "file": "/home/tang/.ros/log/autoware_ekf_localizer_node_18849_1793261967171.log",
+    "text": "[WARN] [1793262910.391502538] [localization.pose_twist_fusion_filter.ekf_localizer]: [EKF] Pose queue size (11) is exceeding max_queue_size (10). Consider increasing max_queue_size or reducing input frequency."
+  }
+]

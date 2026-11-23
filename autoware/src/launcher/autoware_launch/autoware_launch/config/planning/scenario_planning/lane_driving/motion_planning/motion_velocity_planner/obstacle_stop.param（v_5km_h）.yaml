@@ -1,0 +1,166 @@
+# =============================================================================
+# obstacle_stop.param.yaml
+# =============================================================================
+# Hunter 小车 (车宽 0.65m, 车长 1.0m, 轴距 0.632m, 车道 1.2m)
+# 
+# 新约束:
+#   - 最高速度: 5 km/h (1.39 m/s)
+#   - 感知范围: 5m 
+#
+# 核心设计原则:
+#   obstacle_stop.lateral_margin (0.10) < avoidance.hard_margin (0.15)
+#   差值 0.05m = 控制跟踪误差裕度
+#   保证 avoidance 输出的绕行路径永远满足 obstacle_stop 检查, 不会被停车
+# =============================================================================
+
+/**:
+  ros__parameters:
+    obstacle_stop:
+      option:
+        ignore_crossing_obstacle: true
+        suppress_sudden_stop: false
+
+      # =========================================================================
+      # 停车距离参数 (纵向)
+      # =========================================================================
+      stop_planning:
+        stop_margin: 0.3                # 车头留 30cm ≈ 1/3 车长
+        terminal_stop_margin: 0.3
+        min_behavior_stop_margin: 0.3
+        behavior_stop_margin_hold_time: 0.5
+
+        max_negative_velocity: -100.0
+        stop_margin_opposing_traffic: 3.0    # 从 10 降到 3, 匹配 5m 感知
+        effective_deceleration_opposing_traffic: 4.0
+
+        # ---- 时间迟滞: 防感知抖动振荡 ----
+        # min_on_duration: 从 0.1 提到 0.2, 需连续 0.2s 满足才触发停车
+        min_on_duration: 0.2
+        min_off_duration: 1.0
+        update_distance_th: 0.3         # 从 0.5 → 0.3, 让 stop point 及时跟随
+
+        hold_stop_velocity_threshold: 0.01
+        hold_stop_distance_threshold: 0.3   # 防振荡
+        pointcloud_suppression_distance_margin: 0.05
+
+        # ---- 弯道额外余量 (小车尺度) ----
+        stop_on_curve:
+          enable_approaching: true
+          additional_stop_margin: 0.05
+          min_stop_margin: 0.05
+
+        # ---- 障碍物类型特定 ----
+        object_type_specified_params:
+          types:
+            - "default"
+            - "unknown"
+          unknown:
+            limit_min_acc: -2.0
+            sudden_object_acc_threshold: -1.8
+            sudden_object_dist_threshold: 1000.0
+            abandon_to_stop: false
+
+        # ---- RSS 停车距离参数 ----
+        rss_params:
+          use_rss_stop: true
+          two_wheel_objects_deceleration: -2.5
+          vehicle_objects_deceleration: -1.5
+          no_wheel_objects_deceleration: -3.0
+          pointcloud_deceleration: -1.5
+          velocity_offset: -0.5
+
+        # ---- 障碍物动/静判定阈值 (匹配你的低速场景) ----
+        obstacle_velocity_threshold_enter_fixed_stop: 0.8    # 从 3.0 → 0.8
+        obstacle_velocity_threshold_exit_fixed_stop: 1.0     # 从 3.5 → 1.0
+
+      # =========================================================================
+      # 障碍物过滤和侧向检测 (核心)
+      # =========================================================================
+      obstacle_filtering:
+        check_inside:
+          default: true
+          pointcloud: false
+        check_outside:
+          default: true
+          unknown: false
+
+        trim_trajectory:
+          enable_trimming:
+            default: false
+            pointcloud: true
+          min_trajectory_length: 5.0     # 从 30 降到 5, 匹配感知范围
+          braking_distance_scale_factor: 1.5
+
+        # =====================================================================
+        # 侧向余量 (核心决策点)
+        # 
+        # 层次:
+        #   avoidance.hard_margin (0.15) → 路径生成底线
+        #   控制误差裕度 (0.05)
+        #   obstacle_stop.lateral_margin (0.10) → 触发停车阈值
+        # 
+        # 三通道统一 0.10, 避免通道间决策不一致
+        # =====================================================================
+        lateral_margin:
+          nominal:
+            default: 0.10                # 关键: = avoidance.hard_margin - 0.05
+            unknown: 0.10                # 三通道统一
+            pointcloud: 0.10             # 三通道统一
+          additional:
+            wheel_off_track_scale:
+              default: 0.0
+            is_moving_threshold_velocity: 0.3
+            is_stop_obstacle:
+              default: 0.0
+            is_moving_obstacle:
+              default: 0.0
+
+        # ---- 高度范围 (匹配小车 0.6m 高度) ----
+        detection_height:
+          top_limit:
+            default: 2.0                 # 从 50 → 2, 小车不需要看那么高
+            unknown: 1.0
+          bottom_limit: -0.5             # 从 -50 → -0.5
+
+        min_object_length: 0.05          # 从 0.1 → 0.05, 允许感知更小物体
+
+        min_velocity_to_reach_collision_point: 0.3    # 匹配低速
+        stop_obstacle_hold_time_threshold: 0.3
+
+        # ---- 侧方切入预测 (匹配低速场景) ----
+        outside_obstacle:
+          estimation_time_horizon: 1.0
+          max_lateral_velocity: 1.5                    # 从 5 → 1.5, 你的场景低速
+          min_longitudinal_velocity: -2.0              # 从 -8 → -2
+          max_moving_direction_angle: 2.44
+          deceleration:
+            default: 0.0
+            pedestrian: 1.0
+            bicycle: 2.0
+
+        # ---- 横穿障碍预测 ----
+        crossing_obstacle:
+          collision_time_margin: 1.0
+          traj_angle_threshold: 0.523599
+
+      # =========================================================================
+      # 点云聚类参数 (小车激光雷达特性)
+      # =========================================================================
+      pointcloud_segmentation:
+        time_series_association:
+          max_time_diff: 0.35
+          min_velocity: -2.0                            # 从 -5 → -2, 小车场景
+          max_velocity: 3.0                             # 从 30 → 3
+          position_diff: 0.3                            # 从 1.0 → 0.3, 小车尺度
+
+        velocity_estimation:
+          use_estimated_velocity: false
+          min_clamp_velocity: 0.0
+          max_clamp_velocity: 3.0                       # 从 20 → 3
+          required_velocity_count: 5
+          lpf_gain: 0.9
+
+        # ---- 点云高度余量 (匹配小车 0.6m 高度) ----
+        height_margin:
+          margin_from_top: 0.2
+          margin_from_bottom: 0.2

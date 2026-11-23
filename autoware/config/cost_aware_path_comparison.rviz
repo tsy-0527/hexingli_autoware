@@ -1,0 +1,258 @@
+Panels:
+  - Class: rviz_common/Displays
+    Help Height: 0
+    Name: Displays
+    Property Tree Widget:
+      Expanded: []
+      Splitter Ratio: 0.5
+    Tree Height: 700
+  - Class: rviz_common/Views
+    Expanded:
+      - /Current View1
+    Name: Views
+    Splitter Ratio: 0.5
+
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Alpha: 0.5
+      Cell Size: 1
+      Class: rviz_default_plugins/Grid
+      Color: 160; 160; 164
+      Enabled: true
+      Line Style:
+        Line Width: 0.03
+        Value: Lines
+      Name: Grid
+      Normal Cell Count: 0
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Plane: XY
+      Plane Cell Count: 10
+      Reference Frame: <Fixed Frame>
+      Value: true
+    - Class: rviz_default_plugins/MarkerArray
+      Enabled: true
+      Name: Lanelet2VectorMap
+      Namespaces: {}
+      Topic:
+        Depth: 5
+        Durability Policy: Transient Local
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /map/vector_map_marker
+      Value: true
+    - BUS:
+        Alpha: 1
+        Color: 30; 144; 255
+      CAR:
+        Alpha: 1
+        Color: 30; 144; 255
+      Class: autoware_perception_rviz_plugin/PredictedObjects
+      Display Acceleration: false
+      Display Label: true
+      Display PoseWithCovariance: false
+      Display Predicted Path Confidence: false
+      Display Predicted Paths: true
+      Display Twist: true
+      Display UUID: false
+      Display Velocity: true
+      Enabled: true
+      Line Width: 0.5
+      MOTORCYCLE:
+        Alpha: 1
+        Color: 119; 11; 32
+      Name: PredictedObjects
+      Namespaces: ~
+      PEDESTRIAN:
+        Alpha: 1
+        Color: 255; 192; 203
+      Polygon Type: 3d
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Best Effort
+        Value: /perception/object_recognition/objects
+      UNKNOWN:
+        Alpha: 1
+        Color: 255; 255; 255
+      TRAILER:
+        Alpha: 1
+        Color: 30; 144; 255
+      TRUCK:
+        Alpha: 1
+        Color: 30; 144; 255
+      Value: true
+      Visualization Type: Normal
+    - Class: rviz_plugins/PathWithLaneId
+      Color Border Vel Max: 3
+      Enabled: true
+      Name: OriginalPathWithLaneId
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /planning/scenario_planning/lane_driving/behavior_planning/path_with_lane_id
+      Value: true
+      View Drivable Area:
+        Alpha: 0.25
+        Color: 0; 148; 205
+        Value: true
+        Width: 0.2
+      View LaneId: false
+      View Path:
+        Alpha: 0.5
+        Color: 180; 180; 180
+        Constant Color: true
+        Value: true
+        Width: 2
+    - Class: rviz_plugins/PathWithLaneId
+      Color Border Vel Max: 3
+      Enabled: true
+      Name: CostAwareSelectedPath
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /planning/scenario_planning/lane_driving/behavior_planning/cost_aware/path_with_lane_id
+      Value: true
+      View Drivable Area:
+        Alpha: 0.15
+        Color: 255; 0; 0
+        Value: false
+        Width: 0.2
+      View LaneId: false
+      View Path:
+        Alpha: 1
+        Color: 255; 0; 0
+        Constant Color: true
+        Value: true
+        Width: 5
+    - Class: rviz_plugins/PathWithLaneId
+      Color Border Vel Max: 3
+      Enabled: false
+      Name: CandidateLeftShift
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /planning/scenario_planning/lane_driving/behavior_planning/cost_aware/candidate/left_shift
+      Value: false
+      View Drivable Area:
+        Value: false
+      View LaneId: false
+      View Path:
+        Alpha: 0.7
+        Color: 0; 100; 255
+        Constant Color: true
+        Value: true
+        Width: 3
+    - Class: rviz_plugins/PathWithLaneId
+      Color Border Vel Max: 3
+      Enabled: false
+      Name: CandidateRightShift
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /planning/scenario_planning/lane_driving/behavior_planning/cost_aware/candidate/right_shift
+      Value: false
+      View Drivable Area:
+        Value: false
+      View LaneId: false
+      View Path:
+        Alpha: 0.7
+        Color: 0; 220; 100
+        Constant Color: true
+        Value: true
+        Width: 3
+    - Class: rviz_plugins/PathWithLaneId
+      Color Border Vel Max: 3
+      Enabled: false
+      Name: CandidateKeepLane
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /planning/scenario_planning/lane_driving/behavior_planning/cost_aware/candidate/keep_lane
+      Value: false
+      View Drivable Area:
+        Value: false
+      View LaneId: false
+      View Path:
+        Alpha: 0.7
+        Color: 255; 255; 255
+        Constant Color: true
+        Value: true
+        Width: 3
+    - Class: rviz_plugins/PathWithLaneId
+      Color Border Vel Max: 3
+      Enabled: false
+      Name: CandidateStopWait
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /planning/scenario_planning/lane_driving/behavior_planning/cost_aware/candidate/stop_wait
+      Value: false
+      View Drivable Area:
+        Value: false
+      View LaneId: false
+      View Path:
+        Alpha: 0.7
+        Color: 255; 200; 0
+        Constant Color: true
+        Value: true
+        Width: 3
+  Enabled: true
+  Global Options:
+    Background Color: 10; 10; 10
+    Fixed Frame: map
+    Frame Rate: 30
+  Name: root
+  Tools:
+    - Class: rviz_default_plugins/Interact
+      Hide Inactive Objects: true
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+    - Class: rviz_default_plugins/FocusCamera
+    - Class: rviz_default_plugins/Measure
+      Line color: 128; 128; 0
+    - Class: rviz_plugins/MissionCheckpointTool
+      Pose Topic: /planning/mission_planning/checkpoint
+      Theta std deviation: 0.2617994
+      X std deviation: 0.5
+      Y std deviation: 0.5
+      Z position: 0
+    - Class: rviz_plugins/DeleteAllObjectsTool
+      Pose Topic: /simulation/dummy_perception_publisher/object_info
+  Value: true
+  Views:
+    Current:
+      Angle: 0
+      Class: rviz_default_plugins/TopDownOrtho
+      Enable Stereo Rendering:
+        Stereo Eye Separation: 0.06
+        Stereo Focal Distance: 1
+        Value: false
+      Invert Z Axis: false
+      Name: Current View
+      Near Clip Distance: 0.01
+      Scale: 30
+      Target Frame: base_link
+      Value: TopDownOrtho
+      X: 0
+      Y: 0
+      Z: 0
+Window Geometry:
+  Height: 900
+  Width: 1400

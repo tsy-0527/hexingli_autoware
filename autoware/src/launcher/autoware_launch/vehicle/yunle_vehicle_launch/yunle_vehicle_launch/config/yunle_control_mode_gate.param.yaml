@@ -1,0 +1,10 @@
+/**:
+  ros__parameters:
+    # Debounce the combined remote-controller and chassis physical handoff.
+    switch_stable_sec: 0.5
+    # A stale CCU status is treated as loss of the autonomous permission switch.
+    status_timeout_sec: 1.0
+    retry_interval_sec: 1.0
+    # Match the bridge's remote-controller AUTO polarity.
+    handle_mode_flag_auto_value: false
+    yunle_ccu_status_topic: /yunle_chassis/feedback/ccu_status

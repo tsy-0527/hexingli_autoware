@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>vision_detection_launch</name>
+  <version>0.1.0</version>
+  <description>Standalone camera 2D object detection launcher for Autoware YOLOX.</description>
+
+  <maintainer email="user@example.com">autoware user</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <exec_depend>autoware_tensorrt_yolox</exec_depend>
+  <exec_depend>autoware_radar_fusion_to_detected_object</exec_depend>
+  <exec_depend>class_agnostic_obstacle_detector</exec_depend>
+  <exec_depend>camera_info_manager</exec_depend>
+  <exec_depend>realsense2_camera</exec_depend>
+  <exec_depend>tier4_perception_msgs</exec_depend>
+  <exec_depend>topic_tools</exec_depend>
+  <exec_depend>usb_cam</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

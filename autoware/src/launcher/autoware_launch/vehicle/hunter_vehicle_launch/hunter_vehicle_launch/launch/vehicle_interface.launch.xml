@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+  <arg name="vehicle_id" default="$(env VEHICLE_ID default)"/>
+  <arg name="raw_vehicle_cmd_converter_param_path"/>
+  <arg name="initial_engage_state" default="false"/>
+  <arg name="use_remote_control_mode_gate" default="true"/>
+
+ 
+  <!-- Hunter Base Driver -->
+  <include file="$(find-pkg-share hunter_base)/launch/hunter_base.launch.py">
+    <arg name="port_name"   value="can0"/>
+    <arg name="robot_model" value="hunter_se"/>
+    <arg name="publish_odom_tf" value="false"/>
+  </include>
+
+  <!-- Hunter Autoware Bridge -->
+  <include file="$(find-pkg-share hunter_autoware_bridge)/launch/bridge.launch.py"/>
+
+  <!-- The Hunter bridge reports the physical remote-controller switch through
+       /vehicle/status/control_mode. Convert that switch into the separate
+       Autoware control-authority API while keeping RViz Auto mode as a
+       prerequisite. -->
+  <node
+    pkg="hunter_vehicle_launch"
+    exec="hunter_control_mode_gate.py"
+    name="hunter_control_mode_gate"
+    output="screen"
+    if="$(var use_remote_control_mode_gate)"
+  >
+    <param name="mode_stable_sec" value="0.5"/>
+    <param name="status_timeout_sec" value="1.0"/>
+    <param name="retry_interval_sec" value="1.0"/>
+  </node>
+</launch>

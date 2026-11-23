@@ -1,0 +1,39 @@
+logLevel: info
+logDestinations: [stdout]
+
+api: false
+metrics: false
+pprof: false
+playback: false
+
+rtsp: true
+rtspAddress: :8554
+rtspTransports: [tcp]
+rtmp: false
+srt: false
+# 若启动报 unknown field "moq"，删掉这一行即可（旧版本没有这个选项）。
+moq: false
+
+webrtc: true
+webrtcAddress: :8889
+webrtcAllowOrigins: ["*"]
+webrtcLocalUDPAddress: :8189
+webrtcLocalTCPAddress: ""
+webrtcIPsFromInterfaces: false
+# 只发布这些地址作为 ICE 候选：
+#   10.66.0.2      = WireGuard 云中转（上位机通过隧道访问）
+#   192.168.110.40 = 场地局域网直连（工控机内网 IP 变了要同步修改，不需要可删掉）
+webrtcAdditionalHosts: [10.66.0.2, 192.168.110.40]
+webrtcICEServers2: []
+
+hls: true
+hlsAddress: :8888
+hlsAllowOrigins: ["*"]
+hlsVariant: lowLatency
+hlsAlwaysRemux: false
+
+paths:
+  cam:
+    # 由工控机本地程序推流到 rtsp://127.0.0.1:8554/cam，不再转推云端。
+    source: publisher
+    overridePublisher: true

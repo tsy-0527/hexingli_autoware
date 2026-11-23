@@ -1,0 +1,24 @@
+<launch>
+  <arg name="launch_driver" default="true"/>
+
+  <group>
+    <push-ros-namespace namespace="gnss"/>
+
+    <!-- GNSS数据由 gins2000.launch.xml 中的 converter_node 提供 -->
+    <!-- /sensing/gnss/fix 和 /sensing/gnss/ins_pose_with_covariance-->
+
+    <!-- NavSatFix → MGRS Pose
+         In GNSS-INS localization mode, gnss_ins_localizer is the sole publisher of
+         /sensing/gnss/pose_with_covariance used by pose_initializer. Keep the
+         gnss_poser output on a separate topic for diagnostics and comparison. -->
+    <include file="$(find-pkg-share autoware_gnss_poser)/launch/gnss_poser.launch.xml">
+      <arg name="input_topic_fix"            value="/sensing/gnss/fix"/>
+      <arg name="input_topic_orientation"    value="/sensing/gnss/ins_pose_with_covariance"/>
+      <arg name="output_topic_gnss_pose"     value="pose"/>
+      <arg name="output_topic_gnss_pose_cov" value="gnss_poser/pose_with_covariance"/>
+      <arg name="output_topic_gnss_fixed"    value="fixed"/>
+      <arg name="use_gnss_ins_orientation"   value="true"/>
+    </include>
+
+  </group>
+</launch>

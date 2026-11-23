@@ -1,0 +1,50 @@
+diff --git a/src/launcher/autoware_launch/sensor_kit/sample_sensor_kit_launch/livox_sensor_kit_launch/launch/camera.launch.xml b/src/launcher/autoware_launch/sensor_kit/sample_sensor_kit_launch/livox_sensor_kit_launch/launch/camera.launch.xml
+new file mode 100755
+index 0000000..130b6c8
+--- /dev/null
++++ b/src/launcher/autoware_launch/sensor_kit/sample_sensor_kit_launch/livox_sensor_kit_launch/launch/camera.launch.xml
+@@ -0,0 +1,44 @@
++<launch>
++  <arg name="launch_driver" default="true"/>
++  <arg name="camera_namespace" default="camera"/>
++  <arg name="color_profile" default="640x480x15"/>
++  <!-- Autoware sensing adds /sensing around the default "camera" namespace.
++       A standalone caller can pass camera_namespace:=sensing/camera for the same topic layout. -->
++  <group if="$(var launch_driver)">
++    <include file="$(find-pkg-share realsense2_camera)/launch/rs_launch.py">
++      <arg name="camera_namespace" value="$(var camera_namespace)"/>
++      <arg name="camera_name" value="camera0"/>
++      <arg name="enable_color" value="true"/>
++      <!-- Camera-LiDAR fusion uses RGB, CameraInfo and TF only. -->
++      <arg name="enable_depth" value="false"/>
++      <arg name="enable_sync" value="false"/>
++      <arg name="align_depth.enable" value="false"/>
++      <arg name="rgb_camera.color_profile" value="$(var color_profile)"/>
++      <arg name="pointcloud.enable" value="false"/>
++      <arg name="enable_infra" value="false"/>
++      <arg name="enable_infra1" value="false"/>
++      <arg name="enable_infra2" value="false"/>
++      <arg name="publish_tf" value="true"/>
++      <arg name="spatial_filter.enable" value="false"/>
++      <arg name="temporal_filter.enable" value="false"/>
++      <arg name="hole_filling_filter.enable" value="false"/>
++    </include>
++  </group>
++
++  <!-- Adapt RealSense native topics to Autoware's camera0 interface. -->
++  <!-- image_rect_color is a topic compatibility relay; it is not geometric rectification. -->
++  <node pkg="topic_tools" exec="relay" name="camera0_image_rect_color_relay" output="screen">
++    <param name="input_topic" value="/sensing/camera/camera0/color/image_raw"/>
++    <param name="output_topic" value="/sensing/camera/camera0/image_rect_color"/>
++    <param name="type" value="sensor_msgs/msg/Image"/>
++    <param name="reliability" value="best_effort"/>
++  </node>
++
++    <node pkg="topic_tools" exec="relay" name="camera0_camera_info_relay" output="screen">
++      <param name="input_topic" value="/sensing/camera/camera0/color/camera_info"/>
++      <param name="output_topic" value="/sensing/camera/camera0/camera_info"/>
++      <param name="type" value="sensor_msgs/msg/CameraInfo"/>
++      <param name="reliability" value="best_effort"/>
++    </node>
++
++  </launch>

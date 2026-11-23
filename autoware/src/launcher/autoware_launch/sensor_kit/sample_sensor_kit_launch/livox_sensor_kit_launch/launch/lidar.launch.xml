@@ -1,0 +1,63 @@
+<launch>
+  <arg name="launch_driver" default="true"/>
+  <!-- Enable the standard concatenation component so it publishes both the
+       pointcloud and the matching ConcatenatedPointCloudInfo message. -->
+  <arg name="use_concat_filter" default="true"/>
+  <arg name="vehicle_id" default="$(env VEHICLE_ID default)"/>
+  <arg name="vehicle_mirror_param_file"/>
+  <arg name="pointcloud_container_name" default="pointcloud_container"/>
+
+  <group>
+    <push-ros-namespace namespace="lidar"/>
+
+    <group>
+      <push-ros-namespace namespace="front"/>
+
+      <!-- Livox Mid-360 Driver -->
+      <group if="$(var launch_driver)">
+        <node pkg="livox_ros_driver2" exec="livox_ros_driver2_node" name="livox_driver">
+          <param name="xfer_format" value="0"/>        <!-- 0=点云格式 1=自定义格式 CustomMsg-->
+          <param name="multi_topic" value="0"/>
+          <param name="data_src" value="0"/>
+          <param name="publish_freq" value="10.0"/>
+          <param name="output_data_type" value="0"/>
+          <param name="frame_id" value="livox_front/livox_front_base_link"/>
+          <param name="user_config_path" value="$(find-pkg-share livox_sensor_kit_launch)/config/mid360_config.json"/>
+          <remap from="livox/lidar" to="pointcloud_raw"/>
+        </node>
+      </group>
+
+      <!-- Livox Tag Filter -->
+      <node pkg="autoware_livox_tag_filter" exec="autoware_livox_tag_filter_node" name="livox_tag_filter">
+        <param name="ignore_tags" value="[1, 2]"/>     <!-- 过滤低质量点 -->
+        <remap from="input" to="pointcloud_raw"/>
+        <remap from="output" to="pointcloud_raw_ex"/>
+      </node>
+
+    </group>
+
+    <!-- 点云预处理（crop/concat等） -->
+    <include file="$(find-pkg-share livox_sensor_kit_launch)/launch/pointcloud_preprocessor.launch.py">
+      <arg name="base_frame" value="base_link"/>
+      <arg name="use_concat_filter" value="$(var use_concat_filter)"/>
+      <arg name="use_intra_process" value="true"/>
+      <arg name="use_multithread" value="true"/>
+      <arg name="pointcloud_container_name" value="$(var pointcloud_container_name)"/>
+    </include>
+  </group>
+  
+  <!-- Remap to Autoware expected topic-->
+  <node pkg="topic_tools" exec="relay" name="pointcloud_relay">
+    <!-- Feed only the self-filtered cloud to concatenation/perception. -->
+    <param name="input_topic" value="/sensing/lidar/front/self_cropped/pointcloud"/>
+    <param name="output_topic" value="/sensing/lidar/top/pointcloud_raw"/>
+  </node>
+  
+  <!-- Legacy relay kept available for rollback, but disabled by default.
+       The concatenation component above is now the sole publisher of the
+       concatenated pointcloud topic and its pointcloud_info companion. -->
+  <node pkg="topic_tools" exec="relay" name="concatenated_relay" if="false">
+    <param name="input_topic" value="/sensing/lidar/top/pointcloud_raw"/>
+    <param name="output_topic" value="/sensing/lidar/concatenated/pointcloud"/>
+  </node>
+</launch>

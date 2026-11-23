@@ -1,0 +1,36 @@
+/**:
+  ros__parameters:
+    csv_path_accel_map: $(find-pkg-share autoware_raw_vehicle_cmd_converter)/data/default/accel_map.csv
+    csv_path_brake_map: $(find-pkg-share autoware_raw_vehicle_cmd_converter)/data/default/brake_map.csv
+    csv_path_steer_map: $(find-pkg-share autoware_raw_vehicle_cmd_converter)/data/default/steer_map.csv
+    convert_accel_cmd: false # 不需要油门映射
+    convert_brake_cmd: false # 不需要制动映射
+    convert_steer_cmd: true # 需要转向转换
+    
+    use_steer_ff: true 
+    use_steer_fb: true
+    is_debugging: false
+    
+    # 限幅参数（根据手册：最大4.8m/s，最大内转角±0.384rad）
+    max_throttle: 1.0
+    max_brake: 1.0
+    max_steer: 0.384     # 手册最大内转角22° = 0.384rad
+    min_steer: -0.384
+
+    # 转向PID（初始值，需要实车调整）
+    steer_pid:
+      kp: 1.0
+      ki: 0.1
+      kd: 0.0
+      max: 0.384
+      min: -0.384
+      max_p: 0.384
+      min_p: -0.384
+      max_i: 0.1
+      min_i: -0.1
+      max_d: 0.0
+      min_d: 0.0
+      invalid_integration_decay: 0.97
+
+    convert_steer_cmd_method: "steer_map"   # 用映射表方式，不用vgr
+    convert_actuation_to_steering_status: false

@@ -1,0 +1,12 @@
+/**:
+  ros__parameters:
+    # GINS2000 陀螺仪参数（出厂已标定，偏置接近0）
+    angular_velocity_stddev_xx: 0.01
+    angular_velocity_stddev_yy: 0.01
+    angular_velocity_stddev_zz: 0.01
+    angular_velocity_offset_x: 0.0
+    angular_velocity_offset_y: 0.0
+    angular_velocity_offset_z: 0.0
+
+    # Matches the 0.01 (m/s^2)^2 covariance published by the converter.
+    acceleration_stddev: 0.1

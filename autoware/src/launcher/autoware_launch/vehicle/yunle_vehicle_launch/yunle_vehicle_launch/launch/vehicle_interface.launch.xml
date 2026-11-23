@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+  <arg name="vehicle_id" default="$(env VEHICLE_ID default)"/>
+  <!-- Compatibility argument required by tier4_vehicle_launch; Yunle does not use a raw pedal converter. -->
+  <arg name="raw_vehicle_cmd_converter_param_path" default="unused"/>
+  <arg name="initial_engage_state" default="false"/>
+  <arg name="launch_chassis_driver" default="true"/>
+  <arg
+    name="bridge_param_file"
+    default="$(find-pkg-share yunle_vehicle_launch)/config/yunle_autoware_bridge.param.yaml"
+  />
+  <arg
+    name="control_mode_gate_param_file"
+    default="$(find-pkg-share yunle_vehicle_launch)/config/yunle_control_mode_gate.param.yaml"
+  />
+
+  <!--
+    The vehicle description is published by tier4_vehicle_launch. This file
+    only starts the native Yunle SocketCAN driver and the Autoware adapter.
+  -->
+  <group if="$(var launch_chassis_driver)">
+    <include file="$(find-pkg-share chassis_driver)/launch/chassis_driver.launch.py"/>
+  </group>
+
+  <node
+    pkg="yunle_vehicle_launch"
+    exec="yunle_autoware_bridge.py"
+    name="yunle_autoware_bridge"
+    output="screen"
+  >
+    <param from="$(var bridge_param_file)"/>
+  </node>
+
+  <!--
+    Mirror the Hunter integration: the remote-controller AUTO position and
+    chassis AUTO button form the physical Autoware control handoff. The gate
+    keeps the ADAPI state synchronized with that hardware authority.
+  -->
+  <node
+    pkg="yunle_vehicle_launch"
+    exec="yunle_control_mode_gate.py"
+    name="yunle_control_mode_gate"
+    output="screen"
+  >
+    <param from="$(var control_mode_gate_param_file)"/>
+  </node>
+</launch>

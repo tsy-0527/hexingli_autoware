@@ -1,0 +1,16 @@
+[Unit]
+Description=Yunle direct SocketCAN WebSocket gateway
+After=network-online.target gcan-socketcan-bridge.service gcan-socketcan-control.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+EnvironmentFile=-/etc/default/yunle-can-gateway
+ExecStart=/usr/local/bin/yunle_can_gateway --listen ${YUNLE_CAN_LISTEN} --port ${YUNLE_CAN_PORT} --interfaces ${YUNLE_CAN_INTERFACES} --control-interface ${YUNLE_CAN_CONTROL_INTERFACE} --token ${YUNLE_CAN_TOKEN} --max-speed-kmh ${YUNLE_CAN_MAX_SPEED_KMH} --max-steering-deg ${YUNLE_CAN_MAX_STEERING_DEG} --physical-max-steering-deg ${YUNLE_CAN_PHYSICAL_MAX_STEERING_DEG} --steering-sign ${YUNLE_CAN_STEERING_SIGN}
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
+

@@ -1,0 +1,22 @@
+<launch>
+  <arg name="launch_driver" default="true"/>
+
+  <!-- GINS2000 硬件驱动 -->
+  <group if="$(var launch_driver)">
+    <node pkg="gins2000" exec="gins2000_node" name="gins2000_driver" output="screen">
+      <!-- 根据实际串口修改 -->
+      <param name="port"     value="/dev/ttyUSB0"/>
+      <param name="gins2000_baudrate" value="921600"/>
+    </node>
+  </group>
+
+  <!-- GINS2000 → ROS2标准话题转换 -->
+  <node pkg="gins2000" exec="converter_node.py" name="gins2000_converter" output="screen">
+    <param name="input_topic"  value="/sensing/gins2000"/>
+    <param name="imu_frame"    value="gnss_link"/>
+    <param name="gnss_frame"   value="gnss_link"/>
+    <param name="gyro_noise"   value="0.01"/>
+    <param name="accel_noise"  value="0.1"/>
+  </node>
+
+</launch>

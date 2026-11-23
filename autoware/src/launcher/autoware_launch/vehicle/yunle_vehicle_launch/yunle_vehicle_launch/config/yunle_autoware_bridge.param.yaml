@@ -1,0 +1,45 @@
+/**:
+  ros__parameters:
+    wheel_base: 0.475
+    max_target_speed_kmh: 15.0
+    max_steering_angle_deg: 21.0
+    # Autoware: left positive. This Yunle chassis command: right positive.
+    steering_command_sign: -1.0
+    # The raw SAS feedback uses the opposite sign to Autoware; normalize it
+    # before publishing /vehicle/status/steering_status.
+    steering_feedback_sign: -1.0
+    # Normalized feedback observed with the physical front wheels centered.
+    # The bridge subtracts this value before publishing SteeringReport.
+    steering_feedback_offset_deg: -0.1925
+    # Suppress the remaining center-code quantization observed after homing.
+    # The straight-line validation still reported +0.262 deg at the physical
+    # center, which created about 1 deg of false wheel-odometry yaw over 1.8 m.
+    steering_feedback_deadband_deg: 0.35
+    # Yunle DBC VT_DriveMode: 1=Auto, 2=Reserved, 3=Remote.
+    autonomous_drive_mode: 1
+    # 0x51 bit 37 Handle_Mode_Flag_Status. On this vehicle, remote AUTO is
+    # observed as 0 (the manual handle mode is not open).
+    handle_mode_flag_auto_value: false
+    # This vehicle keeps 0x51 CCU_Parking_Status asserted independently of
+    # its physical brake buttons. Report the actual D/N/R shift feedback so
+    # ControlModeDisplay is not permanently accompanied by PARK.
+    use_ccu_parking_status_for_gear_report: false
+    command_timeout_sec: 0.2
+    # Reject takeover if the latest CCU feedback is older than this.
+    feedback_timeout_sec: 0.5
+    # On command loss, send an explicit stop for this duration, then stop
+    # publishing SCU commands so the driver/VCU timeout can return to manual.
+    safe_stop_hold_sec: 0.5
+    release_control_on_timeout: true
+    stop_speed_threshold_mps: 0.01
+    frame_id: base_link
+
+    autoware_control_topic: /control/command/control_cmd
+    autoware_gear_topic: /control/command/gear_cmd
+    autoware_turn_indicators_topic: /control/command/turn_indicators_cmd
+    autoware_hazard_lights_topic: /control/command/hazard_lights_cmd
+    autoware_emergency_topic: /control/command/emergency_cmd
+
+    yunle_control_topic: /yunle_chassis/control/scu_control_command
+    yunle_ccu_status_topic: /yunle_chassis/feedback/ccu_status
+    yunle_sas_angle_topic: /yunle_chassis/feedback/sas_angle

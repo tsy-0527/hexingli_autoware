@@ -1,0 +1,12 @@
+{
+  "chassisGateway": {
+    "enabled": true,
+    "url": "ws://10.66.0.2:8765",
+    "token": "replace-with-the-same-long-random-token"
+  },
+  "scriptGateway": {
+    "enabled": true,
+    "url": "ws://10.66.0.2:8766",
+    "token": "replace-with-the-script-agent-token"
+  }
+}

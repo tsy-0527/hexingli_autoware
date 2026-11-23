@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- Both inputs must be autoware_perception_msgs/msg/DetectedObjects and
+       must use the same frame, normally base_link. -->
+  <arg name="input/camera_objects" default="/perception/object_recognition/detection/camera_only/objects"/>
+  <arg name="input/radar_objects" default="/perception/object_recognition/detection/radar/far_objects"/>
+  <arg name="output/objects" default="/perception/object_recognition/detection/objects"/>
+  <arg name="config_file" default="$(find-pkg-share autoware_radar_fusion_to_detected_object)/config/radar_object_fusion_to_detected_object.param.yaml"/>
+
+  <include file="$(find-pkg-share autoware_radar_fusion_to_detected_object)/launch/radar_object_fusion_to_detected_object.launch.xml">
+    <arg name="input/objects" value="$(var input/camera_objects)"/>
+    <arg name="input/radars" value="$(var input/radar_objects)"/>
+    <arg name="output/objects" value="$(var output/objects)"/>
+    <arg name="config_file" value="$(var config_file)"/>
+  </include>
+</launch>

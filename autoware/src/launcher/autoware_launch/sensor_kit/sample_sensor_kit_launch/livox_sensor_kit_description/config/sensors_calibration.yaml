@@ -1,0 +1,8 @@
+base_link:
+  sensor_kit_base_link:
+    x: 0.60 #车辆后轴 前+后-
+    y: 0.01 #左+右-
+    z: 0.57 #离地 上+下-
+    roll: 0.0
+    pitch: 0.0
+    yaw: 0.0

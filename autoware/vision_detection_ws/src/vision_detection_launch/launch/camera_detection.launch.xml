@@ -1,0 +1,125 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="start_usb_camera" default="false"/>
+  <arg name="video_device" default="/dev/video0"/>
+  <arg name="image_width" default="640"/>
+  <arg name="image_height" default="480"/>
+  <arg name="framerate" default="30.0"/>
+  <!-- This USB camera MJPEG stream corrupts the lower image region. -->
+  <arg name="pixel_format" default="yuyv2rgb"/>
+  <arg name="image_topic" default="/image_raw"/>
+  <arg name="depth_topic" default="/camera/aligned_depth_to_color/image_raw"/>
+  <arg name="camera_info_topic" default="/camera/color/camera_info"/>
+  <arg name="depth_scale" default="0.001"/>
+  <arg name="target_frame" default="base_link"/>
+  <arg name="enable_round_contour" default="true"/>
+  <arg name="output_topic" default="/vision_detection/rois"/>
+  <arg name="objects_3d_topic" default="/vision_detection/objects_3d"/>
+  <!-- Autoware-compatible 3D camera detections. Keep this separate from the
+       final merged detection topic so the multi-object tracker can associate
+       camera and radar detections independently. -->
+  <arg name="autoware_objects_3d_topic" default="/perception/object_recognition/detection/camera_only/objects"/>
+  <arg name="nearest_distance_topic" default="/vision_detection/nearest_obstacle_distance"/>
+  <arg name="all_obstacles_topic" default="/vision_detection/all_obstacles"/>
+  <arg name="debug_image_topic" default="/vision_detection/debug/image"/>
+  <arg name="mask_topic" default="/vision_detection/mask"/>
+  <arg name="use_decompress" default="false"/>
+  <arg name="build_only" default="false"/>
+
+  <arg
+    name="model_path"
+    default="$(env HOME)/autoware_data/ml_models/tensorrt_yolox/yolox-tiny.onnx"
+  />
+  <arg
+    name="yolox_param_path"
+    default="$(find-pkg-share autoware_tensorrt_yolox)/config/yolox_tiny.param.yaml"
+  />
+  <arg
+    name="label_path"
+    default="$(env HOME)/autoware_data/ml_models/tensorrt_yolox/label.txt"
+  />
+  <arg
+    name="color_map_path"
+    default="$(env HOME)/autoware_data/ml_models/tensorrt_yolox/semseg_color_map.csv"
+  />
+  <arg
+    name="roi_remap_path"
+    default="$(find-pkg-share autoware_tensorrt_yolox)/config/roi_label_remap.csv"
+  />
+  <arg
+    name="roi_to_semseg_remap_path"
+    default="$(find-pkg-share autoware_tensorrt_yolox)/config/roi_to_semseg_label_remap.csv"
+  />
+
+  <node
+    pkg="usb_cam"
+    exec="usb_cam_node_exe"
+    name="usb_camera"
+    output="screen"
+    if="$(var start_usb_camera)"
+  >
+    <param name="video_device" value="$(var video_device)"/>
+    <param name="framerate" value="$(var framerate)"/>
+    <param name="io_method" value="mmap"/>
+    <param name="frame_id" value="usb_camera_frame"/>
+    <param name="pixel_format" value="$(var pixel_format)"/>
+    <param name="image_width" value="$(var image_width)"/>
+    <param name="image_height" value="$(var image_height)"/>
+    <param name="camera_name" value="usb_camera"/>
+    <remap from="image_raw" to="/usb_camera/image_raw"/>
+    <remap from="camera_info" to="/usb_camera/camera_info"/>
+  </node>
+
+  <include file="$(find-pkg-share autoware_tensorrt_yolox)/launch/yolox.launch.xml">
+    <arg name="yolox_node_name" value="standalone_camera_yolox"/>
+    <arg name="image_transport_decompressor_node_name" value="standalone_image_decompressor"/>
+    <arg name="input/image" value="$(var image_topic)"/>
+    <arg name="output/objects" value="$(var output_topic)"/>
+    <arg name="output/mask" value="$(var mask_topic)"/>
+    <arg name="yolox_param_path" value="$(var yolox_param_path)"/>
+    <arg name="model_path" value="$(var model_path)"/>
+    <arg name="label_path" value="$(var label_path)"/>
+    <arg name="semantic_segmentation_color_map_path" value="$(var color_map_path)"/>
+    <arg name="roi_remap_path" value="$(var roi_remap_path)"/>
+    <arg name="roi_to_semantic_segmentation_remap_path" value="$(var roi_to_semseg_remap_path)"/>
+    <arg name="use_decompress" value="$(var use_decompress)"/>
+    <arg name="build_only" value="$(var build_only)"/>
+  </include>
+
+  <node
+    pkg="class_agnostic_obstacle_detector"
+    exec="class_agnostic_obstacle_detector_node"
+    name="class_agnostic_obstacle_detector"
+    output="screen"
+  >
+    <remap from="~/input/image" to="$(var image_topic)"/>
+    <remap from="~/input/known_objects" to="$(var output_topic)"/>
+    <remap from="~/input/depth" to="$(var depth_topic)"/>
+    <remap from="~/input/camera_info" to="$(var camera_info_topic)"/>
+    <remap from="~/output/objects" to="$(var all_obstacles_topic)"/>
+    <remap from="~/output/objects_3d" to="$(var objects_3d_topic)"/>
+    <remap from="~/output/autoware_objects_3d" to="$(var autoware_objects_3d_topic)"/>
+    <remap from="~/output/nearest_distance" to="$(var nearest_distance_topic)"/>
+    <remap from="~/output/debug_image" to="$(var debug_image_topic)"/>
+    <param name="canny_low" value="45"/>
+    <param name="canny_high" value="135"/>
+    <param name="min_area_ratio" value="0.003"/>
+    <param name="max_area_ratio" value="0.55"/>
+    <param name="min_width" value="28"/>
+    <param name="min_height" value="28"/>
+    <param name="merge_gap" value="18"/>
+    <param name="bottom_roi_ratio" value="0.95"/>
+    <param name="depth_scale" value="$(var depth_scale)"/>
+    <param name="target_frame" value="$(var target_frame)"/>
+    <!-- Conservative round/ellipse-contour supplement; the original detection chain is unchanged. -->
+    <param name="enable_round_contour" value="$(var enable_round_contour)"/>
+    <param name="round_min_radius_px" value="15"/>
+    <param name="round_max_radius_px" value="110"/>
+    <param name="round_circularity_min" value="0.68"/>
+    <param name="round_aspect_ratio_max" value="1.55"/>
+    <param name="round_min_area_ratio" value="0.0005"/>
+    <param name="round_max_area_ratio" value="0.08"/>
+    <param name="round_roi_top_ratio" value="0.15"/>
+    <param name="round_min_fill_ratio" value="0.50"/>
+  </node>
+</launch>

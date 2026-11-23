@@ -1,0 +1,54 @@
+{
+  "950214": {
+    "left_neighbor": null,
+    "right_neighbor": 50313
+  },
+  "970002": {
+    "left_neighbor": null,
+    "right_neighbor": null
+  },
+  "30112": {
+    "left_neighbor": null,
+    "right_neighbor": 30113
+  },
+  "950312": {
+    "left_neighbor": null,
+    "right_neighbor": 950313
+  },
+  "30113": {
+    "left_neighbor": 30112,
+    "right_neighbor": 30114
+  },
+  "950313": {
+    "left_neighbor": 950312,
+    "right_neighbor": 50214
+  },
+  "30114": {
+    "left_neighbor": 30113,
+    "right_neighbor": null
+  },
+  "50214": {
+    "left_neighbor": 950313,
+    "right_neighbor": null
+  },
+  "930114": {
+    "left_neighbor": null,
+    "right_neighbor": 930113
+  },
+  "50312": {
+    "left_neighbor": 50313,
+    "right_neighbor": null
+  },
+  "930113": {
+    "left_neighbor": 930114,
+    "right_neighbor": 930112
+  },
+  "50313": {
+    "left_neighbor": 950214,
+    "right_neighbor": 50312
+  },
+  "930112": {
+    "left_neighbor": 930113,
+    "right_neighbor": null
+  }
+}

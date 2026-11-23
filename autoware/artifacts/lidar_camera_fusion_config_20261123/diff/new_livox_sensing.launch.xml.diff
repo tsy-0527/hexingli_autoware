@@ -1,0 +1,60 @@
+diff --git a/src/launcher/autoware_launch/sensor_kit/sample_sensor_kit_launch/livox_sensor_kit_launch/launch/sensing.launch.xml b/src/launcher/autoware_launch/sensor_kit/sample_sensor_kit_launch/livox_sensor_kit_launch/launch/sensing.launch.xml
+new file mode 100755
+index 0000000..35e89bb
+--- /dev/null
++++ b/src/launcher/autoware_launch/sensor_kit/sample_sensor_kit_launch/livox_sensor_kit_launch/launch/sensing.launch.xml
+@@ -0,0 +1,54 @@
++<launch>
++  <arg name="launch_driver" default="true" description="do launch driver"/>
++  <arg name="launch_camera" default="false" description="launch the front RealSense D455 camera from Autoware sensing"/>
++  <arg name="vehicle_mirror_param_file" description="path to the file of vehicle mirror position yaml"/>
++  <arg name="pointcloud_container_name" default="pointcloud_container"/>
++  <arg name="vehicle_id" default="$(env VEHICLE_ID default)"/>
++
++
++<!-- Robot State Publisher: publish TF from URDF  这个在vehicle.launch.xml会启动，单独测试可以用上-->
++<!-- 
++<node pkg="robot_state_publisher" exec="robot_state_publisher" name="robot_state_publisher">
++  <param name="robot_description" value="$(command 'xacro $(find-pkg-share sample_vehicle_description)/urdf/vehicle.xacro')"/>
++</node>
++-->
++
++  <group>
++    <!-- LiDAR Driver -->
++    <include file="$(find-pkg-share livox_sensor_kit_launch)/launch/lidar.launch.xml">
++      <arg name="launch_driver" value="$(var launch_driver)"/>
++      <arg name="vehicle_mirror_param_file" value="$(var vehicle_mirror_param_file)"/>
++      <arg name="pointcloud_container_name" value="$(var pointcloud_container_name)"/>
++    </include>
++
++    <!-- Front Intel RealSense D455. Autoware owns the device for camera-LiDAR fusion. -->
++    <group if="$(var launch_camera)">
++      <include file="$(find-pkg-share livox_sensor_kit_launch)/launch/camera.launch.xml">
++        <arg name="launch_driver" value="$(var launch_driver)"/>
++      </include>
++    </group>
++
++    <!-- GINS2000 Driver & Converter -->
++    <include file="$(find-pkg-share livox_sensor_kit_launch)/launch/gins2000.launch.xml">
++      <arg name="launch_driver" value="$(var launch_driver)"/>
++    </include>
++
++    <!-- Use the GINS2000 IMU for gyro odometry.  Its stationary angular-rate
++         bias and SI-unit acceleration are substantially better than the
++         Livox built-in IMU on this vehicle. -->
++    <include file="$(find-pkg-share livox_sensor_kit_launch)/launch/imu.launch_gins2000.xml">
++      <arg name="launch_driver" value="$(var launch_driver)"/>
++    </include>
++
++    <!-- GNSS Driver -->
++    <include file="$(find-pkg-share livox_sensor_kit_launch)/launch/gnss.launch.xml">
++      <arg name="launch_driver" value="$(var launch_driver)"/>
++    </include>
++
++    <!-- Vehicle Velocity Converter  -->
++    <include file="$(find-pkg-share autoware_vehicle_velocity_converter)/launch/vehicle_velocity_converter.launch.xml">
++      <arg name="input_vehicle_velocity_topic" value="/vehicle/status/velocity_status"/>
++      <arg name="output_twist_with_covariance" value="/sensing/vehicle_velocity_converter/twist_with_covariance"/>
++    </include>
++  </group>
++</launch>

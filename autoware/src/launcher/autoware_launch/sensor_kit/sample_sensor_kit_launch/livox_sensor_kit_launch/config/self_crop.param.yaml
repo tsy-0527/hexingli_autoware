@@ -1,0 +1,16 @@
+/**:
+  ros__parameters:
+    # Yunle body envelope in base_link (rear-axle origin).  The dimensions are
+    # derived from yunle_vehicle_description/vehicle_info.param.yaml, with a
+    # small allowance for the wheels, sensor mount and calibration/vibration
+    # error.  Keep this box tight so nearby external obstacles are preserved.
+    input_frame: base_link
+    output_frame: ""
+    min_x: -0.22
+    max_x: 0.75
+    min_y: -0.29
+    max_y: 0.29
+    min_z: -0.14
+    max_z: 0.60
+    negative: true
+    processing_time_threshold_sec: 0.01

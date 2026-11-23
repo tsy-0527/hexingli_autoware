@@ -1,0 +1,23 @@
+/**:
+  ros__parameters:
+    debug_mode: false
+    rosbag_length: 10.0
+    maximum_queue_size: 5
+    timeout_sec: 0.2
+    is_motion_compensated: true
+    publish_synchronized_pointcloud: true
+    keep_input_frame_in_synchronized_pointcloud: true
+    publish_previous_but_late_pointcloud: false
+    synchronized_pointcloud_postfix: pointcloud
+    input_twist_topic_type: twist
+    # Use the output of crop_box_filter_self.  Feeding pointcloud_raw_ex here
+    # bypasses the self/antenna crop completely, because this node publishes
+    # the /sensing/lidar/concatenated/pointcloud consumed by perception.
+    input_topics: [
+                    "/sensing/lidar/front/self_cropped/pointcloud",
+                ]
+    output_frame: base_link
+    matching_strategy:
+      type: advanced
+      lidar_timestamp_offsets: [0.0]
+      lidar_timestamp_noise_window: [0.01]

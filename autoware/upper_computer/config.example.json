@@ -1,0 +1,8 @@
+{
+  "vehicleChannels": [
+    { "name": "ZeroTier", "url": "10.245.188.140" }
+  ],
+  "cameraChannels": [
+    { "name": "ZeroTier", "url": "http://10.245.188.140:8889/cam/" }
+  ]
+}

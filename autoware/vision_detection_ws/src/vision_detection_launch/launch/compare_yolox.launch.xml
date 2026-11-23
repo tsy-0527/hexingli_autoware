@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="video_device" default="/dev/video0"/>
+  <arg name="start_usb_camera" default="true"/>
+  <arg name="image_topic" default="/usb_camera/image_raw"/>
+  <arg name="image_width" default="640"/>
+  <arg name="image_height" default="480"/>
+  <arg name="framerate" default="30.0"/>
+  <arg name="pixel_format" default="yuyv2rgb"/>
+  <arg name="data_path" default="$(env HOME)/autoware_data/ml_models/tensorrt_yolox"/>
+  <arg name="label_path" default="$(var data_path)/label.txt"/>
+  <arg name="color_map_path" default="$(var data_path)/semseg_color_map.csv"/>
+  <arg name="roi_remap_path" default="$(find-pkg-share autoware_tensorrt_yolox)/config/roi_label_remap.csv"/>
+  <arg name="roi_to_semseg_remap_path" default="$(find-pkg-share autoware_tensorrt_yolox)/config/roi_to_semseg_label_remap.csv"/>
+
+  <node pkg="usb_cam" exec="usb_cam_node_exe" name="usb_camera" output="screen" if="$(var start_usb_camera)">
+    <param name="video_device" value="$(var video_device)"/>
+    <param name="framerate" value="$(var framerate)"/>
+    <param name="io_method" value="mmap"/>
+    <param name="frame_id" value="usb_camera_frame"/>
+    <param name="pixel_format" value="$(var pixel_format)"/>
+    <param name="image_width" value="$(var image_width)"/>
+    <param name="image_height" value="$(var image_height)"/>
+    <param name="camera_name" value="usb_camera"/>
+    <remap from="image_raw" to="$(var image_topic)"/>
+    <remap from="camera_info" to="/usb_camera/camera_info"/>
+  </node>
+
+  <include file="$(find-pkg-share autoware_tensorrt_yolox)/launch/yolox.launch.xml">
+    <arg name="yolox_node_name" value="yolox_tiny_compare"/>
+    <arg name="input/image" value="$(var image_topic)"/>
+    <arg name="output/objects" value="/vision_detection/yolox_tiny/rois"/>
+    <arg name="output/mask" value="/vision_detection/yolox_tiny/mask"/>
+    <arg name="model_path" value="$(var data_path)/yolox-tiny.onnx"/>
+    <arg name="yolox_param_path" value="$(find-pkg-share autoware_tensorrt_yolox)/config/yolox_tiny.param.yaml"/>
+    <arg name="label_path" value="$(var label_path)"/>
+    <arg name="semantic_segmentation_color_map_path" value="$(var color_map_path)"/>
+    <arg name="roi_remap_path" value="$(var roi_remap_path)"/>
+    <arg name="roi_to_semantic_segmentation_remap_path" value="$(var roi_to_semseg_remap_path)"/>
+    <arg name="use_decompress" value="false"/>
+  </include>
+
+  <include file="$(find-pkg-share autoware_tensorrt_yolox)/launch/yolox.launch.xml">
+    <arg name="yolox_node_name" value="yolox_s_compare"/>
+    <arg name="input/image" value="$(var image_topic)"/>
+    <arg name="output/objects" value="/vision_detection/yolox_s/rois"/>
+    <arg name="output/mask" value="/vision_detection/yolox_s/mask"/>
+    <arg name="model_path" value="$(var data_path)/yolox-sPlus-opt.onnx"/>
+    <arg name="yolox_param_path" value="$(find-pkg-share autoware_tensorrt_yolox)/config/yolox_s_plus_opt.param.yaml"/>
+    <arg name="label_path" value="$(var label_path)"/>
+    <arg name="semantic_segmentation_color_map_path" value="$(var color_map_path)"/>
+    <arg name="roi_remap_path" value="$(var roi_remap_path)"/>
+    <arg name="roi_to_semantic_segmentation_remap_path" value="$(var roi_to_semseg_remap_path)"/>
+    <arg name="use_decompress" value="false"/>
+  </include>
+
+  <node pkg="topic_tools" exec="relay" name="tiny_image_relay"
+        args="/yolox_tiny_compare/out/image /vision_detection/yolox_tiny/image" output="screen"/>
+  <node pkg="topic_tools" exec="relay" name="s_image_relay"
+        args="/yolox_s_compare/out/image /vision_detection/yolox_s/image" output="screen"/>
+</launch>

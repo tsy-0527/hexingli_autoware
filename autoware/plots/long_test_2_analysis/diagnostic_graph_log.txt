@@ -1,0 +1,65 @@
+[INFO] [1793262656.266757356] [logging_diag_graph]: The target mode is available now.
+[WARN] [1793262657.166747489] [logging_diag_graph]: The target mode is not available for the following reasons:
+- /autoware/modes/autonomous ERROR
+    - /autoware/planning ERROR
+        - /autoware/planning/routing/state STALE
+
+[INFO] [1793262657.266746067] [logging_diag_graph]: The target mode is available now.
+[WARN] [1793262687.166721673] [logging_diag_graph]: The target mode is not available for the following reasons:
+- /autoware/modes/autonomous ERROR
+    - /autoware/planning ERROR
+        - /autoware/planning/routing/state STALE
+
+[INFO] [1793262687.266743961] [logging_diag_graph]: The target mode is available now.
+[WARN] [1793262741.866700737] [logging_diag_graph]: The target mode is not available for the following reasons:
+- /autoware/modes/autonomous ERROR
+    - /autoware/localization ERROR
+        - /autoware/localization/state STALE
+
+[INFO] [1793262741.966711763] [logging_diag_graph]: The target mode is available now.
+[WARN] [1793262754.166707055] [logging_diag_graph]: The target mode is not available for the following reasons:
+- /autoware/modes/autonomous ERROR
+    - /autoware/planning ERROR
+        - /autoware/planning/routing/state STALE
+
+[INFO] [1793262754.266727519] [logging_diag_graph]: The target mode is available now.
+[WARN] [1793262774.170810701] [logging_diag_graph]: The target mode is not available for the following reasons:
+- /autoware/modes/autonomous ERROR
+    - /autoware/planning ERROR
+        - /autoware/planning/routing/state STALE
+
+[INFO] [1793262774.266798164] [logging_diag_graph]: The target mode is available now.
+[INFO] [1793262774.966808453] [logging_diag_graph]: The target mode is available now.
+[WARN] [1793262777.866727330] [logging_diag_graph]: The target mode is not available for the following reasons:
+- /autoware/modes/autonomous ERROR
+    - /autoware/localization ERROR
+        - /autoware/localization/state STALE
+
+[INFO] [1793262777.966738933] [logging_diag_graph]: The target mode is available now.
+[INFO] [1793262779.266772563] [logging_diag_graph]: The target mode is available now.
+[WARN] [1793262781.168500317] [logging_diag_graph]: The target mode is not available for the following reasons:
+- /autoware/modes/autonomous ERROR
+    - /autoware/planning ERROR
+        - /autoware/planning/routing/state STALE
+
+[INFO] [1793262781.267738629] [logging_diag_graph]: The target mode is available now.
+[WARN] [1793262800.166696482] [logging_diag_graph]: The target mode is not available for the following reasons:
+- /autoware/modes/autonomous ERROR
+    - /autoware/planning ERROR
+        - /autoware/planning/routing/state STALE
+
+[INFO] [1793262800.266712444] [logging_diag_graph]: The target mode is available now.
+[WARN] [1793262860.166729668] [logging_diag_graph]: The target mode is not available for the following reasons:
+- /autoware/modes/autonomous ERROR
+    - /autoware/planning ERROR
+        - /autoware/planning/routing/state STALE
+
+[INFO] [1793262860.266742584] [logging_diag_graph]: The target mode is available now.
+[WARN] [1793262867.166799442] [logging_diag_graph]: The target mode is not available for the following reasons:
+- /autoware/modes/autonomous ERROR
+    - /autoware/planning ERROR
+        - /autoware/planning/routing/state STALE
+
+[INFO] [1793262867.267639617] [logging_diag_graph]: The target mode is available now.
+[INFO] [1793262869.966782409] [logging_diag_graph]: The target mode is available now.
+[INFO] [1793262870.266780728] [logging_diag_graph]: The target mode is available now.

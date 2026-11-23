@@ -1,0 +1,7 @@
+points:
+  # Replace these sample values with points on your Lanelet route.
+  # yaw is in radians. Use the vehicle driving direction at each point.
+  - {x: 0.0, y: 0.0, z: 0.0, yaw: 0.0}
+  - {x: 20.0, y: 0.0, z: 0.0, yaw: 0.0}
+  - {x: 20.0, y: -10.0, z: 0.0, yaw: -1.5708}
+  - {x: 0.0, y: -10.0, z: 0.0, yaw: 3.1416}

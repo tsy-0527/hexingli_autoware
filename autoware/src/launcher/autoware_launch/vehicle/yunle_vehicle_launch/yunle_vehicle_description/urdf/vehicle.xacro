@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<robot name="vehicle" xmlns:xacro="http://ros.org/wiki/xacro">
+  <!-- load parameter -->
+  <xacro:property name="vehicle_info" value="${xacro.load_yaml('$(find yunle_vehicle_description)/config/vehicle_info.param.yaml')}"/>
+  <xacro:property name="p" value="${vehicle_info['/**']['ros__parameters']}"/>
+
+  <!--
+    base_link is located at the rear axle center.
+    Reuse Hunter's mesh for RViz visualization only. The Yunle collision box
+    and all vehicle_info parameters remain unchanged.
+  -->
+  <link name="base_link">
+    <visual>
+      <origin xyz="${p['wheel_base']/2.0} 0 0" rpy="${pi/2.0} 0 ${pi}"/>
+      <geometry>
+        <mesh filename="package://hunter_vehicle_description/mesh/lexus.dae" scale="0.25 0.25 0.25"/>
+      </geometry>
+    </visual>
+    <!-- Keep Yunle's physical footprint for collision-aware consumers. -->
+    <collision>
+      <origin xyz="${p['wheel_base']/2.0} 0 ${p['vehicle_height']/2.0}" rpy="0 0 0"/>
+      <geometry>
+        <box size="${p['wheel_base'] + p['front_overhang'] + p['rear_overhang']} ${p['wheel_tread'] + p['left_overhang'] + p['right_overhang']} ${p['vehicle_height']}"/>
+      </geometry>
+    </collision>
+  </link>
+</robot>

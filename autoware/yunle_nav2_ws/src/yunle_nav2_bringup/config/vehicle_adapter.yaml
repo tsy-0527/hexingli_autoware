@@ -1,0 +1,32 @@
+yunle_twist_to_control:
+  ros__parameters:
+    # Values calibrated for the Yunle chassis (21 deg physical steering limit).
+    wheel_base: 0.475
+    max_steering_angle: 0.366519
+
+    # Conservative indoor limits for the first real-vehicle tests.
+    max_forward_speed: 0.20
+    max_reverse_speed: 0.08
+    stopped_velocity: 0.01
+    gear_change_speed: 0.05
+    gear_change_pause: 0.5
+    command_timeout: 0.2
+    stop_publish_duration: 0.5
+    publish_rate: 20.0
+
+    cmd_vel_topic: /cmd_vel
+    # Preserve the controller's curvature while /cmd_vel is acceleration-limited.
+    curvature_cmd_vel_topic: /cmd_vel_nav
+    control_topic: /control/command/control_cmd
+    gear_topic: /control/command/gear_cmd
+    velocity_topic: /vehicle/status/velocity_status
+
+yunle_vehicle_odometry:
+  ros__parameters:
+    wheel_base: 0.475
+    odom_frame: odom
+    base_frame: base_link
+    publish_tf: false
+    velocity_topic: /vehicle/status/velocity_status
+    steering_topic: /vehicle/status/steering_status
+    odom_topic: /odometry/wheel

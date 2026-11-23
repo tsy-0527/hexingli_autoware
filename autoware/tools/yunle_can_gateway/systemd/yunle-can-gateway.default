@@ -1,0 +1,12 @@
+# Bind 127.0.0.1 when the browser runs on the same machine. For a remote
+# upper-computer browser use 0.0.0.0 and protect the port with the firewall.
+YUNLE_CAN_LISTEN=0.0.0.0
+YUNLE_CAN_PORT=8765
+YUNLE_CAN_INTERFACES=can0,can1
+YUNLE_CAN_CONTROL_INTERFACE=can1
+YUNLE_CAN_TOKEN=yunle-test-2026
+YUNLE_CAN_MAX_SPEED_KMH=5.0
+YUNLE_CAN_MAX_STEERING_DEG=21.0
+YUNLE_CAN_PHYSICAL_MAX_STEERING_DEG=21.0
+YUNLE_CAN_STEERING_SIGN=-1
+

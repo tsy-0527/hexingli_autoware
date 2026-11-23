@@ -1,0 +1,141 @@
+{
+  "tracker_delay": {
+    "median": 0.263063,
+    "p95": 0.753433,
+    "p99": 1.01381,
+    "max": 1.10373
+  },
+  "tracker_extrapolation": {
+    "median": 0.262536,
+    "p95": 0.752924,
+    "p99": 1.01336,
+    "max": 1.10305
+  },
+  "controller_node_exe: control_state": {
+    "dt": {
+      "median": 0.029939980999984073,
+      "p95": 0.032245934499999684,
+      "p99": 0.034729838200001965,
+      "max": 0.07272579700000392
+    },
+    "n": 8792,
+    "dt_over1": 0
+  },
+  "/adapi/node/localization: state": {
+    "dt": {
+      "median": 0.9999858410000115,
+      "p95": 1.0006407588000124,
+      "p99": 1.0010135641599975,
+      "max": 1.0034665999999959
+    },
+    "n": 256,
+    "dt_over1": 124
+  },
+  "/adapi/node/routing: state": {
+    "dt": {
+      "median": 1.0000066309999909,
+      "p95": 1.0008924593000104,
+      "p99": 1.0022684067000007,
+      "max": 1.0026957630000055
+    },
+    "n": 256,
+    "dt_over1": 129
+  },
+  "mrm_events": [
+    [
+      1.7129735946655273,
+      1.812932014465332,
+      0.09995841979980469,
+      ""
+    ],
+    [
+      2.7137856483459473,
+      2.8129584789276123,
+      0.09917283058166504,
+      "- /autoware/modes/autonomous ERROR\n    - /autoware/planning ERROR\n        - /autoware/planning/routing/state STALE"
+    ],
+    [
+      32.712931871414185,
+      32.81295585632324,
+      0.10002398490905762,
+      "- /autoware/modes/autonomous ERROR\n    - /autoware/planning ERROR\n        - /autoware/planning/routing/state STALE"
+    ],
+    [
+      87.41290330886841,
+      87.51290249824524,
+      0.09999918937683105,
+      "- /autoware/modes/autonomous ERROR\n    - /autoware/localization ERROR\n        - /autoware/localization/state STALE"
+    ],
+    [
+      99.71293044090271,
+      99.81288003921509,
+      0.09994959831237793,
+      "- /autoware/modes/autonomous ERROR\n    - /autoware/planning ERROR\n        - /autoware/planning/routing/state STALE"
+    ],
+    [
+      119.71294093132019,
+      119.81312704086304,
+      0.10018610954284668,
+      "- /autoware/modes/autonomous ERROR\n    - /autoware/planning ERROR\n        - /autoware/planning/routing/state STALE"
+    ],
+    [
+      120.41299438476562,
+      120.51308226585388,
+      0.10008788108825684,
+      ""
+    ],
+    [
+      123.41293406486511,
+      123.5132691860199,
+      0.10033512115478516,
+      "- /autoware/modes/autonomous ERROR\n    - /autoware/localization ERROR\n        - /autoware/localization/state STALE"
+    ],
+    [
+      124.7129487991333,
+      124.81290102005005,
+      0.09995222091674805,
+      ""
+    ],
+    [
+      126.71292090415955,
+      126.81315565109253,
+      0.1002347469329834,
+      "- /autoware/modes/autonomous ERROR\n    - /autoware/planning ERROR\n        - /autoware/planning/routing/state STALE"
+    ],
+    [
+      145.7128767967224,
+      145.81291580200195,
+      0.10003900527954102,
+      "- /autoware/modes/autonomous ERROR\n    - /autoware/planning ERROR\n        - /autoware/planning/routing/state STALE"
+    ],
+    [
+      205.71288108825684,
+      205.81290435791016,
+      0.10002326965332031,
+      "- /autoware/modes/autonomous ERROR\n    - /autoware/planning ERROR\n        - /autoware/planning/routing/state STALE"
+    ],
+    [
+      212.71293878555298,
+      212.81298160552979,
+      0.10004281997680664,
+      "- /autoware/modes/autonomous ERROR\n    - /autoware/planning ERROR\n        - /autoware/planning/routing/state STALE"
+    ],
+    [
+      215.41294074058533,
+      215.51320099830627,
+      0.10026025772094727,
+      ""
+    ],
+    [
+      215.71291136741638,
+      215.81378626823425,
+      0.1008749008178711,
+      ""
+    ]
+  ],
+  "labels": {
+    "0": 27891
+  },
+  "object_samples": 27891,
+  "zero_reported_speed": 27891
+}

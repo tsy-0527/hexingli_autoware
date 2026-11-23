@@ -1,0 +1,147 @@
+{
+ "tracker_delay": {
+  "median": 0.263063,
+  "p95": 0.753433,
+  "p99": 1.01381,
+  "max": 1.10373
+ },
+ "tracker_extrapolation": {
+  "median": 0.262536,
+  "p95": 0.752924,
+  "p99": 1.01336,
+  "max": 1.10305
+ },
+ "controller_node_exe: control_state": {
+  "dt": {
+   "median": 0.029939980999984073,
+   "p95": 0.032245934499999684,
+   "p99": 0.034729838200001965,
+   "max": 0.07272579700000392
+  },
+  "n": 8792,
+  "dt_over1": 0
+ },
+ "/adapi/node/localization: state": {
+  "dt": {
+   "median": 0.9999858410000115,
+   "p95": 1.0006407588000124,
+   "p99": 1.0010135641599975,
+   "max": 1.0034665999999959
+  },
+  "n": 256,
+  "dt_over1": 124
+ },
+ "/adapi/node/routing: state": {
+  "dt": {
+   "median": 1.0000066309999909,
+   "p95": 1.0008924593000104,
+   "p99": 1.0022684067000007,
+   "max": 1.0026957630000055
+  },
+  "n": 256,
+  "dt_over1": 129
+ },
+ "mrm_events": [
+  [
+   1.7129735946655273,
+   1.812932014465332,
+   0.09995841979980469,
+   ""
+  ],
+  [
+   2.7137856483459473,
+   2.8129584789276123,
+   0.09917283058166504,
+   "- /autoware/modes/autonomous ERROR\n    - /autoware/planning ERROR\n        - /autoware/planning/routing/state STALE"
+  ],
+  [
+   32.712931871414185,
+   32.81295585632324,
+   0.10002398490905762,
+   "- /autoware/modes/autonomous ERROR\n    - /autoware/planning ERROR\n        - /autoware/planning/routing/state STALE"
+  ],
+  [
+   87.41290330886841,
+   87.51290249824524,
+   0.09999918937683105,
+   "- /autoware/modes/autonomous ERROR\n    - /autoware/localization ERROR\n        - /autoware/localization/state STALE"
+  ],
+  [
+   99.71293044090271,
+   99.81288003921509,
+   0.09994959831237793,
+   "- /autoware/modes/autonomous ERROR\n    - /autoware/planning ERROR\n        - /autoware/planning/routing/state STALE"
+  ],
+  [
+   119.71294093132019,
+   119.81312704086304,
+   0.10018610954284668,
+   "- /autoware/modes/autonomous ERROR\n    - /autoware/planning ERROR\n        - /autoware/planning/routing/state STALE"
+  ],
+  [
+   120.41299438476562,
+   120.51308226585388,
+   0.10008788108825684,
+   ""
+  ],
+  [
+   123.41293406486511,
+   123.5132691860199,
+   0.10033512115478516,
+   "- /autoware/modes/autonomous ERROR\n    - /autoware/localization ERROR\n        - /autoware/localization/state STALE"
+  ],
+  [
+   124.7129487991333,
+   124.81290102005005,
+   0.09995222091674805,
+   ""
+  ],
+  [
+   126.71292090415955,
+   126.81315565109253,
+   0.1002347469329834,
+   "- /autoware/modes/autonomous ERROR\n    - /autoware/planning ERROR\n        - /autoware/planning/routing/state STALE"
+  ],
+  [
+   145.7128767967224,
+   145.81291580200195,
+   0.10003900527954102,
+   "- /autoware/modes/autonomous ERROR\n    - /autoware/planning ERROR\n        - /autoware/planning/routing/state STALE"
+  ],
+  [
+   205.71288108825684,
+   205.81290435791016,
+   0.10002326965332031,
+   "- /autoware/modes/autonomous ERROR\n    - /autoware/planning ERROR\n        - /autoware/planning/routing/state STALE"
+  ],
+  [
+   212.71293878555298,
+   212.81298160552979,
+   0.10004281997680664,
+   "- /autoware/modes/autonomous ERROR\n    - /autoware/planning ERROR\n        - /autoware/planning/routing/state STALE"
+  ],
+  [
+   215.41294074058533,
+   215.51320099830627,
+   0.10026025772094727,
+   ""
+  ],
+  [
+   215.71291136741638,
+   215.81378626823425,
+   0.1008749008178711,
+   ""
+  ]
+ ],
+ "labels": {
+  "0": 27891
+ },
+ "object_samples": 27891,
+ "zero_reported_speed": 27891
+}
+SNAP 192.5 [{'id': 'f2350200000000004019dddff71dae35', 'local_center': [-2.1172773879457942, 3.5682131422323202], 'forward_range': [-8.409076599712975, 1.72859898606022], 'lateral_range': [2.650493768045275, 5.24572281133947], 'distance_to_body': 2.6762926931919426, 'intersects_body': False, 'path_s_range': [-5.067653536447792, 8.43561781050597], 'path_lat_range': [2.5074525421910803, 3.385412759957949]}, {'id': '904b0200000000004019dddff71dae35', 'local_center': [8.304771089851272, 4.025087418515103], 'forward_range': [7.28355564398216, 9.664155980928003], 'lateral_range': [2.772075671769152, 5.529883473296206], 'distance_to_body': 8.12143585742866, 'intersects_body': False, 'path_s_range': [6.20259333390305, 8.422996841013529], 'path_lat_range': [-5.370291138797533, -3.048622900858976]}]
+SNAP 194.5 [{'id': '904b0200000000004019dddff71dae35', 'local_center': [8.073198866993241, 1.1410427971129224], 'forward_range': [6.170511254437598, 10.946828637687053], 'lateral_range': [-0.5086502370237903, 3.7837250099574287], 'distance_to_body': 6.14575921282627, 'intersects_body': False, 'path_s_range': [3.6930505347042892, 5.865402448292754], 'path_lat_range': [-8.816159731922097, -3.207136041107447]}, {'id': '494e0200000000004019dddff71dae35', 'local_center': [7.743914787949137, -1.2999240819939466], 'forward_range': [7.548416561549378, 8.175007060785696], 'lateral_range': [-1.9252966745867244, -0.7113678429461966], 'distance_to_body': 6.9599453305222765, 'intersects_body': False, 'path_s_range': [2.602316768693152, 3.2092571784640933], 'path_lat_range': [-6.540998507626672, -5.949003004103356]}]
+SNAP 196 [{'id': 'b33e0200000000004019dddff71dae35', 'local_center': [-3.410762558385854, -3.5664825397002966], 'forward_range': [-6.268851190691743, -0.6516041694979434], 'lateral_range': [-4.9676263812149495, -1.8056959751803794], 'distance_to_body': 4.08269825882523, 'intersects_body': False, 'path_s_range': [-4.24338173430476, -0.44338173385938395], 'path_lat_range': [-5.164691296887028, -3.9225317118205743]}, {'id': '904b0200000000004019dddff71dae35', 'local_center': [6.879056396592294, 0.28949144657084025], 'forward_range': [6.066141256631094, 8.738445136749226], 'lateral_range': [-1.8273747055013008, 2.0950452037784943], 'distance_to_body': 5.578388046573472, 'intersects_body': False, 'path_s_range': [3.3449992208677433, 4.9939482759445415], 'path_lat_range': [-7.354867002102474, -3.1494180676651964]}]
+SNAP 219.5 [{'id': '755a0200000000004019dddff71dae35', 'local_center': [0.6269165246822295, 1.0698600966258949], 'forward_range': [-0.7787440569429126, 1.5512131076985396], 'lateral_range': [0.5045286395192831, 2.769503440979807], 'distance_to_body': 0.21890183244259676, 'intersects_body': False, 'path_s_range': [-0.5074183221690927, 1.7406092100373591], 'path_lat_range': [0.2638655889004447, 2.878529789468078]}, {'id': '58600200000000004019dddff71dae35', 'local_center': [-3.208189304416237, 4.050217795408528], 'forward_range': [-4.205000337965035, -1.7218074889900705], 'lateral_range': [3.517827656411487, 4.844724088947931], 'distance_to_body': 4.68338422092614, 'intersects_body': False, 'path_s_range': [-4.682442671453561, -2.7232089505301604], 'path_lat_range': [3.1429914084358126, 4.914888391703031]}]
+SNAP 219.95 [{'id': '755a0200000000004019dddff71dae35', 'local_center': [0.5245252584682137, 0.5686186657497857], 'forward_range': [-0.05462751350021318, 1.2478397701348887], 'lateral_range': [0.24948787883102586, 0.8212175998745013], 'distance_to_body': 0.0, 'intersects_body': True, 'path_s_range': [-0.09574372602060155, 1.3445383371532964], 'path_lat_range': [0.4146345923317965, 0.9629523489345535]}, {'id': 'ac650200000000004019dddff71dae35', 'local_center': [2.6216412240761735, 1.4474443852818757], 'forward_range': [2.241145640402682, 3.310820786572129], 'lateral_range': [1.1644229615538877, 1.8604773904039973], 'distance_to_body': 1.995261364653972, 'intersects_body': False, 'path_s_range': [2.5757960839199194, 3.7173554758142675], 'path_lat_range': [0.8710227155970571, 1.689852111249923]}]
+SNAP 220.25 [{'id': '755a0200000000004019dddff71dae35', 'local_center': [0.5238868467801057, 0.6287672575530846], 'forward_range': [-0.15818529578169993, 1.1493413903282823], 'lateral_range': [0.3429426271924575, 0.8783280488450024], 'distance_to_body': 0.05694262719245752, 'intersects_body': False, 'path_s_range': [-0.22338018725898934, 1.2226549797391097], 'path_lat_range': [0.5517180246651727, 1.086514843510948]}, {'id': 'ac650200000000004019dddff71dae35', 'local_center': [2.5702094491326726, 1.4253184362846363], 'forward_range': [2.08111074705329, 3.216096808198796], 'lateral_range': [1.081686629031768, 1.9589463045075568], 'distance_to_body': 1.8393450159081348, 'intersects_body': False, 'path_s_range': [2.383787337103027, 3.57440638578393], 'path_lat_range': [0.9236524087091199, 1.9496765014640365]}]

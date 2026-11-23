@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ip link show can1 >/dev/null 2>&1; then
+  ip link set can1 up
+  exit 0
+fi
+
+modprobe vcan
+ip link add dev can1 type vcan
+ip link set can1 up

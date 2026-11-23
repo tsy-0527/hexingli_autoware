@@ -1,0 +1,33 @@
+[Unit]
+Description=Yunle allowlisted upper-computer script agent
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=tang
+Group=tang
+EnvironmentFile=/etc/default/yunle-script-agent
+Environment=HOME=/home/tang
+Environment=USER=tang
+Environment=LOGNAME=tang
+Environment=DISPLAY=:0
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+Environment=DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus
+ExecStart=/usr/local/bin/yunle_script_agent --listen ${YUNLE_SCRIPT_LISTEN} --port ${YUNLE_SCRIPT_PORT} --token ${YUNLE_SCRIPT_TOKEN}
+Restart=on-failure
+RestartSec=3
+KillMode=control-group
+TimeoutStopSec=15
+NoNewPrivileges=true
+PrivateDevices=false
+ProtectSystem=full
+ProtectHome=false
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+
+[Install]
+WantedBy=multi-user.target
+

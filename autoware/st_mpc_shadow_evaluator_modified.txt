@@ -1,0 +1,874 @@
+#!/usr/bin/env python3
+import rclpy
+from rclpy.node import Node
+from rclpy.duration import Duration
+from rclpy.time import Time
+import numpy as np
+import time
+import csv
+import math
+
+# ROS 2 标准消息类型
+from nav_msgs.msg import Odometry
+from visualization_msgs.msg import Marker, MarkerArray
+from geometry_msgs.msg import Point
+from autoware_adapi_v1_msgs.msg import OperationModeState
+from tf2_ros import Buffer, TransformListener, TransformException
+
+# === 动态适配 Autoware.universe 消息包类型 ===
+try:
+    from autoware_planning_msgs.msg import Trajectory, TrajectoryPoint
+except ImportError:
+    from tier4_planning_msgs.msg import Trajectory, TrajectoryPoint
+
+try:
+    from autoware_internal_planning_msgs.msg import PathWithLaneId
+except ImportError:
+    try:
+        from autoware_planning_msgs.msg import PathWithLaneId
+    except ImportError:
+        from tier4_planning_msgs.msg import PathWithLaneId
+
+try:
+    from autoware_perception_msgs.msg import PredictedObjects
+except ImportError:
+    from autoware_auto_perception_msgs.msg import PredictedObjects
+
+
+class ShadowModeEvaluator(Node):
+    def __init__(self):
+        super().__init__('st_mpc_shadow_evaluator')
+        self.declare_parameter('experiment_mode', 'mpc')
+        self.declare_parameter('predicted_objects_topic', '/perception/object_recognition/objects')
+        self.declare_parameter('objects_timeout_sec', 0.5)
+        self.declare_parameter('input_timeout_sec', 0.5)
+        self.declare_parameter('min_object_existence_probability', 0.0)
+        self.declare_parameter('min_prediction_confidence', 0.10)
+        self.declare_parameter('vehicle_width_m', 0.65)
+        self.declare_parameter('front_overhang_m', 0.28)
+        self.declare_parameter('rear_overhang_m', 0.24)
+        self.declare_parameter('corridor_half_width_m', 0.60)
+        self.declare_parameter('max_lateral_offset_m', 0.45)
+        self.declare_parameter('self_mask_margin_m', 0.05)
+
+        # ===================== 纯跟踪 CILQR 算法参数 =====================
+        # ---- 时域 ----
+        self.N = 30              # 预测步数
+        self.dt = 0.1            # 时间步长 (s)  N*dt=3.0s 预测时域
+
+        # ---- 车辆参数 (Hunter 实车) ----
+        self.L = 0.648           # 轴距 (m)  ★不是2.7
+        self.max_steer = 0.52    # 最大前轮转角 (rad)
+        self.max_accel = 1.0     # 最大加速度 (m/s^2)
+        self.max_decel = -1.5    # 最大减速度 (m/s^2)
+        self.v_target = 1.4      # 巡航速度 (m/s) ≈5km/h  园区小车
+
+        # ---- barrier 参数 B(g)=q1*exp(q2*g) (仅用于控制上下限软约束) ----
+        self.q1_lim = 0.1        # 控制上下限barrier幅度
+        self.q2_lim = 8.0        # 控制上下限barrier陡峭度
+
+        # ---- 代价权重 ----
+        self.w_lat = 5.0         # 横向偏差
+        self.w_lon = 1.0         # 纵向偏差
+        self.w_yaw = 2.0         # 航向偏差
+        self.w_vel = 3.0         # 速度偏差
+        self.w_acc = 1.0         # 加速度
+        self.w_delta = 1.0       # 转角
+        self.w_jerk = 0.5        # jerk
+        self.w_steer_rate = 2.0  # 转角变化率
+
+        # ---- CILQR 迭代/数值 ----
+        self.max_iter = 30       # 最大迭代次数
+        self.tol = 1e-3          # 收敛阈值(前馈范数)
+        self.reg_init = 1e-3     # Quu 正则化初值
+        self.ls_alphas = [1.0, 0.5, 0.25, 0.125, 0.0625]  # line search 步长
+
+        self.obs_margin = 0.10
+        self.obs_q1 = 2.0
+        self.obs_q2 = 5.0
+        self.obs_range = 30.0
+        self.obs_max_num = 10
+        self.last_u = None
+        self.current_obstacles = None
+        self.objects_received_at = None
+        self.objects_frame_valid = False
+        self.last_self_filtered_count = 0
+        self.tf_buffer = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer, self)
+
+        # === 数据缓存 ===
+        self.current_odom = None
+        self.current_odom_received_at = None
+        self.current_ref_path = None
+        self.current_ref_path_received_at = None
+        self.raw_sim_trajectory = None
+        self.operation_mode_state = None
+
+        # === CSV 离线日志导出配置 ===
+        self.csv_filename = f"shadow_mode_analysis_{int(time.time())}.csv"
+        self.init_csv_file()
+
+        # === Subscribers (仅订阅，不干扰控制) ===
+        self.create_subscription(Odometry, '/localization/kinematic_state', self.odom_cb, 10)
+        self.create_subscription(PathWithLaneId, '/planning/scenario_planning/lane_driving/behavior_planning/path_with_lane_id', self.path_cb, 10)
+        self.create_subscription(Trajectory, '/planning/scenario_planning/lane_driving/trajectory', self.raw_traj_cb, 10)
+        self.create_subscription(OperationModeState, '/system/operation_mode/state', self.operation_mode_cb, 10)
+        obstacles_topic = self.get_parameter('predicted_objects_topic').value
+        self.create_subscription(PredictedObjects, obstacles_topic, self.objects_cb, 10)
+
+        # === Publishers (隔离发布：影子轨迹 + RViz 对比 Marker) ===
+        self.shadow_traj_pub = self.create_publisher(Trajectory, '/planning/shadow/st_mpc_trajectory', 10)
+        self.shadow_debug_traj_pub = self.create_publisher(Trajectory, '/planning/shadow/st_mpc_trajectory_debug', 10)
+        self.marker_pub = self.create_publisher(MarkerArray, '/visualizer/trajectories_compare', 10)
+
+        # 20Hz 主循环
+        self.create_timer(0.05, self.shadow_control_loop)
+        self.get_logger().info(
+            f"CILQR shadow planner started; consuming Autoware PredictedObjects from {obstacles_topic}. "
+            f"Log: {self.csv_filename}"
+        )
+
+    def init_csv_file(self):
+        """ 初始化 CSV 导出的数据头(纯跟踪版:求解性能 + 轨迹质量 + 诊断) """
+        headers = [
+            # --- 时间戳 ---
+            "timestamp",
+            # --- 求解性能(实时性分析/warm start消融) ---
+            "solve_time_ms",        # 求解耗时
+            "iterations",           # CILQR迭代次数
+            "converged",            # 是否收敛(1/0)
+            "final_cost",           # 最终代价值
+            "diverged",             # 是否发散(1/0, 失败诊断)
+            # --- 自车状态 ---
+            "ego_x", "ego_y", "ego_yaw", "ego_v",
+            # --- 轨迹质量(对比/消融/舒适性) ---
+            "traj_v0",              # 规划首点速度
+            "traj_v_min",           # 规划最低速度
+            "decel_amount",         # 减速幅度(v0-vmin)
+            "max_abs_jerk",         # 最大jerk(舒适性关键)
+            "rms_jerk",             # RMS jerk
+            "max_lat_offset",       # 最大横向偏移(相对轨迹起点)
+            "max_abs_steer",        # 最大转角
+            "max_abs_steer_rate",   # 最大转角变化率
+            "max_curvature",        # 最大曲率
+            "progress",             # 通行进度(轨迹纵向长度)
+            # --- 失败/异常诊断 ---
+            "ref_available",        # 参考线是否可用(1/0)
+            "note",                 # 文字备注(异常原因)
+        ]
+        with open(self.csv_filename, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(headers)
+
+    def odom_cb(self, msg):
+        self.current_odom = msg
+        self.current_odom_received_at = time.monotonic()
+
+    def path_cb(self, msg):
+        self.current_ref_path = msg
+        self.current_ref_path_received_at = time.monotonic()
+
+    def raw_traj_cb(self, msg):
+        self.raw_sim_trajectory = msg
+
+    def operation_mode_cb(self, msg):
+        self.operation_mode_state = msg
+
+    def objects_cb(self, msg):
+        """Cache Autoware's final PredictedObjects message in map coordinates."""
+        self.objects_received_at = time.monotonic()
+        self.current_obstacles = None
+        self.objects_frame_valid = False
+        source_frame = msg.header.frame_id
+        if not source_frame:
+            self.get_logger().warn('PredictedObjects has an empty frame_id.', throttle_duration_sec=1.0)
+            return
+        try:
+            transform = None
+            if source_frame != 'map':
+                if msg.header.stamp.sec == 0 and msg.header.stamp.nanosec == 0:
+                    stamp = Time()
+                else:
+                    stamp = Time.from_msg(msg.header.stamp)
+                transform = self.tf_buffer.lookup_transform(
+                    'map', source_frame, stamp, timeout=Duration(seconds=0.05)
+                )
+            tf_yaw = self.yaw_from_quaternion(transform.transform.rotation) if transform else 0.0
+            obs_list = []
+            for obj in msg.objects:
+                existence = float(getattr(obj, 'existence_probability', 1.0))
+                if existence < float(self.get_parameter('min_object_existence_probability').value):
+                    continue
+                pose = self._get_obj_pose(obj)
+                if pose is None:
+                    continue
+                x, y = float(pose.position.x), float(pose.position.y)
+                yaw = self.yaw_from_pose(pose)
+                if transform:
+                    x, y, yaw = self.transform_xy_yaw(x, y, yaw, transform)
+                length, width = self._object_dimensions(obj.shape)
+                kinematics = obj.kinematics
+                paths = []
+                predicted_paths = getattr(
+                    kinematics, 'predicted_paths', getattr(obj, 'predicted_paths', [])
+                )
+                for predicted_path in predicted_paths:
+                    confidence = float(getattr(predicted_path, 'confidence', 0.0))
+                    if confidence < float(self.get_parameter('min_prediction_confidence').value):
+                        continue
+                    poses = []
+                    for path_pose in predicted_path.path:
+                        px, py = float(path_pose.position.x), float(path_pose.position.y)
+                        pyaw = self.yaw_from_pose(path_pose)
+                        if transform:
+                            px, py, pyaw = self.transform_xy_yaw(px, py, pyaw, transform)
+                        poses.append((px, py, pyaw))
+                    if poses:
+                        step = predicted_path.time_step.sec + predicted_path.time_step.nanosec * 1e-9
+                        paths.append({'poses': poses, 'dt': max(float(step), self.dt),
+                                      'confidence': confidence})
+                twist_cov = getattr(obj, 'initial_twist_with_covariance', None)
+                if twist_cov is None:
+                    twist_cov = getattr(kinematics, 'initial_twist_with_covariance', None)
+                if twist_cov is None:
+                    twist_cov = getattr(kinematics, 'twist_with_covariance', None)
+                velocity = twist_cov.twist.linear if twist_cov is not None else None
+                vx, vy = ((float(velocity.x), float(velocity.y))
+                          if velocity is not None else (0.0, 0.0))
+                if transform:
+                    vx, vy = self.rotate_xy(vx, vy, tf_yaw)
+                obs_list.append({
+                    'ox': x, 'oy': y, 'phi': yaw, 'length': length, 'width': width,
+                    'hx': 0.5 * length, 'hy': 0.5 * width,
+                    'vx': vx, 'vy': vy, 'paths': paths, 'existence': existence,
+                })
+            self.current_obstacles = obs_list
+            self.objects_frame_valid = True
+        except (TransformException, AttributeError, ValueError, TypeError) as exc:
+            self.get_logger().warn(
+                f'Cannot transform PredictedObjects from {source_frame} to map: {exc}',
+                throttle_duration_sec=1.0,
+            )
+
+    @staticmethod
+    def _get_obj_pose(obj):
+        kinematics = getattr(obj, 'kinematics', None)
+        if kinematics is None:
+            return None
+        pose_cov = getattr(kinematics, 'initial_pose_with_covariance', None)
+        if pose_cov is None:
+            pose_cov = getattr(kinematics, 'pose_with_covariance', None)
+        if pose_cov is None:
+            pose_cov = getattr(obj, 'initial_pose_with_covariance', None)
+        return pose_cov.pose if pose_cov is not None else None
+
+    @staticmethod
+    def _object_dimensions(shape):
+        shape_type = int(getattr(shape, 'type', 0))
+        if shape_type == 1:  # cylinder
+            diameter = max(float(shape.dimensions.x), float(shape.dimensions.y), 0.05)
+            return diameter, diameter
+        if shape_type == 2 and shape.footprint.points:  # polygon footprint
+            xs = [float(point.x) for point in shape.footprint.points]
+            ys = [float(point.y) for point in shape.footprint.points]
+            return max(max(xs) - min(xs), 0.05), max(max(ys) - min(ys), 0.05)
+        return max(float(shape.dimensions.x), 0.05), max(float(shape.dimensions.y), 0.05)
+
+    def _is_on_vehicle(self, obs, x0):
+        """Mask only boxes fully inside the configured ego body footprint."""
+        dx, dy = obs['ox'] - x0[0], obs['oy'] - x0[1]
+        c, s = math.cos(x0[2]), math.sin(x0[2])
+        cx, cy = c * dx + s * dy, -s * dx + c * dy
+        rel_yaw = self.normalize_angle(obs['phi'] - x0[2])
+        cr, sr = math.cos(rel_yaw), math.sin(rel_yaw)
+        half_l, half_w = obs['length'] * 0.5, obs['width'] * 0.5
+        margin = float(self.get_parameter('self_mask_margin_m').value)
+        front = self.L + float(self.get_parameter('front_overhang_m').value) + margin
+        rear = float(self.get_parameter('rear_overhang_m').value) + margin
+        half_vehicle_width = 0.5 * float(self.get_parameter('vehicle_width_m').value) + margin
+        for ox in (-half_l, half_l):
+            for oy in (-half_w, half_w):
+                px, py = cx + cr * ox - sr * oy, cy + sr * ox + cr * oy
+                if px < -rear or px > front or abs(py) > half_vehicle_width:
+                    return False
+        return True
+
+    def _snapshot_obstacles(self, x0):
+        if self.current_obstacles is None:
+            return []
+        candidates = []
+        self.last_self_filtered_count = 0
+        corridor = float(self.get_parameter('corridor_half_width_m').value)
+        for obs in self.current_obstacles:
+            if self._is_on_vehicle(obs, x0):
+                self.last_self_filtered_count += 1
+                continue
+            dx, dy = obs['ox'] - x0[0], obs['oy'] - x0[1]
+            longitudinal = dx * math.cos(x0[2]) + dy * math.sin(x0[2])
+            lateral = -dx * math.sin(x0[2]) + dy * math.cos(x0[2])
+            reach = 0.5 * math.hypot(obs['length'], obs['width'])
+            if longitudinal < -reach or longitudinal > self.obs_range:
+                continue
+            if abs(lateral) > corridor + reach:
+                continue
+            candidates.append((math.hypot(dx, dy), obs))
+        candidates.sort(key=lambda item: item[0])
+        return [obs for _, obs in candidates[:self.obs_max_num]]
+
+    @staticmethod
+    def rotate_xy(x, y, yaw):
+        c, s = math.cos(yaw), math.sin(yaw)
+        return c * x - s * y, s * x + c * y
+
+    @staticmethod
+    def yaw_from_quaternion(q):
+        return math.atan2(2.0 * (q.w * q.z + q.x * q.y),
+                          1.0 - 2.0 * (q.y * q.y + q.z * q.z))
+
+    def transform_xy_yaw(self, x, y, yaw, transform):
+        tr = transform.transform
+        tf_yaw = self.yaw_from_quaternion(tr.rotation)
+        rx, ry = self.rotate_xy(x, y, tf_yaw)
+        return tr.translation.x + rx, tr.translation.y + ry, self.normalize_angle(yaw + tf_yaw)
+
+    def is_auto_enabled(self):
+        return (
+            self.operation_mode_state is not None and
+            self.operation_mode_state.mode == OperationModeState.AUTONOMOUS and
+            self.operation_mode_state.is_autoware_control_enabled
+        )
+
+    def is_mpc_enabled(self):
+        return self.get_parameter('experiment_mode').value == 'mpc'
+
+    def shadow_control_loop(self):
+        note = ""
+        if self.current_odom is None:
+            return
+        pose = self.current_odom.pose.pose
+        twist = self.current_odom.twist.twist
+        q = pose.orientation
+        yaw = np.arctan2(2.0 * (q.w * q.z + q.x * q.y), 1.0 - 2.0 * (q.y * q.y + q.z * q.z))
+        x0 = [pose.position.x, pose.position.y, yaw, np.hypot(twist.linear.x, twist.linear.y)]
+        timeout = float(self.get_parameter('input_timeout_sec').value)
+        if self.current_odom_received_at is None or time.monotonic() - self.current_odom_received_at > timeout:
+            self.get_logger().warn('Odometry is stale; cannot safely generate a stop trajectory.',
+                                   throttle_duration_sec=1.0)
+            return
+        if (self.current_ref_path is None or self.current_ref_path_received_at is None or
+                time.monotonic() - self.current_ref_path_received_at > timeout):
+            self.publish_stop(x0, 'behavior_path_missing_or_stale')
+            self._write_log(x0, None, 0, 'behavior_path_unavailable')
+            return
+        ref_traj = self.extract_reference_trajectory(x0)
+        ref_ok = 1 if ref_traj is not None else 0
+        if ref_traj is None:
+            self.publish_stop(x0, 'behavior_path_has_no_usable_points')
+            self._write_log(x0, None, ref_ok, 'no_reference')
+            return
+        object_timeout = float(self.get_parameter('objects_timeout_sec').value)
+        if (self.objects_received_at is None or self.current_obstacles is None or
+                not self.objects_frame_valid or
+                time.monotonic() - self.objects_received_at > object_timeout):
+            self.publish_stop(x0, 'predicted_objects_missing_stale_or_invalid_frame')
+            self._write_log(x0, None, ref_ok, 'predicted_objects_unavailable')
+            return
+
+        obstacles = self._snapshot_obstacles(x0)
+        t0 = time.time()
+        res = self.solve_cilqr(x0, ref_traj, obstacles)
+        solve_ms = (time.time() - t0) * 1000.0
+        res['solve_ms'] = solve_ms
+        info = res.get('info', {})
+        if info.get('diverged', 0) or not all(
+                np.all(np.isfinite(res[key])) for key in ('x', 'y', 'yaw', 'v')):
+            self.publish_stop(x0, 'cilqr_failed')
+            self._write_log(x0, None, ref_ok, 'cilqr_failed')
+            return
+        if not self.trajectory_collision_free(res, obstacles):
+            self.publish_stop(x0, 'predicted_object_collision')
+            self._write_log(x0, None, ref_ok, 'predicted_object_collision')
+            return
+        if not self.trajectory_within_corridor(res, ref_traj):
+            self.publish_stop(x0, 'corridor_limit_exceeded')
+            self._write_log(x0, None, ref_ok, 'corridor_limit_exceeded')
+            return
+        traj_msg = self.build_trajectory_msg(res['x'], res['y'], res['yaw'], res['v'], res['a'])
+        self.shadow_traj_pub.publish(traj_msg)
+        self.shadow_debug_traj_pub.publish(traj_msg)
+        if not info.get('converged', 1): note = 'safe_but_not_converged'
+        elif np.min(res['v']) < 0.1: note = 'near_stop'
+        if self.last_self_filtered_count:
+            note = (note + '; ' if note else '') + f'on_vehicle_filtered={self.last_self_filtered_count}'
+        self._write_log(x0, res, ref_ok, note)
+        self.publish_rviz_visualization(res['x'], res['y'])
+        if solve_ms > 100:
+            self.get_logger().warn(f"求解耗时: {solve_ms:.1f}ms", throttle_duration_sec=2.0)
+        if note:
+            self.get_logger().warn(f"⚠ 诊断: {note}", throttle_duration_sec=1.0)
+
+    def publish_stop(self, x0, reason):
+        self.last_u = None
+        msg = self.make_stop_trajectory(x0)
+        self.shadow_traj_pub.publish(msg)
+        self.shadow_debug_traj_pub.publish(msg)
+        self.publish_rviz_visualization(
+            [point.pose.position.x for point in msg.points],
+            [point.pose.position.y for point in msg.points],
+        )
+        self.get_logger().warn(f'Safety stop: {reason}', throttle_duration_sec=1.0)
+
+    def _write_log(self, x0, res, ref_ok, note):
+        """写入一行分析数据"""
+        stamp = self.get_clock().now().nanoseconds / 1e9
+        if res is None:
+            # 求解未进行(如无参考线),记录基础信息
+            row = [f"{stamp:.3f}", "0", "0", "0", "0", "0",
+                   f"{x0[0]:.3f}", f"{x0[1]:.3f}", f"{x0[2]:.3f}", f"{x0[3]:.3f}",
+                   "0", "0", "0", "0", "0", "0", "0", "0", "0", "0",
+                   f"{ref_ok}", note]
+        else:
+            xs_x = np.array(res['x']); xs_y = np.array(res['y'])
+            xs_v = np.array(res['v']); a_seq = np.array(res['a'])
+            d_seq = np.array(res.get('delta', np.zeros(len(a_seq))))
+            info = res.get('info', {})
+            # 轨迹质量指标
+            jerk = np.diff(a_seq)/self.dt if len(a_seq)>1 else np.array([0.0])
+            steer_rate = np.diff(d_seq)/self.dt if len(d_seq)>1 else np.array([0.0])
+            # 横向偏移(近似用轨迹y相对起点)
+            lat_off = xs_y - xs_y[0]
+            # 曲率 = 转角->曲率 kappa=tan(delta)/L
+            curv = np.tan(d_seq)/self.L if len(d_seq)>0 else np.array([0.0])
+            v0 = xs_v[0]; vmin = np.min(xs_v)
+            progress = float(xs_x[-1]-xs_x[0])
+            row = [
+                f"{stamp:.3f}",
+                f"{res['solve_ms']:.2f}",
+                f"{info.get('iterations',0)}",
+                f"{info.get('converged',0)}",
+                f"{info.get('final_cost',0):.3f}",
+                f"{info.get('diverged',0)}",
+                f"{x0[0]:.3f}", f"{x0[1]:.3f}", f"{x0[2]:.3f}", f"{x0[3]:.3f}",
+                f"{v0:.3f}", f"{vmin:.3f}", f"{v0-vmin:.3f}",
+                f"{np.max(np.abs(jerk)):.3f}",
+                f"{np.sqrt(np.mean(jerk**2)):.3f}",
+                f"{np.max(np.abs(lat_off)):.3f}",
+                f"{np.max(np.abs(d_seq)):.3f}",
+                f"{np.max(np.abs(steer_rate)):.3f}",
+                f"{np.max(np.abs(curv)):.3f}",
+                f"{progress:.3f}",
+                f"{ref_ok}",
+                note,
+            ]
+        with open(self.csv_filename, 'a', newline='') as f:
+            csv.writer(f).writerow(row)
+
+    def yaw_from_pose(self, pose):
+        q = pose.orientation
+        return math.atan2(2.0 * (q.w * q.z + q.x * q.y), 1.0 - 2.0 * (q.y * q.y + q.z * q.z))
+
+    def normalize_angle(self, angle):
+        return math.atan2(math.sin(angle), math.cos(angle))
+
+    def extract_reference_trajectory(self, x0):
+        """Track upstream behavior path; never feed our downstream trajectory back in."""
+        if self.current_ref_path is None or len(self.current_ref_path.points) < 2:
+            return None
+        points = self.current_ref_path.points
+        xs = np.array([p.point.pose.position.x for p in points], dtype=float)
+        ys = np.array([p.point.pose.position.y for p in points], dtype=float)
+        yaws = np.array([self.yaw_from_pose(p.point.pose) for p in points], dtype=float)
+        vs = np.array([max(0.0, p.point.longitudinal_velocity_mps) for p in points], dtype=float)
+
+        dists = np.hypot(xs - x0[0], ys - x0[1])
+        nearest_idx = int(np.argmin(dists))
+        xs = xs[nearest_idx:]
+        ys = ys[nearest_idx:]
+        yaws = yaws[nearest_idx:]
+        vs = vs[nearest_idx:]
+        if len(xs) < 2:
+            return None
+
+        ds = np.hypot(np.diff(xs), np.diff(ys))
+        s = np.concatenate(([0.0], np.cumsum(ds)))
+        speed_for_sampling = max(float(x0[3]), self.v_target, 0.5)
+        query_s = np.array([speed_for_sampling * self.dt * k for k in range(self.N + 1)])
+        query_s = np.clip(query_s, 0.0, s[-1])
+
+        ref_x = np.interp(query_s, s, xs)
+        ref_y = np.interp(query_s, s, ys)
+        ref_v = np.interp(query_s, s, vs)
+        unwrapped_yaw = np.unwrap(yaws)
+        ref_yaw = np.interp(query_s, s, unwrapped_yaw)
+        return {"x": ref_x, "y": ref_y, "yaw": ref_yaw, "v": ref_v}
+
+    # ========================================================================
+    #  控制上下限 barrier  B(g)=q1*exp(q2*g)  (g<=0 满足约束)
+    # ========================================================================
+    def barrier(self, g, q1, q2):
+        e = np.exp(np.clip(q2 * g, -50, 50))
+        return q1*e, q1*q2*e, q1*q2*q2*e     # B, dB/dg, d2B/dg2
+
+    def _obstacle_pose_at(self, obs, t, all_paths=False):
+        paths = obs.get('paths', [])
+        if paths:
+            selected = paths if all_paths else [max(paths, key=lambda path: path['confidence'])]
+            result = []
+            for path in selected:
+                idx = min(int(round(max(0.0, t) / path['dt'])), len(path['poses']) - 1)
+                result.append(path['poses'][idx])
+            return result
+        return [(obs['ox'] + obs.get('vx', 0.0) * t,
+                 obs['oy'] + obs.get('vy', 0.0) * t, obs['phi'])]
+
+    def _obstacle_sdf(self, px, py, ego_yaw, obs, t, pose_override=None):
+        """Signed clearance between inflated obstacle and complete ego footprint."""
+        ox, oy, phi = pose_override or self._obstacle_pose_at(obs, t)[0]
+        front = self.L + float(self.get_parameter('front_overhang_m').value)
+        rear = float(self.get_parameter('rear_overhang_m').value)
+        ego_half_length = 0.5 * (front + rear)
+        ego_half_width = 0.5 * float(self.get_parameter('vehicle_width_m').value)
+        center_offset = 0.5 * (front - rear)  # odometry position is at the rear axle
+        px += center_offset * math.cos(ego_yaw)
+        py += center_offset * math.sin(ego_yaw)
+        rel_yaw = self.normalize_angle(ego_yaw - phi)
+        c, s = math.cos(phi), math.sin(phi)
+        dx, dy = px - ox, py - oy
+        xl, yl = c * dx + s * dy, -s * dx + c * dy
+        hx = obs['hx'] + ego_half_length * abs(math.cos(rel_yaw)) + \
+            ego_half_width * abs(math.sin(rel_yaw)) + self.obs_margin
+        hy = obs['hy'] + ego_half_length * abs(math.sin(rel_yaw)) + \
+            ego_half_width * abs(math.cos(rel_yaw)) + self.obs_margin
+        sx, sy = (1.0 if xl >= 0.0 else -1.0), (1.0 if yl >= 0.0 else -1.0)
+        ax, ay = abs(xl) - hx, abs(yl) - hy
+        qx, qy = max(ax, 0.0), max(ay, 0.0)
+        outside = math.hypot(qx, qy)
+        if outside > 1e-9:
+            sdf = outside
+            gx, gy = qx / outside * sx, qy / outside * sy
+        elif ax >= ay:
+            sdf, gx, gy = ax, sx, 0.0
+        else:
+            sdf, gx, gy = ay, 0.0, sy
+        return sdf, gx * c - gy * s, gx * s + gy * c
+
+    def trajectory_collision_free(self, result, obstacles):
+        samples = []
+        for k in range(len(result['x']) - 1):
+            yaw_delta = self.normalize_angle(result['yaw'][k + 1] - result['yaw'][k])
+            for alpha in (0.0, 0.5):
+                samples.append((
+                    result['x'][k] + alpha * (result['x'][k + 1] - result['x'][k]),
+                    result['y'][k] + alpha * (result['y'][k + 1] - result['y'][k]),
+                    result['yaw'][k] + alpha * yaw_delta, (k + alpha) * self.dt,
+                ))
+        samples.append((result['x'][-1], result['y'][-1], result['yaw'][-1],
+                        (len(result['x']) - 1) * self.dt))
+        for px, py, yaw, t in samples:
+            for obs in obstacles:
+                for predicted_pose in self._obstacle_pose_at(obs, t, all_paths=True):
+                    sdf, _, _ = self._obstacle_sdf(px, py, yaw, obs, t, predicted_pose)
+                    if sdf <= 0.0:
+                        return False
+        return True
+
+    def trajectory_within_corridor(self, result, ref):
+        lane_half = float(self.get_parameter('corridor_half_width_m').value)
+        ego_half = 0.5 * float(self.get_parameter('vehicle_width_m').value)
+        max_offset = min(float(self.get_parameter('max_lateral_offset_m').value),
+                         lane_half - ego_half - self.obs_margin)
+        if max_offset < 0.0:
+            return False
+        rx, ry, ryaw = ref['x'], ref['y'], ref['yaw']
+        for px, py in zip(result['x'], result['y']):
+            idx = int(np.argmin(np.hypot(rx - px, ry - py)))
+            dx, dy = px - rx[idx], py - ry[idx]
+            lateral = -dx * math.sin(ryaw[idx]) + dy * math.cos(ryaw[idx])
+            if abs(lateral) > max_offset + 0.03:
+                return False
+        return True
+
+    def make_stop_trajectory(self, x0):
+        decel = max(0.3, abs(self.max_decel))
+        stop_time = x0[3] / decel if x0[3] > 1e-3 else 0.0
+        times = (list(np.arange(0.0, stop_time, self.dt)) + [stop_time]
+                 if stop_time > 0.0 else [0.0, self.dt])
+        xs, ys, yaws, speeds, accels = [], [], [], [], []
+        for t in times:
+            t = min(float(t), stop_time) if stop_time > 0.0 else 0.0
+            distance = max(0.0, x0[3] * t - 0.5 * decel * t * t)
+            speed = max(0.0, x0[3] - decel * t)
+            xs.append(x0[0] + distance * math.cos(x0[2]))
+            ys.append(x0[1] + distance * math.sin(x0[2]))
+            yaws.append(x0[2]); speeds.append(speed)
+            accels.append(-decel if speed > 1e-3 else 0.0)
+        if math.hypot(xs[-1] - xs[0], ys[-1] - ys[0]) < 1e-3:
+            xs.append(xs[0] + 0.01 * math.cos(x0[2]))
+            ys.append(ys[0] + 0.01 * math.sin(x0[2]))
+            yaws.append(x0[2]); speeds.append(0.0); accels.append(0.0)
+        return self.build_trajectory_msg(xs, ys, yaws, speeds, accels)
+
+    # ========================================================================
+    #  自行车模型 + 雅可比
+    # ========================================================================
+    def dyn(self, s, u):
+        x, y, th, v = s; a, d = u
+        return np.array([x + v*np.cos(th)*self.dt,
+                         y + v*np.sin(th)*self.dt,
+                         th + (v/self.L)*np.tan(d)*self.dt,
+                         max(0.0, v + a*self.dt)])
+
+    def jac(self, s, u):
+        x, y, th, v = s; a, d = u; dt, L = self.dt, self.L
+        A = np.array([[1,0,-v*np.sin(th)*dt, np.cos(th)*dt],
+                      [0,1, v*np.cos(th)*dt, np.sin(th)*dt],
+                      [0,0,1, np.tan(d)/L*dt],
+                      [0,0,0,1.0]])
+        sec2 = 1.0/(np.cos(d)**2)
+        B = np.array([[0,0],[0,0],[0,(v/L)*sec2*dt],[dt,0.0]])
+        return A, B
+
+    # ========================================================================
+    #  纯跟踪 CILQR 求解器 (参考线跟踪 + 控制平滑 + 控制上下限)
+    # ========================================================================
+    def solve_cilqr(self, x0, ref_traj, obstacles=None):
+        """CILQR with obstacle barriers and consistent rate-cost derivatives."""
+        N, dt = self.N, self.dt
+        n, m = 6, 2  # pose/speed plus previous acceleration and steering
+        obstacles = obstacles or []
+        state0 = np.asarray(x0[:4], dtype=float)
+        prev_u = self.last_u[0].copy() if self.last_u is not None else np.zeros(m)
+        z0 = np.concatenate((state0, prev_u))
+
+        def dynamics(z, u):
+            return np.concatenate((self.dyn(z[:4], u), u))
+
+        def dynamics_jacobian(z, u):
+            A4, B4 = self.jac(z[:4], u)
+            A = np.zeros((n, n)); B = np.zeros((n, m))
+            A[:4, :4] = A4; B[:4, :] = B4; B[4:, :] = np.eye(m)
+            if z[3] + u[0] * dt <= 0.0:
+                A[3, 3] = 0.0; B[3, 0] = 0.0
+            return A, B
+
+        def state_cost(k, z, u):
+            px, py, th, v = z[:4]; acc, steer = u
+            lx = np.zeros(n); lu = np.zeros(m)
+            lxx = np.zeros((n, n)); luu = np.zeros((m, m)); lux = np.zeros((m, n))
+            rx, ry, ryaw = ref_traj['x'][k + 1], ref_traj['y'][k + 1], ref_traj['yaw'][k + 1]
+            rv = max(0.0, ref_traj['v'][k + 1])
+            dx, dy = px - rx, py - ry
+            c, s = math.cos(ryaw), math.sin(ryaw)
+            elat, elon = -dx * s + dy * c, dx * c + dy * s
+            eyaw, ev = self.normalize_angle(th - ryaw), v - rv
+            dlat, dlon = np.array([-s, c]), np.array([c, s])
+            lx[:2] += self.w_lat * elat * dlat + self.w_lon * elon * dlon
+            lx[2] += self.w_yaw * eyaw; lx[3] += self.w_vel * ev
+            lxx[:2, :2] += self.w_lat * np.outer(dlat, dlat) + self.w_lon * np.outer(dlon, dlon)
+            lxx[2, 2] += self.w_yaw; lxx[3, 3] += self.w_vel
+            lu += np.array([self.w_acc * acc, self.w_delta * steer])
+            luu[0, 0] += self.w_acc; luu[1, 1] += self.w_delta
+            da, dd = acc - z[4], steer - z[5]
+            lu[0] += self.w_jerk * da; lu[1] += self.w_steer_rate * dd
+            lx[4] -= self.w_jerk * da; lx[5] -= self.w_steer_rate * dd
+            luu[0, 0] += self.w_jerk; luu[1, 1] += self.w_steer_rate
+            lxx[4, 4] += self.w_jerk; lxx[5, 5] += self.w_steer_rate
+            lux[0, 4] -= self.w_jerk; lux[1, 5] -= self.w_steer_rate
+            for value, sign, channel in (
+                    (steer - self.max_steer, 1.0, 1),
+                    (-self.max_steer - steer, -1.0, 1),
+                    (acc - self.max_accel, 1.0, 0),
+                    (self.max_decel - acc, -1.0, 0)):
+                _, grad, hess = self.barrier(value, self.q1_lim, self.q2_lim)
+                lu[channel] += sign * grad; luu[channel, channel] += hess
+            for obs in obstacles:
+                sdf, sx, sy = self._obstacle_sdf(px, py, th, obs, (k + 1) * dt)
+                _, grad, hess = self.barrier(-sdf, self.obs_q1, self.obs_q2)
+                gx, gy = -sx, -sy
+                lx[0] += grad * gx; lx[1] += grad * gy
+                lxx[0, 0] += hess * gx * gx
+                lxx[0, 1] += hess * gx * gy; lxx[1, 0] += hess * gx * gy
+                lxx[1, 1] += hess * gy * gy
+            return lx, lu, lxx, luu, lux
+
+        def total_cost(states, controls):
+            total = 0.0
+            for k in range(N):
+                z, u = states[k], controls[k]
+                px, py, th, v = z[:4]; acc, steer = u
+                rx, ry, ryaw = ref_traj['x'][k + 1], ref_traj['y'][k + 1], ref_traj['yaw'][k + 1]
+                rv = max(0.0, ref_traj['v'][k + 1])
+                dx, dy = px - rx, py - ry
+                elat = -dx * math.sin(ryaw) + dy * math.cos(ryaw)
+                elon = dx * math.cos(ryaw) + dy * math.sin(ryaw)
+                eyaw, ev = self.normalize_angle(th - ryaw), v - rv
+                total += 0.5 * (self.w_lat * elat**2 + self.w_lon * elon**2 +
+                                self.w_yaw * eyaw**2 + self.w_vel * ev**2)
+                total += 0.5 * (self.w_acc * acc**2 + self.w_delta * steer**2)
+                total += 0.5 * (self.w_jerk * (acc - z[4])**2 +
+                                self.w_steer_rate * (steer - z[5])**2)
+                for value in (steer - self.max_steer, -self.max_steer - steer,
+                              acc - self.max_accel, self.max_decel - acc):
+                    total += self.barrier(value, self.q1_lim, self.q2_lim)[0]
+                for obs in obstacles:
+                    sdf, _, _ = self._obstacle_sdf(px, py, th, obs, (k + 1) * dt)
+                    total += self.barrier(-sdf, self.obs_q1, self.obs_q2)[0]
+            return total
+
+        controls = np.zeros((N, m))
+        if self.last_u is not None and self.last_u.shape == (N, m):
+            controls[:-1] = self.last_u[1:]; controls[-1] = self.last_u[-1]
+        states = np.zeros((N + 1, n)); states[0] = z0
+        for k in range(N):
+            states[k + 1] = dynamics(states[k], controls[k])
+        cost = total_cost(states, controls)
+        reg = self.reg_init; converged = False; diverged = False; iteration = 0
+        for iteration in range(1, self.max_iter + 1):
+            Vx = np.zeros(n); Vxx = np.zeros((n, n))
+            gains = np.zeros((N, m, n)); feedforward = np.zeros((N, m))
+            diverged = False
+            for k in range(N - 1, -1, -1):
+                A, B = dynamics_jacobian(states[k], controls[k])
+                lx, lu, lxx, luu, lux = state_cost(k, states[k], controls[k])
+                Qx, Qu = lx + A.T @ Vx, lu + B.T @ Vx
+                Qxx = lxx + A.T @ Vxx @ A
+                Quu = luu + B.T @ Vxx @ B
+                Qux = lux + B.T @ Vxx @ A
+                Quu_reg = Quu + reg * np.eye(m)
+                try:
+                    np.linalg.cholesky(Quu_reg)
+                    inverse = np.linalg.inv(Quu_reg)
+                except np.linalg.LinAlgError:
+                    diverged = True
+                    break
+                feedforward[k] = inverse @ Qu; gains[k] = inverse @ Qux
+                Vx = Qx - gains[k].T @ Quu @ feedforward[k]
+                Vxx = Qxx - gains[k].T @ Quu @ gains[k]
+                Vxx = 0.5 * (Vxx + Vxx.T)
+            if diverged:
+                reg = min(reg * 10.0, 1e6)
+                if reg >= 1e6:
+                    break
+                continue
+            improved = False
+            for alpha in self.ls_alphas:
+                new_states = np.zeros_like(states); new_states[0] = z0
+                new_controls = np.zeros_like(controls)
+                for k in range(N):
+                    dx = new_states[k] - states[k]
+                    new_controls[k] = controls[k] - alpha * feedforward[k] - gains[k] @ dx
+                    new_controls[k, 0] = np.clip(new_controls[k, 0], self.max_decel, self.max_accel)
+                    new_controls[k, 1] = np.clip(new_controls[k, 1], -self.max_steer, self.max_steer)
+                    new_states[k + 1] = dynamics(new_states[k], new_controls[k])
+                new_cost = total_cost(new_states, new_controls)
+                if new_cost < cost:
+                    improved = True
+                    break
+            if improved:
+                states, controls, cost = new_states, new_controls, new_cost
+                reg = max(reg / 2.0, 1e-6)
+                if np.max(np.abs(feedforward)) < self.tol:
+                    converged = True
+                    break
+            else:
+                reg = min(reg * 10.0, 1e6)
+                if reg >= 1e6:
+                    break
+        self.last_u = controls.copy()
+        info = {'iterations': iteration, 'converged': int(converged),
+                'diverged': int(diverged), 'final_cost': float(cost)}
+        return {'x': states[:, 0].tolist(), 'y': states[:, 1].tolist(),
+                'yaw': states[:, 2].tolist(), 'v': states[:, 3].tolist(),
+                'a': controls[:, 0], 'delta': controls[:, 1], 'info': info}
+
+    def build_trajectory_msg(self, x_seq, y_seq, yaw_seq, v_seq, a_seq):
+        traj = Trajectory()
+        traj.header.frame_id = "map"
+        traj.header.stamp = self.get_clock().now().to_msg()
+
+        filtered_indices = []
+        last_x = None
+        last_y = None
+        for k in range(len(x_seq)):
+            if last_x is not None:
+                dist = math.hypot(float(x_seq[k]) - last_x, float(y_seq[k]) - last_y)
+                if dist < 1e-3:
+                    continue
+            filtered_indices.append(k)
+            last_x = float(x_seq[k])
+            last_y = float(y_seq[k])
+
+        for out_idx, k in enumerate(filtered_indices):
+            p = TrajectoryPoint()
+            p.time_from_start = Duration(seconds=float(out_idx) * self.dt).to_msg()
+            p.pose.position.x = float(x_seq[k])
+            p.pose.position.y = float(y_seq[k])
+            p.pose.position.z = 0.0
+
+            yaw = float(yaw_seq[k])
+            p.pose.orientation.x = 0.0
+            p.pose.orientation.y = 0.0
+            p.pose.orientation.z = math.sin(yaw * 0.5)
+            p.pose.orientation.w = math.cos(yaw * 0.5)
+
+            p.longitudinal_velocity_mps = float(max(0.0, v_seq[k]))
+            p.lateral_velocity_mps = 0.0
+            p.acceleration_mps2 = float(a_seq[min(k, len(a_seq) - 1)])
+            p.heading_rate_rps = 0.0
+            p.front_wheel_angle_rad = 0.0
+            p.rear_wheel_angle_rad = 0.0
+            traj.points.append(p)
+        return traj
+
+    def publish_rviz_visualization(self, opt_x, opt_y):
+        marker_array = MarkerArray()
+
+        # 1. 影子 CILQR 轨迹（亮绿色，悬浮在上方 z=1.0m，加粗显示）
+        mpc_marker = Marker()
+        mpc_marker.header.frame_id = "map"
+        mpc_marker.header.stamp = self.get_clock().now().to_msg()
+        mpc_marker.ns = "st_coupled_mpc"
+        mpc_marker.id = 0
+        mpc_marker.type = Marker.LINE_STRIP
+        mpc_marker.scale.x = 0.45
+        mpc_marker.color.r, mpc_marker.color.g, mpc_marker.color.b, mpc_marker.color.a = 0.0, 1.0, 0.0, 1.0
+
+        for i in range(len(opt_x)):
+            pt = Point()
+            pt.x, pt.y, pt.z = opt_x[i], opt_y[i], 1.0
+            mpc_marker.points.append(pt)
+        marker_array.markers.append(mpc_marker)
+
+        # 2. 原生控制轨迹（鲜红色，位于下方 z=0.1m）
+        if self.raw_sim_trajectory is not None:
+            raw_marker = Marker()
+            raw_marker.header.frame_id = "map"
+            raw_marker.header.stamp = self.get_clock().now().to_msg()
+            raw_marker.ns = "raw_simulation"
+            raw_marker.id = 1
+            raw_marker.type = Marker.LINE_STRIP
+            raw_marker.scale.x = 0.20
+            raw_marker.color.r, raw_marker.color.g, raw_marker.color.b, raw_marker.color.a = 1.0, 0.0, 0.0, 0.85
+
+            for pt_raw in self.raw_sim_trajectory.points:
+                pt = Point()
+                pt.x, pt.y, pt.z = pt_raw.pose.position.x, pt_raw.pose.position.y, 0.1
+                raw_marker.points.append(pt)
+            marker_array.markers.append(raw_marker)
+
+        self.marker_pub.publish(marker_array)
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = ShadowModeEvaluator()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    node.destroy_node()
+    rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()

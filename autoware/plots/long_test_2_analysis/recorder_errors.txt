@@ -1,0 +1,8 @@
+/yunle_chassis/can_rx/raw: 901 warnings
+[WARN] [1793262654.417600482] [ROSBAG2_TRANSPORT]: Topic '/yunle_chassis/can_rx/raw' has unknown type 'chassis_interfaces/msg/CanFrame' . Only topics with known type are supported. Reason: 'package 'chassis_interfaces' not found,
+/yunle_chassis/control/scu_control_command: 901 warnings
+[WARN] [1793262654.426651132] [ROSBAG2_TRANSPORT]: Topic '/yunle_chassis/control/scu_control_command' has unknown type 'chassis_interfaces/msg/ScuControlCommand' . Only topics with known type are supported. Reason: 'package 'chassis_interfaces' not found,
+/yunle_chassis/feedback/bms_status: 901 warnings
+[WARN] [1793262654.431323080] [ROSBAG2_TRANSPORT]: Topic '/yunle_chassis/feedback/bms_status' has unknown type 'chassis_interfaces/msg/BmsStatus' . Only topics with known type are supported. Reason: 'package 'chassis_interfaces' not found,
+/yunle_chassis/feedback/ccu_status: 901 warnings
+[WARN] [1793262654.434765207] [ROSBAG2_TRANSPORT]: Topic '/yunle_chassis/feedback/ccu_status' has unknown type 'chassis_interfaces/msg/CcuStatus' . Only topics with known type are supported. Reason: 'package 'chassis_interfaces' not found,

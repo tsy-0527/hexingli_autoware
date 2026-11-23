@@ -1,0 +1,334 @@
+# =============================================================================
+# static_obstacle_avoidance.param.yaml
+# =============================================================================
+# Hunter 小车 (车宽 0.65m, 车长 1.0m, 轴距 0.632m, 车道 1.2m x 3 同向)
+# 
+# 新约束:
+#   - 最高速度: 5 km/h (1.39 m/s)
+#   - 感知范围: 5m (障碍物需在 5m 内才能被检测)
+#
+# 理论临界避让距离:
+#   - 窄障碍 (车道内偏 0.3m): 2.7 m
+#   - 跨车道 (偏 0.7m): 3.4 m
+#   - 感知范围 5m > 3.4m, 有 1.6m 决策余量
+# =============================================================================
+
+/**:
+  ros__parameters:
+    avoidance:
+      resample_interval_for_planning: 0.15
+      resample_interval_for_output: 2.0
+
+      # 允许跨同向邻车道 (地图有 3 条 1.2m 平行车道)
+      use_lane_type: "same_direction_lane"
+      use_intersection_areas: true
+      use_hatched_road_markings: true
+      use_freespace_areas: true
+
+      # =========================================================================
+      # 目标障碍物的横向余量
+      # 所有类型统一 (推导值):
+      #   hard_margin = sigma_control(0.05) + sigma_perception(0.05) + sigma_safety(0.05) = 0.15
+      #   soft_margin = 1.5 x hard = 0.25
+      # 保留 pedestrian/bicycle 略保守 (行为不可预测)
+      # =========================================================================
+      target_object:
+        car:
+          th_moving_speed: 1.0
+          th_moving_time: 0.0
+          longitudinal_margin: 0.0
+          lateral_margin:
+            soft_margin: 0.25
+            hard_margin: 0.15
+            hard_margin_for_parked_vehicle: 0.12
+          max_expand_ratio: 0.0
+          envelope_buffer_margin: 0.1
+          th_error_eclipse_long_radius: 0.6
+        truck:
+          th_moving_speed: 1.0
+          th_moving_time: 2.0
+          longitudinal_margin: 0.0
+          lateral_margin:
+            soft_margin: 0.25
+            hard_margin: 0.15
+            hard_margin_for_parked_vehicle: 0.12
+          max_expand_ratio: 0.0
+          envelope_buffer_margin: 0.1
+          th_error_eclipse_long_radius: 0.6
+        bus:
+          th_moving_speed: 1.0
+          th_moving_time: 2.0
+          longitudinal_margin: 0.0
+          lateral_margin:
+            soft_margin: 0.25
+            hard_margin: 0.15
+            hard_margin_for_parked_vehicle: 0.12
+          max_expand_ratio: 0.0
+          envelope_buffer_margin: 0.1
+          th_error_eclipse_long_radius: 0.6
+        trailer:
+          th_moving_speed: 1.0
+          th_moving_time: 2.0
+          longitudinal_margin: 0.0
+          lateral_margin:
+            soft_margin: 0.25
+            hard_margin: 0.15
+            hard_margin_for_parked_vehicle: 0.12
+          max_expand_ratio: 0.0
+          envelope_buffer_margin: 0.1
+          th_error_eclipse_long_radius: 0.6
+        unknown:
+          th_moving_speed: 0.50
+          th_moving_time: 0.0
+          longitudinal_margin: 0.0
+          lateral_margin:
+            soft_margin: 0.25
+            hard_margin: 0.15
+            hard_margin_for_parked_vehicle: 0.12
+          max_expand_ratio: 0.0
+          envelope_buffer_margin: 0.1
+          th_error_eclipse_long_radius: 0.6
+        bicycle:
+          th_moving_speed: 0.28
+          th_moving_time: 1.0
+          longitudinal_margin: 0.3
+          lateral_margin:
+            soft_margin: 0.30
+            hard_margin: 0.20
+            hard_margin_for_parked_vehicle: 0.15
+          max_expand_ratio: 0.0
+          envelope_buffer_margin: 0.3
+          th_error_eclipse_long_radius: 0.6
+        motorcycle:
+          th_moving_speed: 1.0
+          th_moving_time: 1.0
+          longitudinal_margin: 0.3
+          lateral_margin:
+            soft_margin: 0.25
+            hard_margin: 0.18
+            hard_margin_for_parked_vehicle: 0.15
+          max_expand_ratio: 0.0
+          envelope_buffer_margin: 0.3
+          th_error_eclipse_long_radius: 0.6
+        pedestrian:
+          th_moving_speed: 0.28
+          th_moving_time: 1.0
+          longitudinal_margin: 0.3
+          lateral_margin:
+            soft_margin: 0.30
+            hard_margin: 0.20
+            hard_margin_for_parked_vehicle: 0.15
+          max_expand_ratio: 0.0
+          envelope_buffer_margin: 0.3
+          th_error_eclipse_long_radius: 0.6
+        # 从 30/100 缩到 3/5, 匹配感知 5m 上限
+        lower_distance_for_polygon_expansion: 3.0
+        upper_distance_for_polygon_expansion: 5.0
+
+      # =========================================================================
+      # 目标过滤
+      # =========================================================================
+      target_filtering:
+        target_type:
+          car: true
+          truck: true
+          bus: true
+          trailer: true
+          unknown: true                   # 关键: 保持打开
+          bicycle: true
+          motorcycle: true
+          pedestrian: true
+
+        object_check_goal_distance: 0.5
+        object_check_return_pose_distance: 2.0    # 匹配感知范围
+
+        max_compensation_time: 2.0
+
+        # =====================================================================
+        # 检测区域: 关键改动
+        # max_forward_distance 匹配感知上限 5m
+        # 设 4.5m 略小于 5m, 避免边缘不稳定数据
+        # =====================================================================
+        detection_area:
+          static: true
+          min_forward_distance: 1.5       # 保持: "多近的障碍不再尝试避让"
+          max_forward_distance: 4.5       # 关键: 匹配感知范围
+          backward_distance: 2.0
+
+        parked_vehicle:
+          th_offset_from_centerline: 0.0
+          th_shiftable_ratio: 0.8
+          min_road_shoulder_width: 0.3
+
+        merging_vehicle:
+          th_overhang_distance: 0.0
+
+        # 允许感知刚检测到的障碍物立即处理 (5m 感知没时间等分类稳定)
+        unstable_classification_time: 0.0
+
+        avoidance_for_ambiguous_vehicle:
+          policy: "auto"
+          condition:
+            th_stopped_time: 0.0
+            th_moving_distance: 0.0
+          ignore_area:
+            traffic_light:
+              front_distance: 5.0
+            crosswalk:
+              front_distance: 5.0
+              behind_distance: 0.0
+          wait_and_see:
+            target_behaviors: ["MERGING", "DEVIATING"]
+            th_closest_distance: 3.0
+
+        avoidance_for_parking_violation_vehicle:
+          policy: "auto"
+          condition:
+            th_road_border_distance: 0.5
+
+        avoidance_for_adjacent_lane_stop_vehicle:
+          policy: "auto"
+
+        avoidance_for_close_vehicle:
+          policy: "auto"
+
+        intersection:
+          yaw_deviation: 0.349
+
+        freespace:
+          condition:
+            th_stopped_time: 0.0
+
+      # =========================================================================
+      # 安全检查: backward_distance 也匹配感知范围
+      # =========================================================================
+      safety_check:
+        target_type:
+          car: true
+          truck: true
+          bus: true
+          trailer: true
+          unknown: false
+          bicycle: true
+          motorcycle: true
+          pedestrian: true
+        enable: true
+        check_current_lane: false
+        check_shift_side_lane: true
+        check_other_side_lane: false
+        check_unavoidable_object: false
+        check_other_object: true
+        check_all_predicted_path: false
+        safety_check_backward_distance: 3.0       # 匹配感知
+        hysteresis_factor_expand_rate: 1.5
+        hysteresis_factor_safe_count: 1
+        collision_check_yaw_diff_threshold: 3.1416
+        min_velocity: 0.1
+        max_velocity: 2.0                         # 匹配 5km/h 上限, 略留冗余
+        time_resolution: 0.5
+        time_horizon_for_front_object: 2.0
+        time_horizon_for_rear_object: 3.0
+        delay_until_departure: 0.0
+        extended_polygon_policy: "along_path"
+        expected_front_deceleration: -1.0
+        expected_rear_deceleration: -1.0
+        rear_vehicle_reaction_time: 1.0
+        rear_vehicle_safety_time_margin: 0.5
+        lateral_distance_max_threshold: 0.2       # 接近 hard_margin
+        longitudinal_distance_min_threshold: 0.8
+        longitudinal_velocity_delta_time: 0.0
+
+      # =========================================================================
+      # 避让动作参数
+      # =========================================================================
+      avoidance:
+        lateral:
+          th_avoid_execution: 0.05
+          th_small_shift_length: 0.08
+          soft_drivable_bound_margin: 0.15
+          hard_drivable_bound_margin: 0.15
+          max_right_shift_length: 1.0             # 由车道宽度决定
+          max_left_shift_length: 1.0
+          max_deviation_from_lane: 1.0
+          ratio_for_return_shift_approval: 0.5
+
+        longitudinal:
+          min_prepare_time: 0.05                  # 极短, 感知有限没时间等
+          max_prepare_time: 0.3
+          min_prepare_distance: 0.1
+          min_slow_down_speed: 0.10
+          buf_slow_down_speed: 0.3
+          nominal_avoidance_speed: 1.4            # 关键: = 你的最高速 5 km/h
+          consider_front_overhang: true
+          consider_rear_overhang: true
+
+        return_dead_line:
+          goal:
+            enable: true
+            buffer: 1.0
+          traffic_light:
+            enable: true
+            buffer: 1.0
+
+      cancel:
+        enable: true
+        force:
+          duration_time: 1.0
+
+      yield:
+        enable: true
+        enable_during_shifting: false
+        enable_signalling_during_yield: false
+
+      stop:
+        max_distance: 0.5
+        stop_buffer: 0.15
+
+      policy:
+        detection_reliability: "reliable"
+        make_approval_request: "per_shift_line"
+        deceleration: "best_effort"
+        lateral_margin: "best_effort"
+        use_shorten_margin_immediately: true
+        candidate_path_turn_signal: "none"
+        turn_signal_on_approval_hold_duration: 3.0
+
+      # =========================================================================
+      # 动力学约束: 决定 shift 曲率
+      # 速度范围 0.3 - 1.4 m/s (1.08 - 5 km/h)
+      # =========================================================================
+      constraints:
+        lateral:
+          velocity: [0.3, 0.83, 1.4]              # 覆盖速度范围
+          max_accel_values: [2.0, 2.0, 2.0]       # 无人小车, 无乘客舒适性顾虑
+          min_jerk_values:
+            avoid: [1.0, 1.0, 1.0]                # 快速响应
+            return: [0.5, 0.5, 0.5]
+          max_jerk_values: [5.0, 5.0, 5.0]
+
+        longitudinal:
+          nominal_deceleration: -1.5
+          nominal_jerk: 0.5
+          max_deceleration: -2.5
+          max_jerk: 1.0
+          max_acceleration: 0.5
+          min_velocity_to_limit_max_acceleration: 1.5
+
+      path_generation_method: "both"
+
+      shift_line_pipeline:
+        trim:
+          quantize_size: 0.1
+          th_similar_grad_1: 0.1
+          th_similar_grad_2: 0.2
+          th_similar_grad_3: 0.5
+
+      debug:
+        enable_other_objects_marker: true
+        enable_other_objects_info: true
+        enable_detection_area_marker: true
+        enable_drivable_bound_marker: true
+        enable_safety_check_marker: true
+        enable_shift_line_marker: true
+        enable_lane_marker: true
+        enable_misc_marker: true

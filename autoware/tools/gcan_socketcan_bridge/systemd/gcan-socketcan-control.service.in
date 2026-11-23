@@ -1,0 +1,20 @@
+[Unit]
+Description=GCAN USBCAN-I autonomous-control bus to SocketCAN bridge
+After=systemd-udevd.service gcan-socketcan-bridge.service
+Wants=systemd-udevd.service
+
+[Service]
+Type=simple
+User=@RUNTIME_USER@
+SupplementaryGroups=plugdev
+ExecStartPre=+/usr/local/sbin/gcan-can1-setup
+ExecStart=/opt/gcan-socketcan-bridge/gcan_socketcan_bridge --interface can1 --bitrate 500000 --device-type 3 --device-index 1 --channel 0
+Restart=always
+RestartSec=2
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

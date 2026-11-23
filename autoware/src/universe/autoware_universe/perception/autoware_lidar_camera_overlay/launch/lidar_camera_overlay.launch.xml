@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="image_topic" default="/sensing/camera/camera0/image_rect_color"/>
+  <arg name="camera_info_topic" default="/sensing/camera/camera0/camera_info"/>
+  <arg name="pointcloud_topic" default="/sensing/lidar/concatenated/pointcloud"/>
+  <arg name="output_topic" default="/debug/lidar_camera_overlay"/>
+  <arg name="camera_frame" default="camera0_color_optical_frame"/>
+  <arg name="use_distortion" default="true"/>
+  <arg name="point_stride" default="2"/>
+  <arg name="point_size" default="2"/>
+  <arg name="sync_max_interval_sec" default="0.10"/>
+
+  <node pkg="autoware_lidar_camera_overlay" exec="lidar_camera_overlay_node"
+        name="lidar_camera_overlay" output="screen">
+    <param name="image_topic" value="$(var image_topic)"/>
+    <param name="camera_info_topic" value="$(var camera_info_topic)"/>
+    <param name="pointcloud_topic" value="$(var pointcloud_topic)"/>
+    <param name="output_topic" value="$(var output_topic)"/>
+    <param name="camera_frame" value="$(var camera_frame)"/>
+    <param name="use_distortion" value="$(var use_distortion)"/>
+    <param name="point_stride" value="$(var point_stride)"/>
+    <param name="point_size" value="$(var point_size)"/>
+    <param name="sync_max_interval_sec" value="$(var sync_max_interval_sec)"/>
+  </node>
+</launch>

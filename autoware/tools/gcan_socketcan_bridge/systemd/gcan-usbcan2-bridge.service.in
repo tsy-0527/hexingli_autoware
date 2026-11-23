@@ -1,0 +1,22 @@
+[Unit]
+Description=GCAN USBCAN-II dual-channel SocketCAN bridge
+After=systemd-udevd.service
+Wants=systemd-udevd.service
+
+[Service]
+Type=simple
+User=@RUNTIME_USER@
+SupplementaryGroups=plugdev
+ExecStartPre=+/usr/local/sbin/gcan-can0-setup
+ExecStartPre=+/usr/local/sbin/gcan-can1-setup
+ExecStart=/opt/gcan-socketcan-bridge/gcan_socketcan_bridge --dual --device-type 4 --device-index 0 --interface can0 --channel 0 --second-interface can1 --second-channel 1 --bitrate 500000
+Restart=on-failure
+RestartSec=2
+TimeoutStopSec=10
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

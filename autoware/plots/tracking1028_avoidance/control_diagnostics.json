@@ -1,0 +1,259 @@
+[
+  {
+    "t": 288,
+    "/vehicle/status/control_mode": 1,
+    "/control/command/control_cmd": [
+      1.388891577720642,
+      0.3409234881401062
+    ],
+    "/control/trajectory_follower/control_cmd": [
+      1.388891577720642,
+      0.3409234881401062
+    ],
+    "diagnostics": {
+      "/adapi/node/vehicle_door: state": [
+        2,
+        "The door status is unknown.",
+        []
+      ]
+    }
+  },
+  {
+    "t": 291,
+    "/vehicle/status/control_mode": 1,
+    "/control/command/control_cmd": [
+      0.2500028610229492,
+      0.9038703441619873
+    ],
+    "/control/trajectory_follower/control_cmd": [
+      0.2500028610229492,
+      0.9038703441619873
+    ],
+    "diagnostics": {
+      "/adapi/node/vehicle_door: state": [
+        2,
+        "The door status is unknown.",
+        []
+      ]
+    }
+  },
+  {
+    "t": 296,
+    "/vehicle/status/control_mode": 1,
+    "/control/command/control_cmd": [
+      0.25000283122062683,
+      0.8004814386367798
+    ],
+    "/control/trajectory_follower/control_cmd": [
+      0.25000283122062683,
+      0.8004814386367798
+    ],
+    "diagnostics": {
+      "/adapi/node/vehicle_door: state": [
+        2,
+        "The door status is unknown.",
+        []
+      ]
+    }
+  },
+  {
+    "t": 303,
+    "/vehicle/status/control_mode": 1,
+    "/control/command/control_cmd": [
+      0.4754117429256439,
+      0.959061324596405
+    ],
+    "/control/trajectory_follower/control_cmd": [
+      0.4754117429256439,
+      0.959061324596405
+    ],
+    "diagnostics": {
+      "/adapi/node/vehicle_door: state": [
+        2,
+        "The door status is unknown.",
+        []
+      ]
+    }
+  },
+  {
+    "t": 308,
+    "/vehicle/status/control_mode": 1,
+    "/control/command/control_cmd": [
+      0.2500028610229492,
+      0.8391711115837097
+    ],
+    "/control/trajectory_follower/control_cmd": [
+      0.2500028610229492,
+      0.8391711115837097
+    ],
+    "diagnostics": {
+      "/adapi/node/vehicle_door: state": [
+        2,
+        "The door status is unknown.",
+        []
+      ]
+    }
+  },
+  {
+    "t": 312,
+    "/vehicle/status/control_mode": 1,
+    "/control/command/control_cmd": [
+      0.25050225853919983,
+      0.8005012273788452
+    ],
+    "/control/trajectory_follower/control_cmd": [
+      0.25050225853919983,
+      0.8005012273788452
+    ],
+    "diagnostics": {
+      "/adapi/node/vehicle_door: state": [
+        2,
+        "The door status is unknown.",
+        []
+      ]
+    }
+  },
+  {
+    "t": 350,
+    "/vehicle/status/control_mode": 1,
+    "/control/command/control_cmd": [
+      0.6406037211418152,
+      1.1753708124160767
+    ],
+    "/control/trajectory_follower/control_cmd": [
+      0.2500033974647522,
+      1.1753708124160767
+    ],
+    "diagnostics": {
+      "control_validator: control_validation_acceleration_error": [
+        2,
+        "Measured acceleration and desired acceleration is deviated",
+        []
+      ],
+      "control_validator: control_validation_latency": [
+        2,
+        "The latency is larger than expected value.",
+        []
+      ],
+      "/adapi/node/vehicle_door: state": [
+        2,
+        "The door status is unknown.",
+        []
+      ]
+    }
+  },
+  {
+    "t": 356,
+    "/vehicle/status/control_mode": 1,
+    "/control/command/control_cmd": [
+      0.25016164779663086,
+      0.8003026247024536
+    ],
+    "/control/trajectory_follower/control_cmd": [
+      0.25016164779663086,
+      0.8003026247024536
+    ],
+    "diagnostics": {
+      "/adapi/node/vehicle_door: state": [
+        2,
+        "The door status is unknown.",
+        []
+      ]
+    }
+  },
+  {
+    "t": 371,
+    "/vehicle/status/control_mode": 1,
+    "/control/command/control_cmd": [
+      0.2522260248661041,
+      0.8617560267448425
+    ],
+    "/control/trajectory_follower/control_cmd": [
+      0.2522260248661041,
+      0.8617560267448425
+    ],
+    "diagnostics": {
+      "/adapi/node/vehicle_door: state": [
+        2,
+        "The door status is unknown.",
+        []
+      ]
+    }
+  },
+  {
+    "t": 388,
+    "/vehicle/status/control_mode": 1,
+    "/control/command/control_cmd": [
+      0.251760870218277,
+      0.8037617802619934
+    ],
+    "/control/trajectory_follower/control_cmd": [
+      0.251760870218277,
+      0.8037617802619934
+    ],
+    "diagnostics": {
+      "/adapi/node/vehicle_door: state": [
+        2,
+        "The door status is unknown.",
+        []
+      ]
+    }
+  },
+  {
+    "t": 460,
+    "/vehicle/status/control_mode": 1,
+    "/control/command/control_cmd": [
+      0.0,
+      -0.6194376349449158
+    ],
+    "/control/trajectory_follower/control_cmd": [
+      0.0,
+      -0.6194376349449158
+    ],
+    "diagnostics": {
+      "/adapi/node/vehicle_door: state": [
+        2,
+        "The door status is unknown.",
+        []
+      ]
+    }
+  },
+  {
+    "t": 463,
+    "/vehicle/status/control_mode": 1,
+    "/control/command/control_cmd": [
+      0.0,
+      -1.5
+    ],
+    "/control/trajectory_follower/control_cmd": [
+      0.0,
+      -3.4000000953674316
+    ],
+    "diagnostics": {
+      "/adapi/node/vehicle_door: state": [
+        2,
+        "The door status is unknown.",
+        []
+      ]
+    }
+  },
+  {
+    "t": 467,
+    "/vehicle/status/control_mode": 1,
+    "/control/command/control_cmd": [
+      0.4477888345718384,
+      0.5154993534088135
+    ],
+    "/control/trajectory_follower/control_cmd": [
+      0.4477888345718384,
+      0.5154993534088135
+    ],
+    "diagnostics": {
+      "/adapi/node/vehicle_door: state": [
+        2,
+        "The door status is unknown.",
+        []
+      ]
+    }
+  }
+]

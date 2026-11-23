@@ -1,0 +1,9 @@
+/**:
+  ros__parameters:
+    # Mid-360 scans in the compact task5 site were reduced from about 18,700
+    # points to only about 50 points with a 3 m leaf size.  Keep enough
+    # geometry for stable 6-DoF NDT matching while the following random
+    # downsampler still caps the final cloud at 1,500 points.
+    voxel_size_x: 1.0
+    voxel_size_y: 1.0
+    voxel_size_z: 1.0

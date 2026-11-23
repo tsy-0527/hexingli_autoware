@@ -1,0 +1,393 @@
+MODES [
+ [
+  0.090067638,
+  {
+   "mode": 2,
+   "is_autoware_control_enabled": true,
+   "is_in_transition": false,
+   "is_stop_mode_available": true,
+   "is_autonomous_mode_available": false,
+   "is_local_mode_available": true,
+   "is_remote_mode_available": true
+  }
+ ],
+ [
+  4.470290113,
+  {
+   "mode": 2,
+   "is_autoware_control_enabled": true,
+   "is_in_transition": false,
+   "is_stop_mode_available": true,
+   "is_autonomous_mode_available": true,
+   "is_local_mode_available": true,
+   "is_remote_mode_available": true
+  }
+ ],
+ [
+  4.87290446,
+  {
+   "mode": 2,
+   "is_autoware_control_enabled": true,
+   "is_in_transition": false,
+   "is_stop_mode_available": true,
+   "is_autonomous_mode_available": false,
+   "is_local_mode_available": true,
+   "is_remote_mode_available": true
+  }
+ ],
+ [
+  13.270030755,
+  {
+   "mode": 2,
+   "is_autoware_control_enabled": false,
+   "is_in_transition": false,
+   "is_stop_mode_available": true,
+   "is_autonomous_mode_available": false,
+   "is_local_mode_available": true,
+   "is_remote_mode_available": true
+  }
+ ],
+ [
+  13.870083971,
+  {
+   "mode": 2,
+   "is_autoware_control_enabled": false,
+   "is_in_transition": false,
+   "is_stop_mode_available": true,
+   "is_autonomous_mode_available": true,
+   "is_local_mode_available": true,
+   "is_remote_mode_available": true
+  }
+ ],
+ [
+  14.570371941,
+  {
+   "mode": 2,
+   "is_autoware_control_enabled": true,
+   "is_in_transition": false,
+   "is_stop_mode_available": true,
+   "is_autonomous_mode_available": true,
+   "is_local_mode_available": true,
+   "is_remote_mode_available": true
+  }
+ ],
+ [
+  16.270293903,
+  {
+   "mode": 2,
+   "is_autoware_control_enabled": true,
+   "is_in_transition": false,
+   "is_stop_mode_available": true,
+   "is_autonomous_mode_available": false,
+   "is_local_mode_available": true,
+   "is_remote_mode_available": true
+  }
+ ],
+ [
+  44.570140422,
+  {
+   "mode": 2,
+   "is_autoware_control_enabled": true,
+   "is_in_transition": false,
+   "is_stop_mode_available": true,
+   "is_autonomous_mode_available": true,
+   "is_local_mode_available": true,
+   "is_remote_mode_available": true
+  }
+ ],
+ [
+  44.970166243,
+  {
+   "mode": 2,
+   "is_autoware_control_enabled": true,
+   "is_in_transition": false,
+   "is_stop_mode_available": true,
+   "is_autonomous_mode_available": false,
+   "is_local_mode_available": true,
+   "is_remote_mode_available": true
+  }
+ ],
+ [
+  112.470114621,
+  {
+   "mode": 2,
+   "is_autoware_control_enabled": true,
+   "is_in_transition": false,
+   "is_stop_mode_available": true,
+   "is_autonomous_mode_available": true,
+   "is_local_mode_available": true,
+   "is_remote_mode_available": true
+  }
+ ],
+ [
+  112.570137733,
+  {
+   "mode": 2,
+   "is_autoware_control_enabled": true,
+   "is_in_transition": false,
+   "is_stop_mode_available": true,
+   "is_autonomous_mode_available": false,
+   "is_local_mode_available": true,
+   "is_remote_mode_available": true
+  }
+ ],
+ [
+  112.670657434,
+  {
+   "mode": 2,
+   "is_autoware_control_enabled": true,
+   "is_in_transition": false,
+   "is_stop_mode_available": true,
+   "is_autonomous_mode_available": true,
+   "is_local_mode_available": true,
+   "is_remote_mode_available": true
+  }
+ ],
+ [
+  112.870000075,
+  {
+   "mode": 2,
+   "is_autoware_control_enabled": true,
+   "is_in_transition": false,
+   "is_stop_mode_available": true,
+   "is_autonomous_mode_available": false,
+   "is_local_mode_available": true,
+   "is_remote_mode_available": true
+  }
+ ],
+ [
+  123.370770373,
+  {
+   "mode": 2,
+   "is_autoware_control_enabled": true,
+   "is_in_transition": false,
+   "is_stop_mode_available": true,
+   "is_autonomous_mode_available": true,
+   "is_local_mode_available": true,
+   "is_remote_mode_available": true
+  }
+ ],
+ [
+  131.270105451,
+  {
+   "mode": 2,
+   "is_autoware_control_enabled": true,
+   "is_in_transition": false,
+   "is_stop_mode_available": true,
+   "is_autonomous_mode_available": false,
+   "is_local_mode_available": true,
+   "is_remote_mode_available": true
+  }
+ ],
+ [
+  132.970058655,
+  {
+   "mode": 2,
+   "is_autoware_control_enabled": true,
+   "is_in_transition": false,
+   "is_stop_mode_available": true,
+   "is_autonomous_mode_available": true,
+   "is_local_mode_available": true,
+   "is_remote_mode_available": true
+  }
+ ],
+ [
+  134.370016266,
+  {
+   "mode": 2,
+   "is_autoware_control_enabled": true,
+   "is_in_transition": false,
+   "is_stop_mode_available": true,
+   "is_autonomous_mode_available": false,
+   "is_local_mode_available": true,
+   "is_remote_mode_available": true
+  }
+ ],
+ [
+  136.370118551,
+  {
+   "mode": 2,
+   "is_autoware_control_enabled": true,
+   "is_in_transition": false,
+   "is_stop_mode_available": true,
+   "is_autonomous_mode_available": true,
+   "is_local_mode_available": true,
+   "is_remote_mode_available": true
+  }
+ ],
+ [
+  144.570174785,
+  {
+   "mode": 2,
+   "is_autoware_control_enabled": true,
+   "is_in_transition": false,
+   "is_stop_mode_available": true,
+   "is_autonomous_mode_available": false,
+   "is_local_mode_available": true,
+   "is_remote_mode_available": true
+  }
+ ],
+ [
+  195.570318175,
+  {
+   "mode": 2,
+   "is_autoware_control_enabled": true,
+   "is_in_transition": false,
+   "is_stop_mode_available": true,
+   "is_autonomous_mode_available": true,
+   "is_local_mode_available": true,
+   "is_remote_mode_available": true
+  }
+ ],
+ [
+  197.170158309,
+  {
+   "mode": 2,
+   "is_autoware_control_enabled": true,
+   "is_in_transition": false,
+   "is_stop_mode_available": true,
+   "is_autonomous_mode_available": false,
+   "is_local_mode_available": true,
+   "is_remote_mode_available": true
+  }
+ ],
+ [
+  210.970107781,
+  {
+   "mode": 2,
+   "is_autoware_control_enabled": true,
+   "is_in_transition": false,
+   "is_stop_mode_available": true,
+   "is_autonomous_mode_available": true,
+   "is_local_mode_available": true,
+   "is_remote_mode_available": true
+  }
+ ],
+ [
+  212.270164913,
+  {
+   "mode": 2,
+   "is_autoware_control_enabled": true,
+   "is_in_transition": false,
+   "is_stop_mode_available": true,
+   "is_autonomous_mode_available": false,
+   "is_local_mode_available": true,
+   "is_remote_mode_available": true
+  }
+ ],
+ [
+  220.370088306,
+  {
+   "mode": 2,
+   "is_autoware_control_enabled": true,
+   "is_in_transition": false,
+   "is_stop_mode_available": true,
+   "is_autonomous_mode_available": true,
+   "is_local_mode_available": true,
+   "is_remote_mode_available": true
+  }
+ ],
+ [
+  222.070153749,
+  {
+   "mode": 2,
+   "is_autoware_control_enabled": true,
+   "is_in_transition": false,
+   "is_stop_mode_available": true,
+   "is_autonomous_mode_available": false,
+   "is_local_mode_available": true,
+   "is_remote_mode_available": true
+  }
+ ],
+ [
+  239.769929867,
+  {
+   "mode": 2,
+   "is_autoware_control_enabled": true,
+   "is_in_transition": false,
+   "is_stop_mode_available": true,
+   "is_autonomous_mode_available": true,
+   "is_local_mode_available": true,
+   "is_remote_mode_available": true
+  }
+ ],
+ [
+  240.770212198,
+  {
+   "mode": 1,
+   "is_autoware_control_enabled": true,
+   "is_in_transition": true,
+   "is_stop_mode_available": true,
+   "is_autonomous_mode_available": true,
+   "is_local_mode_available": true,
+   "is_remote_mode_available": true
+  }
+ ],
+ [
+  240.869980408,
+  {
+   "mode": 1,
+   "is_autoware_control_enabled": true,
+   "is_in_transition": false,
+   "is_stop_mode_available": true,
+   "is_autonomous_mode_available": true,
+   "is_local_mode_available": true,
+   "is_remote_mode_available": true
+  }
+ ]
+]
+/vehicle/status/control_mode [[0.11211899, {'mode': 1}], [13.221520394, {'mode': 4}], [14.520655213, {'mode': 1}]]
+/vehicle/status/gear_status [[0.111965785, {'report': 2}], [3.820419813, {'report': 1}], [4.471664407, {'report': 2}], [13.23176247, {'report': 1}], [15.781068501, {'report': 2}], [43.895198044, {'report': 1}], [44.504173287, {'report': 2}], [111.931362354, {'report': 1}], [112.51109482, {'report': 2}], [240.876454802, {'report': 1}]]
+/control/command/gear_cmd [[0.123003378, {'command': 2}], [13.458552838, {'command': 1}], [15.759208307, {'command': 2}], [240.858707292, {'command': 22}]]
+/api/routing/state [[0.198549966, {'state': 2}], [240.745202329, {'state': 3}]]
+DIAG occupancy_grid_map_node: pointcloud_based_probabilistic_occupancy_grid_map counts {"b'\\x00':OK": 1771, "b'\\x01':[WARN] Processing time exceeds the warning threshold of 50.000000 ms.": 681, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.075225s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.179708s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.279253s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.344157s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.451758s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.589240s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.719116s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.825436s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.898466s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 2.058057s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 2.152599s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 2.237317s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 2.367262s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.015977s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.126845s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.241666s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.331196s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.435231s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.547309s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.040782s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.151386s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.261772s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.349970s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.009973s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.056643s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.157097s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.257537s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.375357s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.473465s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.547353s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.681552s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.006643s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.121684s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.035235s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.142983s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.218382s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.337738s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.442721s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.546532s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.653553s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.055051s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.023108s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.034564s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.139299s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.261525s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.339725s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.038359s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.129317s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.235916s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.335522s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.454288s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.521801s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.645107s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.721398s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.057432s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.026698s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.135513s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.231443s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.309998s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.006772s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.092664s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.016407s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.131704s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.232955s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.316810s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.442206s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.536908s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.637673s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.762946s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.850335s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.010384s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.139228s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.037328s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.125072s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.239761s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.014553s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.117752s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.217614s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.322885s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.428826s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.509238s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.614323s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.705708s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.821738s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.909283s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.087057s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.175509s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.281901s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.392150s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.011648s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.096104s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.206733s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.297211s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.396511s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.035246s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.119416s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.223771s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.328441s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.429730s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.518175s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.621350s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.734701s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.822683s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 1.932727s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 2.031144s  (Threshold 1.000000s)": 1, "b'\\x02':[ERROR] Processing time exceeded the warning threshold of 50.000000ms for 2.121586s  (Threshold 1.000000s)": 1} states [[0.148118384, 0, 'OK', {'processing time(ms)': '2.687000', 'is processing time within threshold': 'True', 'processing time consecutive excess duration(ms)': '0.000331', 'is processing time consecutive excess duration within threshold': 'True'}], [0.948773174, 1, '[WARN] Processing time exceeds the warning threshold of 50.000000 ms.', {'processing time(ms)': '60.363000', 'is processing time within threshold': 'False', 'processing time consecutive excess duration(ms)': '130.831428', 'is processing time consecutive excess duration within threshold': 'True'}], [1.39344936, 0, 'OK', {'processing time(ms)': '41.955000', 'is processing time within threshold': 'True', 'processing time consecutive excess duration(ms)': '0.000199', 'is processing time consecutive excess duration within threshold': 'True'}], [1.610236681, 1, '[WARN] Processing time exceeds the warning threshold of 50.000000 ms.', {'processing time(ms)': '64.191000', 'is processing time within threshold': 'False', 'processing time consecutive excess duration(ms)': '112.970296', 'is processing time consecutive excess duration within threshold': 'True'}], [1.706515804, 0, 'OK', {'processing time(ms)': '36.819000', 'is processing time within threshold': 'True', 'processing time consecutive excess duration(ms)': '0.000571', 'is processing time consecutive excess duration within threshold': 'True'}], [2.128737801, 1, '[WARN] Processing time exceeds the warning threshold of 50.000000 ms.', {'processing time(ms)': '61.632000', 'is processing time within threshold': 'False', 'processing time consecutive excess duration(ms)': '122.506305', 'is processing time consecutive excess duration within threshold': 'True'}], [2.268646682, 0, 'OK', {'processing time(ms)': '44.022000', 'is processing time within threshold': 'True', 'processing time consecutive excess duration(ms)': '0.000394', 'is processing time consecutive excess duration within threshold': 'True'}], [2.383984115, 1, '[WARN] Processing time exceeds the warning threshold of 50.000000 ms.', {'processing time(ms)': '51.256000', 'is processing time within threshold': 'False', 'processing time consecutive excess duration(ms)': '147.771923', 'is processing time consecutive excess duration within threshold': 'True'}], [2.447838307, 0, 'OK', {'processing time(ms)': '38.947000', 'is processing time within threshold': 'True', 'processing time consecutive excess duration(ms)': '0.000245', 'is processing time consecutive excess duration within threshold': 'True'}], [2.65613474, 1, '[WARN] Processing time exceeds the warning threshold of 50.000000 ms.', {'processing time(ms)': '51.518000', 'is processing time within threshold': 'False', 'processing time consecutive excess duration(ms)': '103.187653', 'is processing time consecutive excess duration within threshold': 'True'}], [2.860060785, 0, 'OK', {'processing time(ms)': '49.859000', 'is processing time within threshold': 'True', 'processing time consecutive excess duration(ms)': '0.000217', 'is processing time consecutive excess duration within threshold': 'True'}], [2.99470641, 1, '[WARN] Processing time exceeds the warning threshold of 50.000000 ms.', {'processing time(ms)': '50.815000', 'is processing time within threshold': 'False', 'processing time consecutive excess duration(ms)': '103.762966', 'is processing time consecutive excess duration within threshold': 'True'}]]
+DIAG collision_detector: collision_detect counts {"b'\\x00':": 2135, "b'\\x00':vehicle is stopping": 421, "b'\\x02':collision detected": 5} states [[0.148601553, 0, '', {}], [4.428527427, 0, 'vehicle is stopping', {}], [4.85944267, 0, '', {}], [13.82795257, 0, 'vehicle is stopping', {}], [16.248475661, 0, '', {}], [44.627973234, 0, 'vehicle is stopping', {}], [44.948388157, 0, '', {}], [112.627942387, 0, 'vehicle is stopping', {}], [112.948499351, 0, '', {}], [123.328384505, 0, 'vehicle is stopping', {}], [131.248751436, 0, '', {}], [132.927963439, 0, 'vehicle is stopping', {}]]
+DIAG control_validator: control_validation_acceleration_error counts {"b'\\x00':validated.": 8835, "b'\\x02':Measured acceleration and desired acceleration is deviated": 2} states [[0.157882124, 0, 'validated.', {}], [112.387777709, 2, 'Measured acceleration and desired acceleration is deviated', {}], [112.417663971, 0, 'validated.', {}]]
+DIAG control_validator: control_validation_latency counts {"b'\\x00':validated.": 8546, "b'\\x02':The latency is larger than expected value.": 291} states [[0.157882124, 0, 'validated.', {}], [1.156137544, 2, 'The latency is larger than expected value.', {}], [1.17844934, 0, 'validated.', {}], [1.458891797, 2, 'The latency is larger than expected value.', {}], [1.54481354, 0, 'validated.', {}], [1.580845398, 2, 'The latency is larger than expected value.', {}], [1.743480184, 0, 'validated.', {}], [1.759396752, 2, 'The latency is larger than expected value.', {}], [1.777903077, 0, 'validated.', {}], [1.792668585, 2, 'The latency is larger than expected value.', {}], [1.806503998, 0, 'validated.', {}], [1.835938769, 2, 'The latency is larger than expected value.', {}]]
+DIAG multi_object_tracker: Tracker Timing Diagnostics counts {"b'\\x00':[OK] All timing parameters are within safe limits.": 4534, "b'\\x01':[WARN] Timing warning: Detection delay exceeded threshold. Extrapolation time exceeded warning threshold. ": 202, "b'\\x02':[ERROR] Timing issue detected: Extrapolation warning persisted for too long! ": 394, "b'\\x02':[ERROR] Timing issue detected: Detection delay exceeded threshold. Extrapolation warning persisted for too long! ": 71} states [[0.164509657, 0, '[OK] All timing parameters are within safe limits.', {'Detection delay (s)': '0.242405', 'Detection status': '[OK] Within limits', 'Extrapolation time (s)': '0.24203', 'Extrapolation status': '[OK] Extrapolation time is within safe limits. '}], [3.923940418, 1, '[WARN] Timing warning: Detection delay exceeded threshold. Extrapolation time exceeded warning threshold. ', {'Detection delay (s)': '0.553771', 'Detection status': '[WARN] Exceeded warn threshold', 'Extrapolation time (s)': '0.553298', 'Extrapolation status': '[WARN] Extrapolation time exceeds warning threshold 0.500000'}], [4.014657143, 0, '[OK] All timing parameters are within safe limits.', {'Detection delay (s)': '0.444163', 'Detection status': '[OK] Within limits', 'Extrapolation time (s)': '0.443845', 'Extrapolation status': '[OK] Extrapolation time is within safe limits. '}], [4.404082236, 1, '[WARN] Timing warning: Detection delay exceeded threshold. Extrapolation time exceeded warning threshold. ', {'Detection delay (s)': '0.532999', 'Detection status': '[WARN] Exceeded warn threshold', 'Extrapolation time (s)': '0.532336', 'Extrapolation status': '[WARN] Extrapolation time exceeds warning threshold 0.500000'}], [4.86488914, 0, '[OK] All timing parameters are within safe limits.', {'Detection delay (s)': '0.493525', 'Detection status': '[OK] Within limits', 'Extrapolation time (s)': '0.492864', 'Extrapolation status': '[OK] Extrapolation time is within safe limits. '}], [5.064462375, 1, '[WARN] Timing warning: Detection delay exceeded threshold. Extrapolation time exceeded warning threshold. ', {'Detection delay (s)': '0.594273', 'Detection status': '[WARN] Exceeded warn threshold', 'Extrapolation time (s)': '0.593577', 'Extrapolation status': '[WARN] Extrapolation time exceeds warning threshold 0.500000'}], [6.096360317, 2, '[ERROR] Timing issue detected: Extrapolation warning persisted for too long! ', {'Detection delay (s)': '0.524849', 'Detection status': '[WARN] Exceeded warn threshold', 'Extrapolation time (s)': '0.524419', 'Extrapolation status': '[ERROR] Extrapolation time exceeded the warning threshold of 0.500000 for 1.034031 seconds (Threshold 1.000000)'}], [17.604028185, 2, '[ERROR] Timing issue detected: Detection delay exceeded threshold. Extrapolation warning persisted for too long! ', {'Detection delay (s)': '1.03396', 'Detection status': '[ERROR] Exceeded error threshold', 'Extrapolation time (s)': '1.03331', 'Extrapolation status': '[ERROR] Extrapolation time exceeded the warning threshold of 0.500000 for 12.541724 seconds (Threshold 1.000000)'}], [17.963838102, 2, '[ERROR] Timing issue detected: Extrapolation warning persisted for too long! ', {'Detection delay (s)': '0.993805', 'Detection status': '[WARN] Exceeded warn threshold', 'Extrapolation time (s)': '0.99327', 'Extrapolation status': '[ERROR] Extrapolation time exceeded the warning threshold of 0.500000 for 12.901565 seconds (Threshold 1.000000)'}], [18.635256937, 2, '[ERROR] Timing issue detected: Detection delay exceeded threshold. Extrapolation warning persisted for too long! ', {'Detection delay (s)': '1.06372', 'Detection status': '[ERROR] Exceeded error threshold', 'Extrapolation time (s)': '1.06329', 'Extrapolation status': '[ERROR] Extrapolation time exceeded the warning threshold of 0.500000 for 13.571432 seconds (Threshold 1.000000)'}], [19.263864316, 2, '[ERROR] Timing issue detected: Extrapolation warning persisted for too long! ', {'Detection delay (s)': '0.993701', 'Detection status': '[WARN] Exceeded warn threshold', 'Extrapolation time (s)': '0.993072', 'Extrapolation status': '[ERROR] Extrapolation time exceeded the warning threshold of 0.500000 for 14.201629 seconds (Threshold 1.000000)'}], [19.373993578, 2, '[ERROR] Timing issue detected: Detection delay exceeded threshold. Extrapolation warning persisted for too long! ', {'Detection delay (s)': '1.10373', 'Detection status': '[ERROR] Exceeded error threshold', 'Extrapolation time (s)': '1.10305', 'Extrapolation status': '[ERROR] Extrapolation time exceeded the warning threshold of 0.500000 for 14.311673 seconds (Threshold 1.000000)'}]]
+DIAG topic_state_monitor_traffic_light_recognition_traffic_signals: perception_topic_status counts {"b'\\x02':Error": 2560} states [[0.227499021, 2, 'Error', {'topic': '/perception/traffic_light_recognition/traffic_signals', 'status': 'NotReceived', 'warn_rate': '5.00 [Hz]', 'error_rate': '1.00 [Hz]', 'timeout': '1.00 [s]', 'measured_rate': '100000.00 [Hz]', 'now': '1793262654.71 [s]', 'last_message_time': '0.00 [s]'}]]
+DIAG /adapi/node/manual/local: heartbeat counts {"b'\\x02':no data": 256} states [[0.830183867, 2, 'no data', {}]]
+DIAG /adapi/node/manual/remote: heartbeat counts {"b'\\x02':no data": 256} states [[0.92042995, 2, 'no data', {}]]
+DIAG /adapi/node/vehicle_door: state counts {"b'\\x02':The door status is unknown.": 256} states [[1.075133788, 2, 'The door status is unknown.', {}]]
+EVENT samples: t actual cmd follower acc path traj stopdistance steeractual steercommand
+12 1.361 1.389 1.389 0.337 2.778 1.389 29.976 -0.012 -0.02
+13 1.361 1.389 1.389 0.351 2.778 1.389 29.974 -0.02 -0.022
+13.5 0.833 1.072 1.072 -0.575 2.778 0.742 0.445 -0.01 -0.022
+14 0.0 0.0 0.0 -3.4 2.778 0.25 30.108 -0.006 -0.007
+15 0.0 0.0 0.0 -1.5 2.778 0.25 30.108 -0.006 -0.001
+16 0.0 0.253 0.253 0.433 2.778 0.25 30.108 -0.006 -0.001
+121 1.194 1.389 1.389 0.522 2.778 1.389 30.002 -0.104 -0.108
+122 1.361 1.389 1.389 0.361 2.778 1.389 29.867 -0.087 -0.076
+123 0.944 1.389 1.389 0.444 2.778 1.389 30.0 -0.055 -0.048
+124 0.0 0.254 0.254 0.825 2.778 0.25 30.001 -0.046 -0.054
+126 0.0 0.251 0.251 0.801 2.778 0.25 30.001 -0.048 -0.055
+130 0.0 0.25 0.25 0.8 2.778 0.25 30.001 -0.048 -0.054
+131 0.0 0.25 0.25 0.8 2.778 0.25 30.001 -0.048 -0.054
+132 0.472 0.676 0.676 1.163 2.778 0.61 30.0 -0.059 -0.068
+133 0.083 0.622 0.25 1.011 2.778 0.25 30.0 -0.048 -0.047
+134 0.0 0.25 0.25 0.807 2.778 0.25 30.0 -0.048 -0.045
+135 0.361 0.576 0.576 1.078 2.778 0.515 30.0 -0.048 -0.056
+136 0.833 1.201 1.201 0.899 2.778 1.152 30.0 -0.033 -0.023
+137 0.0 0.252 0.252 0.829 2.778 0.25 30.0 -0.025 -0.032
+140 0.0 0.25 0.25 0.8 2.778 0.25 30.0 -0.025 -0.033
+144 0.0 0.25 0.25 0.8 2.778 0.25 30.0 -0.026 -0.034
+145 0.306 0.452 0.452 0.999 2.778 0.427 30.0 -0.036 -0.042
+193 1.167 1.054 1.054 0.096 2.778 1.073 2.567 -0.003 0.053
+194 1.139 1.25 1.25 0.523 2.778 1.23 1.602 0.125 0.152
+195 1.028 0.248 0.0 -0.841 2.778 0.817 0.383 0.2 0.261
+196 0.0 0.0 0.0 -3.4 2.778 0.248 0.06 0.207 0.214
+197 0.0 0.255 0.255 0.399 2.778 0.254 30.094 0.207 0.209
+209 1.389 1.389 1.389 0.095 2.778 1.389 30.036 -0.035 0.007
+210 1.278 1.389 1.389 0.137 2.778 1.389 30.033 -0.035 -0.026
+211 0.0 1.239 0.253 1.06 2.778 0.25 30.379 -0.073 -0.057
+212 0.0 0.259 0.259 0.621 2.778 0.25 30.32 -0.06 -0.054
+213 0.361 0.71 0.71 0.745 2.778 0.623 30.064 -0.091 -0.13
+219 1.361 1.389 1.389 0.21 2.778 1.389 23.482 0.066 0.107
+220 1.028 1.389 1.389 0.26 2.778 1.389 22.309 0.108 0.076
+221 0.0 0.251 0.251 0.721 2.778 0.251 22.056 0.049 0.052
+222 0.056 0.261 0.261 0.69 2.778 0.252 22.014 0.051 0.05
+223 0.611 0.838 0.838 0.979 2.778 0.752 21.642 -0.037 -0.035
+237 1.361 1.389 1.389 0.324 2.778 1.389 3.396 -0.012 -0.01
+238 1.361 1.389 1.389 0.289 2.778 1.389 2.05 -0.012 -0.006
+239 1.222 1.012 1.012 -0.759 2.778 1.002 0.637 -0.012 -0.015
+240 0.0 0.0 0.0 -3.465 0.0 0.422 0.161 -0.018 -0.016

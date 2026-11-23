@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- Intel RealSense D455 driver. The aligned depth topic is used for range estimation. -->
+  <arg name="autoware_objects_3d_topic" default="/perception/object_recognition/detection/camera_only/objects"/>
+  <arg name="enable_round_contour" default="true"/>
+  <arg name="color_profile" default="640x480x15"/>
+  <arg name="depth_profile" default="640x480x15"/>
+  <arg name="start_realsense" default="true"/>
+  <arg name="image_topic" default="/camera/color/image_raw"/>
+  <arg name="depth_topic" default="/camera/aligned_depth_to_color/image_raw"/>
+  <arg name="camera_info_topic" default="/camera/color/camera_info"/>
+
+  <group if="$(var start_realsense)">
+    <include file="$(find-pkg-share realsense2_camera)/launch/rs_launch.py">
+      <arg name="camera_namespace" value=""/>
+      <arg name="camera_name" value="camera"/>
+      <arg name="enable_color" value="true"/>
+      <arg name="enable_depth" value="true"/>
+      <arg name="enable_sync" value="true"/>
+      <arg name="align_depth.enable" value="true"/>
+      <arg name="depth_module.depth_profile" value="$(var depth_profile)"/>
+      <arg name="rgb_camera.color_profile" value="$(var color_profile)"/>
+      <arg name="pointcloud.enable" value="false"/>
+      <arg name="enable_infra" value="false"/>
+      <arg name="enable_infra1" value="false"/>
+      <arg name="enable_infra2" value="false"/>
+      <arg name="publish_tf" value="true"/>
+      <arg name="spatial_filter.enable" value="true"/>
+      <arg name="temporal_filter.enable" value="true"/>
+      <arg name="hole_filling_filter.enable" value="true"/>
+    </include>
+  </group>
+
+  <include file="$(find-pkg-share vision_detection_launch)/launch/camera_detection.launch.xml">
+    <arg name="start_usb_camera" value="false"/>
+    <arg name="image_topic" value="$(var image_topic)"/>
+    <arg name="depth_topic" value="$(var depth_topic)"/>
+    <arg name="camera_info_topic" value="$(var camera_info_topic)"/>
+    <arg name="depth_scale" value="0.001"/>
+    <arg name="target_frame" value="base_link"/>
+    <arg name="enable_round_contour" value="$(var enable_round_contour)"/>
+    <arg name="autoware_objects_3d_topic" value="$(var autoware_objects_3d_topic)"/>
+  </include>
+</launch>
