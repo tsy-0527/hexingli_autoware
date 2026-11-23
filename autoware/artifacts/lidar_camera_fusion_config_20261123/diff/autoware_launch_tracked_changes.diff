@@ -1,0 +1,576 @@
+diff --git a/autoware_launch/config/perception/object_recognition/detection/clustering/voxel_grid_based_euclidean_cluster.param.yaml b/autoware_launch/config/perception/object_recognition/detection/clustering/voxel_grid_based_euclidean_cluster.param.yaml
+old mode 100644
+new mode 100755
+index fb675897..4ebf0b42
+--- a/autoware_launch/config/perception/object_recognition/detection/clustering/voxel_grid_based_euclidean_cluster.param.yaml
++++ b/autoware_launch/config/perception/object_recognition/detection/clustering/voxel_grid_based_euclidean_cluster.param.yaml
+@@ -1,13 +1,13 @@
+ /**:
+   ros__parameters:
+-    tolerance: 0.7
+-    voxel_leaf_size: 0.3
+-    min_points_number_per_voxel: 1
+-    min_cluster_size: 10
++    tolerance: 0.3 # {OVERRIDE: reduce corridor wall and nearby structure bridging}
++    voxel_leaf_size: 0.15 # {OVERRIDE: preserve narrow corridor geometry during clustering}
++    min_points_number_per_voxel: 2 # {OVERRIDE: reject isolated single-return voxels before clustering}
++    min_cluster_size: 8 # {OVERRIDE: suppress sparse corridor noise clusters; validate small obstacle recall}
+     max_cluster_size: 3000  # this is the maximum number of voxels when clustered
+     max_voxel_cluster_for_output: 800  # Maximum number of voxels in a cluster when outputted
+-    min_voxel_cluster_size_for_filtering: 65  # Clusters below this number of voxels are exempt from per-voxel filtering
+-    max_points_per_voxel_in_large_cluster: 10  # Max points allowed per voxel in a large cluster
++    min_voxel_cluster_size_for_filtering: 3  # Clusters below this number of voxels are exempt from per-voxel filtering
++    max_points_per_voxel_in_large_cluster: 20  # Retain more points to stabilize large-cluster shapes
+     use_height: false
+     input_frame: "base_link"
+ 
+@@ -16,7 +16,7 @@
+     min_x: -200.0
+     max_y: 200.0
+     min_y: -200.0
+-    max_z: 2.0
+-    min_z: -10.0
++    max_z: 2.5 # {OVERRIDE: retain full obstacle extent after ground segmentation}
++    min_z: -0.2 # {OVERRIDE: reject residual ground while retaining low obstacles}
+     negative: false
+     processing_time_threshold_sec: 0.01
+diff --git a/autoware_launch/config/perception/object_recognition/detection/image_projection_based_fusion/fusion_common.param.yaml b/autoware_launch/config/perception/object_recognition/detection/image_projection_based_fusion/fusion_common.param.yaml
+old mode 100644
+new mode 100755
+index c39e49e9..fc1a6171
+--- a/autoware_launch/config/perception/object_recognition/detection/image_projection_based_fusion/fusion_common.param.yaml
++++ b/autoware_launch/config/perception/object_recognition/detection/image_projection_based_fusion/fusion_common.param.yaml
+@@ -11,12 +11,18 @@
+     # msg3d's header timestamp: 0.000
+     # rois's header timestamp (camera 0-5):  0.059, 0.010, 0.026, 0.042, 0.076, 0.093
+     # offset = rois_timestamp- msg3d_timestamp
+-    rois_timestamp_offsets: [0.098, 0.147, 0.078, 0.062, 0.115, 0.132] # {OVERRIDE}
+-    rois_timeout_sec: 0.5
+-    msg3d_timeout_sec: 0.05
++    # D455 and Mid-360 timestamps come from the same host clock. Live sampling
++    # measured a -74 ms D455 ROI versus Mid-360 pointcloud offset on this
++    # vehicle; keep a small window around the averaged value.
++    rois_timestamp_offsets: [-0.075] # {OVERRIDE: measured single D455 and Mid-360 offset}
++    # YOLOX currently publishes at about 1.8 Hz, so allow one inference period.
++    rois_timeout_sec: 0.8
++    msg3d_timeout_sec: 1.0
+     image_buffer_size: 15
+     # projection setting for each ROI whether unrectify image
+-    point_project_to_unrectified_image: [false, false, false, false, false, false]
++    # camera0/image_rect_color is currently a raw-image compatibility relay;
++    # use CameraInfo distortion coefficients during LiDAR projection.
++    point_project_to_unrectified_image: [true, false, false, false, false, false]
+     filter_scope_min_x: -100.0
+     filter_scope_min_y: -100.0
+     filter_scope_min_z: -100.0
+@@ -31,7 +37,7 @@
+     approximation_grid_cell_height: 1.0
+ 
+     # debug parameters
+-    debug_mode: false
++    debug_mode: true # {OVERRIDE: publish camera-LiDAR fusion debug image}
+     collector_debug_mode: false
+     publish_processing_time_detail: false
+ 
+@@ -40,7 +46,7 @@
+     # matching strategy
+     matching_strategy:
+       type: advanced
+-      msg3d_noise_window: 0.02
+-      rois_timestamp_noise_window: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
++      msg3d_noise_window: 0.05
++      rois_timestamp_noise_window: [0.08, 0.01, 0.01, 0.01, 0.01, 0.01]
+       # type: naive
+       # threshold: 0.05
+diff --git a/autoware_launch/config/perception/object_recognition/detection/image_projection_based_fusion/roi_cluster_fusion.param.yaml b/autoware_launch/config/perception/object_recognition/detection/image_projection_based_fusion/roi_cluster_fusion.param.yaml
+old mode 100644
+new mode 100755
+index 5499ff78..a5bdf4ff
+--- a/autoware_launch/config/perception/object_recognition/detection/image_projection_based_fusion/roi_cluster_fusion.param.yaml
++++ b/autoware_launch/config/perception/object_recognition/detection/image_projection_based_fusion/roi_cluster_fusion.param.yaml
+@@ -12,21 +12,21 @@
+     strict_iou_match_mode: "iou"
+     rough_iou_match_mode: "iou_x"
+     use_cluster_semantic_type: false
+-    only_allow_inside_cluster: true
+-    roi_scale_factor: 1.1
++    only_allow_inside_cluster: false # {OVERRIDE: allow partially overlapping projected clusters}
++    roi_scale_factor: 1.3
+     iou_threshold:
+       UNKNOWN : 0.1
+-      CAR : 0.65
++      CAR : 0.3 # {OVERRIDE: reject weak projection matches}
+       TRUCK : 0.65
+       BUS : 0.65
+       TRAILER : 0.65
+       MOTORCYCLE : 0.65
+       BICYCLE : 0.65
+-      PEDESTRIAN : 0.2
++      PEDESTRIAN : 0.15 # {OVERRIDE: tolerate sparse pedestrian point projections}
+     remove_unknown: false # {OVERRIDE}
+ 
+     # Pedestrian size validation parameters
+     pedestrian_size_validation:
+       enable: true                    # Enable pedestrian size validation (3D size check)
+-      min_width: 0.1                  # {OVERRIDE} Minimum width [m] (shoulder width)
+-      max_width: 1.0                  # Maximum width [m] (with bags/umbrella)
++      min_width: 0.15                 # {OVERRIDE} Minimum width [m] (shoulder width)
++      max_width: 0.85                 # {OVERRIDE} Maximum width [m] (with bags/umbrella)
+diff --git a/autoware_launch/config/perception/object_recognition/detection/irregular_object_detection/irregular_object_detector.param.yaml b/autoware_launch/config/perception/object_recognition/detection/irregular_object_detection/irregular_object_detector.param.yaml
+old mode 100644
+new mode 100755
+index db466e3d..b2a9da1f
+--- a/autoware_launch/config/perception/object_recognition/detection/irregular_object_detection/irregular_object_detector.param.yaml
++++ b/autoware_launch/config/perception/object_recognition/detection/irregular_object_detection/irregular_object_detector.param.yaml
+@@ -2,11 +2,11 @@
+   ros__parameters:
+     crop_box_filter:
+       parameters:
+-        min_x: 5.0
++        min_x: 0.5
+         max_x: 60.0
+-        min_y: -5.0
+-        max_y: 5.0
+-        max_z: 0.5
++        min_y: -10.0
++        max_y: 10.0
++        max_z: 1.0
+         min_z: -0.5
+         negative: False
+         processing_time_threshold_sec: 0.01
+@@ -39,7 +39,7 @@
+         override_class_with_unknown: false
+         min_cluster_size: 2
+         max_cluster_size: 100
+-        cluster_2d_tolerance: 0.5
++        cluster_2d_tolerance: 0.4
+         roi_scale_factor: 2.0
+         max_object_size: 2.0
+         fusion_enabled_classes:
+diff --git a/autoware_launch/config/perception/object_recognition/tracking/multi_object_tracker/multi_object_tracker_node.param.yaml b/autoware_launch/config/perception/object_recognition/tracking/multi_object_tracker/multi_object_tracker_node.param.yaml
+old mode 100644
+new mode 100755
+index f7ca7a36..d1af499d
+--- a/autoware_launch/config/perception/object_recognition/tracking/multi_object_tracker/multi_object_tracker_node.param.yaml
++++ b/autoware_launch/config/perception/object_recognition/tracking/multi_object_tracker/multi_object_tracker_node.param.yaml
+@@ -57,7 +57,7 @@
+     # debug parameters
+     publish_processing_time: true # {OVERRIDE}
+     publish_processing_time_detail: false
+-    publish_tentative_objects: false
++    publish_tentative_objects: true # {OVERRIDE: show newly detected obstacles before track maturity}
+     publish_debug_markers: false
+     diagnostics_warn_delay: 0.5      # [sec]
+     diagnostics_error_delay: 1.0     # [sec]
+diff --git a/autoware_launch/launch/autoware.launch.xml b/autoware_launch/launch/autoware.launch.xml
+old mode 100644
+new mode 100755
+index 1a52c375..df05e1df
+--- a/autoware_launch/launch/autoware.launch.xml
++++ b/autoware_launch/launch/autoware.launch.xml
+@@ -19,6 +19,7 @@
+   <arg name="launch_map" default="true" description="launch map"/>
+   <arg name="launch_sensing" default="true" description="launch sensing"/>
+   <arg name="launch_sensing_driver" default="true" description="launch sensing driver"/>
++  <arg name="launch_camera" default="false" description="launch the front RealSense D455 camera driver"/>
+   <arg name="launch_localization" default="true" description="launch localization"/>
+   <arg name="launch_perception" default="true" description="launch perception"/>
+   <arg name="launch_planning" default="true" description="launch planning"/>
+@@ -39,18 +40,57 @@
+   <arg name="launch_system_monitor" default="true" description="launch system monitor"/>
+   <arg name="launch_dummy_diag_publisher" default="false" description="launch dummy diag publisher"/>
+   <arg name="diagnostic_graph_aggregator_graph_path" default="$(find-pkg-share autoware_launch)/config/system/diagnostics/autoware-main.yaml" description="diagnostic graph config"/>
++  <!-- Localization -->
++  <arg name="pose_source" default="ndt" description="select pose estimator: ndt, yabloc, eagleye, gnss-ins"/>
++  <arg name="twist_source" default="gyro_odom" description="select twist estimator: gyro_odom, eagleye, gnss-ins"/>
++  <arg name="gnss_enabled" default="true" description="enable GNSS pose input for initialization"/>
++  <arg name="automatic_pose_initializer_enabled" default="false" description="enable automatic GNSS pose initialization"/>
++  <arg name="pose_initializer_gnss_pose_topic" default="/sensing/gnss/pose_with_covariance" description="GNSS pose topic used by the pose initializer"/>
++  <arg name="pose_initializer_stop_check_enabled" default="true" description="check vehicle stop state before pose initialization"/>
++  <arg name="initial_pose" default="[]" description="initial pose (x, y, z, quat_x, quat_y, quat_z, quat_w)"/>
+   <!-- Tools -->
+   <arg name="rviz" default="true" description="launch rviz"/>
+   <arg name="rviz_config_name" default="autoware.rviz" description="rviz config name"/>
+   <arg name="rviz_config" default="$(find-pkg-share autoware_launch)/rviz/$(var rviz_config_name)" description="rviz config path"/>
+   <arg name="rviz_respawn" default="true"/>
+   <!-- Perception -->
+-  <arg name="perception_mode" default="lidar" description="select perception mode. camera_lidar_radar_fusion, camera_lidar_fusion, lidar_radar_fusion, lidar, radar"/>
++  <!-- This vehicle has one front D455 camera and one Mid-360 LiDAR. -->
++  <arg name="perception_mode" default="camera_lidar_fusion" description="select perception mode. camera_lidar_radar_fusion, camera_lidar_fusion, lidar_radar_fusion, lidar, radar"/>
++  <arg name="use_traffic_light_recognition" default="false" description="use the multi-camera traffic light recognition pipeline"/>
++  <arg name="use_custom_d455_yolo" default="true" description="merge the trained D455 three-class YOLO with built-in seven-class ROIs"/>
++  <arg name="custom_d455_yolo_device" default="cuda:0" description="device used by the custom D455 YOLO model"/>
++  <arg name="custom_d455_yolo_imgsz" default="640" description="inference image size for the custom D455 YOLO model"/>
++  <arg name="custom_d455_yolo_confidence" default="0.4" description="confidence threshold for the custom D455 YOLO model"/>
++  <arg name="custom_d455_yolo_source_weight" default="1.15"/>
++  <arg name="custom_d455_yolo_car_weight" default="1.15"/>
++  <arg name="custom_d455_yolo_pedestrian_weight" default="1.30"/>
++  <arg name="custom_d455_yolo_bollard_weight" default="1.05"/>
++  <arg name="custom_d455_yolo_pedestrian_medium_confidence" default="0.50"/>
++  <arg name="custom_d455_yolo_car_medium_confidence" default="0.45"/>
++  <arg name="custom_d455_yolo_bollard_medium_confidence" default="0.40"/>
++  <arg name="custom_d455_yolo_pedestrian_high_confidence" default="0.75"/>
++  <arg name="custom_d455_yolo_car_high_confidence" default="0.80"/>
++  <arg name="custom_d455_yolo_bollard_high_confidence" default="0.80"/>
++  <arg name="custom_d455_yolo_semantic_hold_sec" default="0.30"/>
++  <arg name="custom_d455_yolo_semantic_hold_max_misses" default="3"/>
++  <arg name="custom_d455_yolo_human_conflict_score" default="0.55"/>
++  <arg name="custom_d455_yolo_vehicle_conflict_score" default="0.70"/>
+   <arg name="traffic_light_recognition/use_high_accuracy_detection" default="true" description="enable to use high accuracy detection for traffic light recognition"/>
+   <!-- Auto mode setting-->
+   <arg name="enable_all_modules_auto_mode" default="false" description="enable all module's auto mode"/>
+   <arg name="is_simulation" default="false" description="Autoware's behavior will change depending on whether this is a simulation or not."/>
+ 
++  <!-- TensorRT 8.5.2 is required by the installed Autoware YOLOX models. -->
++  <arg
++    name="tensorrt8_lib_path"
++    default="$(env HOME)/autoware/vision_detection_ws/third_party/tensorrt-8.5.2/usr/lib/x86_64-linux-gnu"
++    description="TensorRT 8.5.2 library directory used by YOLOX"
++  />
++  <set_env
++    name="LD_LIBRARY_PATH"
++    value="$(var tensorrt8_lib_path):/opt/ros/humble/lib:/opt/ros/humble/lib/x86_64-linux-gnu:$(env LD_LIBRARY_PATH default)"
++  />
++
+   <!-- Global parameters -->
+   <group scoped="false">
+     <include file="$(find-pkg-share autoware_global_parameter_loader)/launch/global_params.launch.py">
+@@ -65,7 +105,7 @@
+     <arg name="container_name" value="$(var pointcloud_container_name)"/>
+   </include>
+ 
+-  <!-- Vehicle -->
++  <!-- Vehicle; raw_vehicle_cmd_converter_param_path is not used. -->
+   <group if="$(var launch_vehicle)">
+     <include file="$(find-pkg-share tier4_vehicle_launch)/launch/vehicle.launch.xml">
+       <arg name="vehicle_model" value="$(var vehicle_model)"/>
+@@ -91,19 +131,55 @@
+   <group if="$(var launch_sensing)">
+     <include file="$(find-pkg-share autoware_launch)/launch/components/tier4_sensing_component.launch.xml">
+       <arg name="pointcloud_container_name" value="$(var pointcloud_container_name)"/>
++      <arg name="launch_sensing_driver" value="$(var launch_sensing_driver)"/>
++      <arg name="launch_camera" value="$(var launch_camera)"/>
++      <arg name="sensor_model" value="$(var sensor_model)"/>
++      <arg name="vehicle_model" value="$(var vehicle_model)"/>
+     </include>
+   </group>
+ 
+   <!-- Localization -->
+   <group if="$(var launch_localization)">
+-    <include file="$(find-pkg-share autoware_launch)/launch/components/tier4_localization_component.launch.xml"/>
++    <include file="$(find-pkg-share autoware_launch)/launch/components/tier4_localization_component.launch.xml">
++      <arg name="map_path" value="$(var map_path)"/>
++      <arg name="pose_source" value="$(var pose_source)"/>
++      <arg name="twist_source" value="$(var twist_source)"/>
++      <arg name="gnss_enabled" value="$(var gnss_enabled)"/>
++      <arg name="automatic_pose_initializer_enabled" value="$(var automatic_pose_initializer_enabled)"/>
++      <arg name="pose_initializer_gnss_pose_topic" value="$(var pose_initializer_gnss_pose_topic)"/>
++      <arg name="pose_initializer_stop_check_enabled" value="$(var pose_initializer_stop_check_enabled)"/>
++      <arg name="initial_pose" value="$(var initial_pose)"/>
++      <arg name="system_run_mode" value="$(var system_run_mode)"/>
++    </include>
+   </group>
+ 
+   <!-- Perception -->
+   <group if="$(var launch_perception)">
+     <include file="$(find-pkg-share autoware_launch)/launch/components/tier4_perception_component.launch.xml">
+       <arg name="data_path" value="$(var data_path)"/>
++      <arg name="perception_mode" value="$(var perception_mode)"/>
++      <arg name="use_traffic_light_recognition" value="$(var use_traffic_light_recognition)"/>
++      <arg name="use_custom_d455_yolo" value="$(var use_custom_d455_yolo)"/>
++      <arg name="custom_d455_yolo_device" value="$(var custom_d455_yolo_device)"/>
++      <arg name="custom_d455_yolo_imgsz" value="$(var custom_d455_yolo_imgsz)"/>
++      <arg name="custom_d455_yolo_confidence" value="$(var custom_d455_yolo_confidence)"/>
++      <arg name="custom_d455_yolo_source_weight" value="$(var custom_d455_yolo_source_weight)"/>
++      <arg name="custom_d455_yolo_car_weight" value="$(var custom_d455_yolo_car_weight)"/>
++      <arg name="custom_d455_yolo_pedestrian_weight" value="$(var custom_d455_yolo_pedestrian_weight)"/>
++      <arg name="custom_d455_yolo_bollard_weight" value="$(var custom_d455_yolo_bollard_weight)"/>
++      <arg name="custom_d455_yolo_pedestrian_medium_confidence" value="$(var custom_d455_yolo_pedestrian_medium_confidence)"/>
++      <arg name="custom_d455_yolo_car_medium_confidence" value="$(var custom_d455_yolo_car_medium_confidence)"/>
++      <arg name="custom_d455_yolo_bollard_medium_confidence" value="$(var custom_d455_yolo_bollard_medium_confidence)"/>
++      <arg name="custom_d455_yolo_pedestrian_high_confidence" value="$(var custom_d455_yolo_pedestrian_high_confidence)"/>
++      <arg name="custom_d455_yolo_car_high_confidence" value="$(var custom_d455_yolo_car_high_confidence)"/>
++      <arg name="custom_d455_yolo_bollard_high_confidence" value="$(var custom_d455_yolo_bollard_high_confidence)"/>
++      <arg name="custom_d455_yolo_semantic_hold_sec" value="$(var custom_d455_yolo_semantic_hold_sec)"/>
++      <arg name="custom_d455_yolo_semantic_hold_max_misses" value="$(var custom_d455_yolo_semantic_hold_max_misses)"/>
++      <arg name="custom_d455_yolo_human_conflict_score" value="$(var custom_d455_yolo_human_conflict_score)"/>
++      <arg name="custom_d455_yolo_vehicle_conflict_score" value="$(var custom_d455_yolo_vehicle_conflict_score)"/>
+       <arg name="pointcloud_container_name" value="$(var pointcloud_container_name)"/>
++      <arg name="use_sim_time" value="$(var use_sim_time)"/>
++      <arg name="vehicle_model" value="$(var vehicle_model)"/>
+     </include>
+   </group>
+ 
+diff --git a/autoware_launch/launch/components/tier4_perception_component.launch.xml b/autoware_launch/launch/components/tier4_perception_component.launch.xml
+old mode 100644
+new mode 100755
+index ccdd6488..4014b1ba
+--- a/autoware_launch/launch/components/tier4_perception_component.launch.xml
++++ b/autoware_launch/launch/components/tier4_perception_component.launch.xml
+@@ -9,6 +9,25 @@
+   <arg name="pointcloud_container_name" description="name of pointcloud container"/>
+   <arg name="use_sim_time" default="false"/>
+   <arg name="vehicle_model" default="sample_vehicle"/>
++  <arg name="perception_mode" default="camera_lidar_fusion" description="select the perception detection pipeline"/>
++  <arg name="use_custom_d455_yolo" default="true" description="merge custom D455 three-class ROIs with built-in seven-class ROIs"/>
++  <arg name="custom_d455_yolo_device" default="cuda:0"/>
++  <arg name="custom_d455_yolo_imgsz" default="640"/>
++  <arg name="custom_d455_yolo_confidence" default="0.4"/>
++  <arg name="custom_d455_yolo_source_weight" default="1.15"/>
++  <arg name="custom_d455_yolo_car_weight" default="1.15"/>
++  <arg name="custom_d455_yolo_pedestrian_weight" default="1.30"/>
++  <arg name="custom_d455_yolo_bollard_weight" default="1.05"/>
++  <arg name="custom_d455_yolo_pedestrian_medium_confidence" default="0.50"/>
++  <arg name="custom_d455_yolo_car_medium_confidence" default="0.45"/>
++  <arg name="custom_d455_yolo_bollard_medium_confidence" default="0.40"/>
++  <arg name="custom_d455_yolo_pedestrian_high_confidence" default="0.75"/>
++  <arg name="custom_d455_yolo_car_high_confidence" default="0.80"/>
++  <arg name="custom_d455_yolo_bollard_high_confidence" default="0.80"/>
++  <arg name="custom_d455_yolo_semantic_hold_sec" default="0.30"/>
++  <arg name="custom_d455_yolo_semantic_hold_max_misses" default="3"/>
++  <arg name="custom_d455_yolo_human_conflict_score" default="0.55"/>
++  <arg name="custom_d455_yolo_vehicle_conflict_score" default="0.70"/>
+ 
+   <!-- Pointcloud container -->
+   <group if="$(var launch_pointcloud_container)">
+@@ -29,7 +48,7 @@
+   <arg name="use_empty_dynamic_object_publisher" default="false" description="if true, /perception/object_recognition/objects topic has an empty DynamicObjectArray"/>
+   <arg name="use_traffic_light_recognition" default="true" description="use traffic light recognition module, if false, traffic light recognition module will not be launched"/>
+ 
+-  <arg name="use_low_height_cropbox" default="false" description="use low height crop filter in clustering"/>
++  <arg name="use_low_height_cropbox" default="true" description="use low height crop filter in clustering"/>
+   <arg name="use_vector_map" default="true" description="use vector map in prediction"/>
+   <arg name="use_pointcloud_map" default="true" description="use pointcloud map in detection"/>
+   <arg name="use_irregular_object_detector" default="true" description="enable pipeline for small unknown object detection"/>
+@@ -53,14 +72,14 @@
+   <arg name="detected_objects_filter_method" default="lanelet_filter" description="options: lanelet_filter, position_filter"/>
+   <arg name="detected_objects_validation_method" default="obstacle_pointcloud" description="options: obstacle_pointcloud, occupancy_grid (must be used with laserscan_based_occupancy_grid_map)"/>
+   <arg name="data_path" default="$(env HOME)/autoware_data/ml_models" description="packages data and artifacts directory path"/>
+-  <arg name="lidar_detection_model" default="centerpoint" description="If the model name is not declared, the default model in perception.launch.xml will be used"/>
++  <arg name="lidar_detection_model" default="clustering" description="If the model name is not declared, the default model in perception.launch.xml will be used"/>
+   <arg name="ml_camera_lidar_merger_priority_mode" default="0" description="priority mode for ml and camera_lidar merger, options: `0: Object0`, `1: Object1`, `2: ConfidenceBased`, `3: ClassBased`"/>
+   <arg name="input_pointcloud_for_traffic_light_occlusion_predictor" default="/sensing/lidar/top/pointcloud_raw_ex" description="input pointcloud topic for traffic_light_occlusion_predictor"/>
+ 
+   <arg
+     name="camera_2d_detector/model_path"
+-    default="$(var data_path)/tensorrt_yolox/yolox-sPlus-opt-pseudoV2-T4-960x960-T4-seg16cls.onnx"
+-    description="options `yolox-sPlus-T4-960x960-pseudo-finetune.onnx` if only detection is needed, `yolox-sPlus-opt-pseudoV2-T4-960x960-T4-seg16cls.onnx` if sematic segmentation is also needed"
++    default="$(var data_path)/tensorrt_yolox/yolox-sPlus-T4-960x960-pseudo-finetune.onnx"
++    description="detection-only Autoware YOLOX model"
+   />
+   <arg name="camera_2d_detector/label_path" default="$(var data_path)/tensorrt_yolox/label.txt" description="label path"/>
+   <arg name="camera_2d_detector/color_map_path" default="$(var data_path)/tensorrt_yolox/semseg_color_map.csv" description="color map path"/>
+@@ -111,6 +130,31 @@
+   <arg name="traffic_light_recognition/classification/car/model_path" default="$(var data_path)/traffic_light_classifier/$(var traffic_light_car_classifier_model)"/>
+   <arg name="traffic_light_recognition/classification/pedestrian/model_path" default="$(var data_path)/traffic_light_classifier/$(var traffic_light_ped_classifier_model)"/>
+   <let name="occupancy_grid_map_method_full" value="$(var occupancy_grid_map_method)_occupancy_grid_map"/>
++  <let name="detection_rois0" value="/perception/object_recognition/detection/rois0"/>
++  <let name="detection_rois0" value="/perception/object_recognition/detection/camera_lidar_fusion/rois0" if="$(var use_custom_d455_yolo)"/>
++
++  <include
++    file="$(find-pkg-share d455_perception)/launch/autoware_fusion.launch.xml"
++    if="$(var use_custom_d455_yolo)"
++  >
++    <arg name="device" value="$(var custom_d455_yolo_device)"/>
++    <arg name="imgsz" value="$(var custom_d455_yolo_imgsz)"/>
++    <arg name="confidence" value="$(var custom_d455_yolo_confidence)"/>
++    <arg name="custom_source_weight" value="$(var custom_d455_yolo_source_weight)"/>
++    <arg name="custom_car_weight" value="$(var custom_d455_yolo_car_weight)"/>
++    <arg name="custom_pedestrian_weight" value="$(var custom_d455_yolo_pedestrian_weight)"/>
++    <arg name="custom_bollard_weight" value="$(var custom_d455_yolo_bollard_weight)"/>
++    <arg name="custom_pedestrian_medium_confidence" value="$(var custom_d455_yolo_pedestrian_medium_confidence)"/>
++    <arg name="custom_car_medium_confidence" value="$(var custom_d455_yolo_car_medium_confidence)"/>
++    <arg name="custom_bollard_medium_confidence" value="$(var custom_d455_yolo_bollard_medium_confidence)"/>
++    <arg name="custom_pedestrian_high_confidence" value="$(var custom_d455_yolo_pedestrian_high_confidence)"/>
++    <arg name="custom_car_high_confidence" value="$(var custom_d455_yolo_car_high_confidence)"/>
++    <arg name="custom_bollard_high_confidence" value="$(var custom_d455_yolo_bollard_high_confidence)"/>
++    <arg name="custom_semantic_hold_sec" value="$(var custom_d455_yolo_semantic_hold_sec)"/>
++    <arg name="custom_semantic_hold_max_misses" value="$(var custom_d455_yolo_semantic_hold_max_misses)"/>
++    <arg name="custom_human_conflict_score" value="$(var custom_d455_yolo_human_conflict_score)"/>
++    <arg name="custom_vehicle_conflict_score" value="$(var custom_d455_yolo_vehicle_conflict_score)"/>
++  </include>
+ 
+   <include file="$(find-pkg-share tier4_perception_launch)/launch/perception.launch.xml">
+     <arg name="data_path" value="$(var data_path)"/>
+@@ -120,6 +164,7 @@
+     <arg name="use_multi_channel_tracker_merger" value="$(var use_multi_channel_tracker_merger)"/>
+     <arg name="tracker_publish_merged_objects" value="$(var tracker_publish_merged_objects)"/>
+     <arg name="vehicle_param_file" value="$(find-pkg-share $(var vehicle_model)_description)/config/vehicle_info.param.yaml"/>
++    <arg name="detection_rois0" value="$(var detection_rois0)"/>
+ 
+     <arg name="pointcloud_container_name" value="$(var pointcloud_container_name)"/>
+     <arg name="occupancy_grid_map_method" value="$(var occupancy_grid_map_method_full)"/>
+diff --git a/autoware_launch/launch/components/tier4_sensing_component.launch.xml b/autoware_launch/launch/components/tier4_sensing_component.launch.xml
+old mode 100644
+new mode 100755
+index d4e8ee90..61cc83dc
+--- a/autoware_launch/launch/components/tier4_sensing_component.launch.xml
++++ b/autoware_launch/launch/components/tier4_sensing_component.launch.xml
+@@ -7,6 +7,7 @@
+   />
+   <arg name="pointcloud_container_name" description="name of pointcloud container"/>
+   <arg name="launch_sensing_driver" default="true"/>
++  <arg name="launch_camera" default="false" description="launch the front RealSense D455 camera driver"/>
+   <arg name="sensor_model" default="sample_sensor_kit"/>
+   <arg name="use_sim_time" default="false"/>
+   <arg name="vehicle_model" default="sample_vehicle"/>
+@@ -29,6 +30,7 @@
+ 
+   <include file="$(find-pkg-share tier4_sensing_launch)/launch/sensing.launch.xml">
+     <arg name="launch_driver" value="$(var launch_sensing_driver)"/>
++    <arg name="launch_camera" value="$(var launch_camera)"/>
+     <arg name="sensor_model" value="$(var sensor_model)"/>
+     <arg name="vehicle_param_file" value="$(find-pkg-share $(var vehicle_model)_description)/config/vehicle_info.param.yaml"/>
+     <arg name="vehicle_mirror_param_file" value="$(find-pkg-share $(var vehicle_model)_description)/config/mirror.param.yaml"/>
+diff --git a/tier4_universe_launch/tier4_perception_launch/launch/object_recognition/detection/detector/camera_lidar_detector.launch.xml b/tier4_universe_launch/tier4_perception_launch/launch/object_recognition/detection/detector/camera_lidar_detector.launch.xml
+old mode 100644
+new mode 100755
+index 8a372e7d..b07e57f9
+--- a/tier4_universe_launch/tier4_perception_launch/launch/object_recognition/detection/detector/camera_lidar_detector.launch.xml
++++ b/tier4_universe_launch/tier4_perception_launch/launch/object_recognition/detection/detector/camera_lidar_detector.launch.xml
+@@ -79,7 +79,10 @@
+   <let name="segmentation_based_filtered/output/pointcloud" value="$(var ns)/segmentation_based_filtered/pointcloud"/>
+ 
+   <let name="euclidean_cluster/input/pointcloud" value="$(var segmentation_based_filtered/output/pointcloud)" if="$(var use_image_segmentation_based_filter)"/>
+-  <let name="euclidean_cluster/input/pointcloud" value="$(var input/pointcloud_map/pointcloud)" unless="$(var use_image_segmentation_based_filter)"/>
++  <!-- Use the ground-filtered single-frame cloud for rule-based clustering.
++       Clustering raw LiDAR includes the road surface and joins ground points
++       with nearby obstacles because the voxel clusterer operates in 2D. -->
++  <let name="euclidean_cluster/input/pointcloud" value="/perception/obstacle_segmentation/single_frame/pointcloud" unless="$(var use_image_segmentation_based_filter)"/>
+   <let name="euclidean_cluster/output/clusters" value="$(var ns)/clustering/clusters"/>
+   <let name="shape_estimation1/input/clusters" value="$(var euclidean_cluster/output/clusters)"/>
+   <let name="shape_estimation1/output/objects" value="$(var output/clustering/cluster_objects)"/>
+@@ -95,7 +98,8 @@
+   <let name="detected_object_feature_remover/input/objects_with_feature" value="$(var shape_estimation2/output/objects)"/>
+   <let name="detected_object_feature_remover/output/objects" value="$(var output/rule_detector/objects)"/>
+ 
+-  <arg name="enable_2d_detection" default="false" description="true: when 2d detection yolox model run the same machine, false: when it run in separate machine"/>
++  <!-- The YOLOX detector runs in this Autoware process host. -->
++  <arg name="enable_2d_detection" default="true" description="true: when 2d detection yolox model run the same machine, false: when it run in separate machine"/>
+   <include file="$(find-pkg-share tier4_perception_launch)/launch/object_recognition/detection/detector/camera_2d_detector.launch.xml" if="$(var enable_2d_detection)">
+     <arg name="image_raw0" value="$(var input/camera0/image)"/>
+     <arg name="image_raw1" value="$(var input/camera1/image)"/>
+diff --git a/tier4_universe_launch/tier4_perception_launch/launch/object_recognition/detection/detector/camera_lidar_irregular_object_detector.launch.py b/tier4_universe_launch/tier4_perception_launch/launch/object_recognition/detection/detector/camera_lidar_irregular_object_detector.launch.py
+old mode 100644
+new mode 100755
+index 81f2b025..0e293a0f
+--- a/tier4_universe_launch/tier4_perception_launch/launch/object_recognition/detection/detector/camera_lidar_irregular_object_detector.launch.py
++++ b/tier4_universe_launch/tier4_perception_launch/launch/object_recognition/detection/detector/camera_lidar_irregular_object_detector.launch.py
+@@ -46,6 +46,8 @@ class SmallUnknownPipeline:
+         ]["parameters"]
+ 
+         self.camera_ids = LaunchConfiguration("fusion_camera_ids").perform(context)
++        self.image_topic_name = LaunchConfiguration("image_topic_name").perform(context)
++        self.custom_rois0 = LaunchConfiguration("custom_rois0").perform(context)
+         # convert string to list
+         self.camera_ids = yaml.load(self.camera_ids, Loader=yaml.FullLoader)
+         self.roi_pointcloud_fusion_param["rois_number"] = len(self.camera_ids)
+@@ -72,14 +74,16 @@ class SmallUnknownPipeline:
+                     camera_id
+                 ]
+             )
+-            self.roi_pointcloud_fusion_param[f"input/rois{index}"] = (
+-                f"/perception/object_recognition/detection/rois{camera_id}"
+-            )
++            if camera_id == 0:
++                rois_topic = self.custom_rois0
++            else:
++                rois_topic = f"/perception/object_recognition/detection/rois{camera_id}"
++            self.roi_pointcloud_fusion_param[f"input/rois{index}"] = rois_topic
+             self.roi_pointcloud_fusion_param[f"input/camera_info{index}"] = (
+                 f"/sensing/camera/camera{camera_id}/camera_info"
+             )
+             self.roi_pointcloud_fusion_param[f"input/image{index}"] = (
+-                f"/sensing/camera/camera{camera_id}/image_raw"
++                f"/sensing/camera/camera{camera_id}/{self.image_topic_name}"
+             )
+ 
+         self.roi_pointcloud_fusion_sync_param["rois_timestamp_offsets"] = rois_timestamp_offsets
+@@ -229,6 +233,10 @@ def generate_launch_description():
+     add_launch_arg("use_multithread", "True")
+     add_launch_arg("fusion_camera_ids", "[3,5]")
+     add_launch_arg("image_topic_name", "image_raw")
++    add_launch_arg(
++        "custom_rois0",
++        "/perception/object_recognition/detection/custom/rois0",
++    )
+     add_launch_arg("pointcloud_container_name", "pointcloud_container")
+     add_launch_arg("use_pointcloud_container", "True")
+     add_launch_arg(
+diff --git a/tier4_universe_launch/tier4_perception_launch/launch/object_recognition/tracking/tracking.launch.xml b/tier4_universe_launch/tier4_perception_launch/launch/object_recognition/tracking/tracking.launch.xml
+old mode 100644
+new mode 100755
+index c308ac81..10a6f95a
+--- a/tier4_universe_launch/tier4_perception_launch/launch/object_recognition/tracking/tracking.launch.xml
++++ b/tier4_universe_launch/tier4_perception_launch/launch/object_recognition/tracking/tracking.launch.xml
+@@ -137,6 +137,13 @@
+ 
+     <!-- camera lidar -->
+     <group scoped="false" if="$(eval '&quot;$(var mode)&quot;==&quot;camera_lidar_fusion&quot;')">
++      <!-- The generic lidar_dnn/clustering detection topic has no publisher in
++           rule-clustering mode. Feed the first tracker channel with the live
++           camera-lidar result so the input manager can initialize. -->
++      <let name="input/detection01/channel" value="$(var input/camera_lidar_rule_detector/channel)"/>
++      <let name="input/detection01/objects" value="$(var input/camera_lidar_rule_detector/objects)"/>
++      <!-- detection01 already contains the camera-lidar stream. -->
++      <let name="input/detection03/channel" value="none"/>
+       <!-- radar far object is not used -->
+       <let name="input/detection06/channel" value="none"/>
+     </group>
+diff --git a/tier4_universe_launch/tier4_perception_launch/launch/perception.launch.xml b/tier4_universe_launch/tier4_perception_launch/launch/perception.launch.xml
+old mode 100644
+new mode 100755
+index d39f8267..e832e327
+--- a/tier4_universe_launch/tier4_perception_launch/launch/perception.launch.xml
++++ b/tier4_universe_launch/tier4_perception_launch/launch/perception.launch.xml
+@@ -106,7 +106,8 @@
+   <arg name="image_raw8" default="/sensing/camera/camera8/image_rect_color"/>
+   <arg name="camera_info8" default="/sensing/camera/camera8/camera_info"/>
+   <arg name="detection_rois8" default="/perception/object_recognition/detection/rois8"/>
+-  <arg name="image_number" default="6" description="choose image raw number(1-8)"/>
++  <!-- This sensor kit has one forward-facing camera. -->
++  <arg name="image_number" default="1" description="choose image raw number(1-8)"/>
+   <arg name="image_topic_name" default="image_rect_color" description="image topic name options `image_rect_color`, `image_raw"/>
+   <arg name="segmentation_pointcloud_fusion_camera_ids" default="[0,1,5]" description="list of camera ids used for segmentation_pointcloud_fusion node"/>
+   <arg name="camera_vru_detector_rois_ids" default="[0]" description="list of rois ids used for detecting VRU."/>
+diff --git a/tier4_universe_launch/tier4_sensing_launch/launch/sensing.launch.xml b/tier4_universe_launch/tier4_sensing_launch/launch/sensing.launch.xml
+old mode 100644
+new mode 100755
+index 9981c99a..a679eafd
+--- a/tier4_universe_launch/tier4_sensing_launch/launch/sensing.launch.xml
++++ b/tier4_universe_launch/tier4_sensing_launch/launch/sensing.launch.xml
+@@ -1,5 +1,6 @@
+ <launch>
+   <arg name="launch_driver" default="true" description="do launch driver"/>
++  <arg name="launch_camera" default="false" description="launch the camera driver"/>
+   <arg name="sensor_model" default="sample_sensor_kit" description="sensor model name"/>
+   <arg name="vehicle_mirror_param_file" default="$(find-pkg-share autoware_vehicle_info_utils)/config/vehicle_mirror.param.yaml" description="path to the file of vehicle mirror position yaml"/>
+   <arg name="pointcloud_container_name" default="pointcloud_container"/>
+@@ -9,11 +10,21 @@
+   <group>
+     <push-ros-namespace namespace="sensing"/>
+ 
+-    <!-- Driver -->
+-    <include file="$(var sensor_launch_pkg)/launch/sensing.launch.xml">
+-      <arg name="launch_driver" value="$(var launch_driver)"/>
+-      <arg name="vehicle_mirror_param_file" value="$(var vehicle_mirror_param_file)"/>
+-      <arg name="pointcloud_container_name" value="$(var pointcloud_container_name)"/>
+-    </include>
++    <!-- Livox has an optional camera driver. Other sensor kits do not expose this argument. -->
++    <group if="$(eval &quot;'$(var sensor_model)' == 'livox_sensor_kit'&quot;)">
++      <include file="$(var sensor_launch_pkg)/launch/sensing.launch.xml">
++        <arg name="launch_driver" value="$(var launch_driver)"/>
++        <arg name="launch_camera" value="$(var launch_camera)"/>
++        <arg name="vehicle_mirror_param_file" value="$(var vehicle_mirror_param_file)"/>
++        <arg name="pointcloud_container_name" value="$(var pointcloud_container_name)"/>
++      </include>
++    </group>
++    <group unless="$(eval &quot;'$(var sensor_model)' == 'livox_sensor_kit'&quot;)">
++      <include file="$(var sensor_launch_pkg)/launch/sensing.launch.xml">
++        <arg name="launch_driver" value="$(var launch_driver)"/>
++        <arg name="vehicle_mirror_param_file" value="$(var vehicle_mirror_param_file)"/>
++        <arg name="pointcloud_container_name" value="$(var pointcloud_container_name)"/>
++      </include>
++    </group>
+   </group>
+ </launch>

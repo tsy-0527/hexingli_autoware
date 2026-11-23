@@ -1,0 +1,66 @@
+<launch>
+  <arg name="device" default="cuda:0"/>
+  <arg name="imgsz" default="640"/>
+  <arg name="confidence" default="0.4"/>
+  <arg name="max_fps" default="10.0"/>
+  <arg name="input_image" default="/sensing/camera/camera0/image_rect_color"/>
+  <arg name="custom_source_weight" default="1.15"/>
+  <arg name="custom_car_weight" default="1.15"/>
+  <arg name="custom_pedestrian_weight" default="1.30"/>
+  <arg name="custom_bollard_weight" default="1.05"/>
+  <arg name="custom_pedestrian_medium_confidence" default="0.50"/>
+  <arg name="custom_car_medium_confidence" default="0.45"/>
+  <arg name="custom_bollard_medium_confidence" default="0.40"/>
+  <arg name="custom_pedestrian_high_confidence" default="0.75"/>
+  <arg name="custom_car_high_confidence" default="0.80"/>
+  <arg name="custom_bollard_high_confidence" default="0.80"/>
+  <arg name="custom_semantic_hold_sec" default="0.30"/>
+  <arg name="custom_semantic_hold_max_misses" default="3"/>
+  <arg name="custom_human_conflict_score" default="0.55"/>
+  <arg name="custom_vehicle_conflict_score" default="0.70"/>
+
+  <node
+    pkg="d455_perception"
+    exec="custom_roi_detector"
+    name="custom_yolo_roi_detector"
+    namespace="/perception/object_recognition/detection"
+    output="screen"
+  >
+    <param name="model_path" value="$(find-pkg-share d455_perception)/runtime/models/best.pt"/>
+    <param name="device" value="$(var device)"/>
+    <param name="imgsz" value="$(var imgsz)"/>
+    <param name="confidence" value="$(var confidence)"/>
+    <param name="max_fps" value="$(var max_fps)"/>
+    <remap from="~/input/image" to="$(var input_image)"/>
+    <remap from="~/output/rois" to="custom/rois0"/>
+  </node>
+
+  <node
+    pkg="d455_perception"
+    exec="roi_merger"
+    name="custom_roi_merger"
+    namespace="/perception/object_recognition/detection"
+    output="screen"
+  >
+    <param name="match_threshold" value="0.45"/>
+    <param name="custom_source_weight" value="$(var custom_source_weight)"/>
+    <param name="custom_car_weight" value="$(var custom_car_weight)"/>
+    <param name="custom_pedestrian_weight" value="$(var custom_pedestrian_weight)"/>
+    <param name="custom_bollard_weight" value="$(var custom_bollard_weight)"/>
+    <param name="custom_pedestrian_medium_confidence" value="$(var custom_pedestrian_medium_confidence)"/>
+    <param name="custom_car_medium_confidence" value="$(var custom_car_medium_confidence)"/>
+    <param name="custom_bollard_medium_confidence" value="$(var custom_bollard_medium_confidence)"/>
+    <param name="custom_pedestrian_high_confidence" value="$(var custom_pedestrian_high_confidence)"/>
+    <param name="custom_car_high_confidence" value="$(var custom_car_high_confidence)"/>
+    <param name="custom_bollard_high_confidence" value="$(var custom_bollard_high_confidence)"/>
+    <param name="custom_semantic_hold_sec" value="$(var custom_semantic_hold_sec)"/>
+    <param name="custom_semantic_hold_max_misses" value="$(var custom_semantic_hold_max_misses)"/>
+    <param name="custom_human_conflict_score" value="$(var custom_human_conflict_score)"/>
+    <param name="custom_vehicle_conflict_score" value="$(var custom_vehicle_conflict_score)"/>
+    <param name="custom_stale_sec" value="0.35"/>
+    <param name="stamp_slop_sec" value="0.2"/>
+    <remap from="~/input/builtin_rois" to="rois0"/>
+    <remap from="~/input/custom_rois" to="custom/rois0"/>
+    <remap from="~/output/rois" to="camera_lidar_fusion/rois0"/>
+  </node>
+</launch>
