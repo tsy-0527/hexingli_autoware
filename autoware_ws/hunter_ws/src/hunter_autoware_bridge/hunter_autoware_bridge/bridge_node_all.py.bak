@@ -1,0 +1,119 @@
+import rclpy
+import math
+from rclpy.node import Node
+from hunter_msgs.msg import HunterStatus
+from autoware_control_msgs.msg import Control
+from autoware_vehicle_msgs.msg import VelocityReport, SteeringReport, GearReport
+from geometry_msgs.msg import Twist
+
+WHEELBASE   = 0.648   # Hunter SE 轴距，需实测确认
+MAX_LINEAR  = 1.5     # m/s 限幅
+MAX_ANGULAR = 1.0     # rad/s 限幅
+
+CONTROL_MODE_CAN = 1  # 自主模式，需实车确认该值
+
+class HunterAutowareBridge(Node):
+    def __init__(self):
+        super().__init__('hunter_autoware_bridge')
+
+        self._last_control_mode = -1
+        self._current_control_mode = -1
+
+        self.sub_ctrl = self.create_subscription(
+            Control, '/control/command/control_cmd',
+            self.control_callback, 10)
+
+        self.sub_status = self.create_subscription(
+            HunterStatus, '/hunter_base/status',
+            self.status_callback, 10)
+
+        self.pub_cmd   = self.create_publisher(Twist,          '/hunter/cmd_vel',                10)
+        self.pub_vel   = self.create_publisher(VelocityReport, '/vehicle/status/velocity_status', 10)
+        self.pub_steer = self.create_publisher(SteeringReport, '/vehicle/status/steering_status', 10)
+        self.pub_gear  = self.create_publisher(GearReport,     '/vehicle/status/gear_status',     10)
+
+    # ── Autoware → Hunter ────────────────────────────────────────
+    def control_callback(self, msg: Control):
+    # 非自主模式时不转发
+        if self._current_control_mode != CONTROL_MODE_CAN:
+            return
+    
+        v     = float(msg.longitudinal.velocity)
+        steer = float(msg.lateral.steering_tire_angle)
+
+        v = max(-MAX_LINEAR, min(MAX_LINEAR, v))
+        omega = v * math.tan(steer) / WHEELBASE
+        omega = max(-MAX_ANGULAR, min(MAX_ANGULAR, omega))
+
+        twist = Twist()
+        twist.linear.x  = v
+        twist.angular.z = omega
+        self.pub_cmd.publish(twist)
+
+    # ── Hunter → Autoware ────────────────────────────────────────
+    def status_callback(self, msg: HunterStatus):
+        now = self.get_clock().now().to_msg()
+	
+        # ── 安全检查 ──────────────────────────────────────────────
+        if msg.vehicle_state != 0:
+            self.get_logger().error(
+                f'Hunter fault! vehicle_state={msg.vehicle_state} '
+                f'error_code={msg.error_code}',
+                throttle_duration_sec=1.0)
+            self.pub_cmd.publish(Twist())  # 急停零速
+            return  
+
+        if msg.control_mode != self._last_control_mode:
+            mode_str = 'CAN(autonomous)' if msg.control_mode == CONTROL_MODE_CAN \
+                       else f'other({msg.control_mode})'
+            self.get_logger().info(f'Control mode changed → {mode_str}')
+            self._last_control_mode = msg.control_mode
+         
+        self._current_control_mode = msg.control_mode  # 实时更新
+
+        # ── 速度反馈 ──────────────────────────────────────────────
+        # heading_rate 由阿克曼模型正推：ω = v * tan(δ) / L
+        if abs(msg.linear_velocity) > 0.01:
+            heading_rate = (msg.linear_velocity
+                            * math.tan(msg.steering_angle)
+                            / WHEELBASE)
+        else:
+            heading_rate = 0.0
+
+        vel = VelocityReport()
+        vel.header.stamp          = now
+        vel.header.frame_id       = 'base_link'
+        vel.longitudinal_velocity = msg.linear_velocity   # 直接用，无需转换
+        vel.lateral_velocity      = 0.0
+        vel.heading_rate          = heading_rate
+        self.pub_vel.publish(vel)
+
+        # ── 转向角反馈 ────────────────────────────────────────────
+        # ✅ 直接用底盘上报的 steering_angle，不再反推
+        steer = SteeringReport()
+        steer.stamp               = now
+        steer.steering_tire_angle = msg.steering_angle    # rad，直接映射
+        self.pub_steer.publish(steer)
+
+        # ── 档位反馈 ──────────────────────────────────────────────
+        gear = GearReport()
+        gear.stamp  = now
+        gear.report = GearReport.DRIVE if msg.linear_velocity >= -0.01 \
+                      else GearReport.REVERSE
+        self.pub_gear.publish(gear)
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = HunterAutowareBridge()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.pub_cmd.publish(Twist())  # 关闭前发零速
+        node.destroy_node()
+        rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()

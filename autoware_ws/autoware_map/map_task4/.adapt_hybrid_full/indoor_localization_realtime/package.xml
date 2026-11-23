@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>indoor_localization</name>
+  <version>0.1.0</version>
+  <description>Indoor real-time localization (MID-360 + NDT + EKF) on top of Autoware localization nodes</description>
+  <maintainer email="dev@example.com">dev</maintainer>
+  <license>Apache-2.0</license>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>std_srvs</exec_depend>
+  <exec_depend>builtin_interfaces</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <exec_depend>autoware_adapi_v1_msgs</exec_depend>
+  <exec_depend>python3-numpy</exec_depend>
+  <!-- Autoware localization nodes (names for 2024+ releases; older releases drop the autoware_ prefix) -->
+  <exec_depend>autoware_ndt_scan_matcher</exec_depend>
+  <exec_depend>autoware_ekf_localizer</exec_depend>
+  <exec_depend>autoware_gyro_odometer</exec_depend>
+  <exec_depend>autoware_pose_initializer</exec_depend>
+  <exec_depend>autoware_stop_filter</exec_depend>
+  <exec_depend>autoware_twist2accel</exec_depend>
+  <exec_depend>autoware_map_loader</exec_depend>
+  <exec_depend>autoware_launch</exec_depend>
+  <exec_depend>autoware_global_parameter_loader</exec_depend>
+  <exec_depend>tier4_localization_launch</exec_depend>
+  <exec_depend>room_global_localizer</exec_depend>
+  <export><build_type>ament_python</build_type></export>
+</package>

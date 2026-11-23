@@ -1,0 +1,2 @@
+ros2 run gins2000 gnss_ins_converter.py --ros-args -p force_aligned:=true
+

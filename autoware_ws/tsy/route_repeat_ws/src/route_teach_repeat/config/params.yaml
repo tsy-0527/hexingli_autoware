@@ -1,0 +1,25 @@
+route_recorder:
+  ros__parameters:
+    map_path: "/home/tang/autoware_map/map_task1/lanelet2_map.osm"
+    output_path: "/home/tang/tsy/route_repeat_ws/recorded_route.yaml"
+    projector_type: "utm"
+    map_origin_lat: 0.0
+    map_origin_lon: 0.0
+    localization_mode: "lidar_ndt"
+    # Autoware NDT scan matcher 的直接雷达定位结果
+    pose_topic: "/localization/pose_estimator/pose"
+    pose_msg_type: "pose_stamped"
+    map_frame: "map"
+    allow_lane_change: false
+    match_distance: 3.0
+    vehicle_length: 4.0
+    vehicle_width: 1.8
+    min_stable_hits: 3
+    save_centerline_for_viz: true
+
+route_player:
+  ros__parameters:
+    route_path: "/home/tang/tsy/route_repeat_ws/recorded_route.yaml"
+    set_route_service: "/planning/mission_planning/mission_planner/set_lanelet_route"
+    auto_send: true
+    primitive_type: "lane"

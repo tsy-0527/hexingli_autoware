@@ -1,0 +1,55 @@
+/**:
+  ros__parameters:
+    feature_extract_enable: false
+    # 室内/台阶场景：加密输入和地图体素，增加迭代次数，提高平面匹配约束。
+    point_filter_num: 2
+    max_iteration: 4
+    filter_size_surf: 0.25
+    filter_size_map: 0.25
+    cube_side_length: 1000.0
+    runtime_pos_log_enable: false
+    map_file_path: "/home/tang/fastlio_ws/PCD/"
+
+    common:
+      lid_topic: "/livox/lidar"
+      imu_topic: "/livox/imu"
+      time_sync_en: false
+      time_offset_lidar_to_imu: 0.0
+
+    # 01_livox_driver.sh 以 PointCloud2 发布，所以使用通用点云输入类型 4。
+    preprocess:
+      lidar_type: 4
+      scan_line: 4
+      # 车体包围盒最远到雷达系 0.84 m；blind 取 0.9 把车体自点全部去掉，
+      # 避免 ICP 用车体点做“自匹配”把位姿拉回去。
+      blind: 0.9
+      timestamp_unit: 3
+      scan_rate: 10
+
+    mapping:
+      acc_cov: 0.1
+      gyr_cov: 0.1
+      b_acc_cov: 0.0001
+      b_gyr_cov: 0.0001
+      fov_degree: 360.0
+      det_range: 100.0
+      # 固定外参，保持和后处理 postprocess.yaml 完全一致。
+      extrinsic_est_en: false
+      extrinsic_T: [-0.011, -0.02329, 0.04412]
+      extrinsic_R: [1.0, 0.0, 0.0,
+                    0.0, 1.0, 0.0,
+                    0.0, 0.0, 1.0]
+
+    publish:
+      path_en: true
+      effect_map_en: false
+      # 离线重建不需要 /Laser_map 和 body 点云，关掉节省 CPU/DDS。
+      map_en: false
+      scan_publish_en: true
+      dense_publish_en: true
+      scan_bodyframe_pub_en: false
+
+    # 地图由离线后处理生成；不启用 FAST-LIO 的全量内存累计。
+    pcd_save:
+      pcd_save_en: false
+      interval: -1

@@ -1,0 +1,86 @@
+# Parameters of the custom indoor localization nodes.
+# Coordinates are in the leveled indoor map frame (indoor_map_leveled_clean.pcd, floor z = 0).
+
+/localization/util/mid360_preprocessor:
+  ros__parameters:
+    input_topic: /sensing/lidar/concatenated/pointcloud
+    # Intermediate output.  The Autoware crop/voxel/random filter chain reads
+    # this topic and is the only publisher of the final NDT input
+    # /localization/util/downsample/pointcloud.  Publishing directly to the
+    # final topic created two interleaved timestamp streams at NDT.
+    output_topic: /localization/util/mid360_preprocessed/pointcloud
+    twist_topic: /localization/twist_estimator/twist_with_covariance
+    base_frame: base_link
+    time_field: timestamp          # livox_ros_driver2: absolute ns (auto-detected)
+    enable_deskew: true
+    max_twist_age_sec: 0.3
+    r_min: 0.4
+    r_max: 40.0
+    z_min: 0.15                    # height above floor; the map has almost no floor points
+    z_max: 4.6
+    self_box: [-0.35, 0.85, -0.45, 0.45, -0.2, 1.2]   # TODO: vehicle body box in base_link [xmin,xmax,ymin,ymax,zmin,zmax]
+    voxel_leaf: 0.1
+    min_output_points: 300
+    obstacle_enabled: true
+    obstacle_output_topic: /indoor_perception/mid360/obstacle_pointcloud
+    obstacle_r_min: 0.2
+    obstacle_r_max: 10.0
+    obstacle_z_min: 0.05
+    obstacle_z_max: 3.0
+    obstacle_self_box: [-0.22, 0.70, -0.32, 0.32, -0.2, 0.75]
+    obstacle_voxel_leaf: 0.05
+
+/localization/pose_estimator/degeneracy_covariance_relay:
+  ros__parameters:
+    enabled: true
+    input_topic: /localization/pose_estimator/ndt_pose_with_covariance_raw
+    output_topic: /localization/pose_estimator/pose_with_covariance
+    zone_names: [main_corridor]
+    zones:
+      main_corridor:
+        # corridor centre line, measured on indoor_loc_2d (walls x~15.1/17.6 at y=-30, x~15.5/17.9 at y=-16)
+        start: [16.25, -36.0]
+        end: [16.65, -14.0]
+        half_width: 1.6
+        sigma_long: 1.0            # m, longitudinal sigma reported to the EKF inside the zone
+        ramp: 2.0                  # m, blend in/out -> full inflation for y in [-34, -16]
+
+/localization/twist_estimator/velocity_report_converter:
+  ros__parameters:
+    input_topic: /vehicle/status/velocity_status
+    output_topic: /sensing/vehicle_velocity_converter/twist_with_covariance
+    frame_id: base_link
+    speed_scale_factor: 1.0        # TODO: calibrate (drive >= 20 m, compare with NDT distance)
+    stddev_vx: 0.04
+    stddev_wz: 0.1
+
+/localization/util/initial_pose_bridge:
+  ros__parameters:
+    input_topic: /room_global_localizer/pose
+    initialize_service: /localization/initialize
+    state_topic: /localization/initialization_state
+    map_frame: map
+    min_interval_sec: 5.0
+    reinitialize_when_initialized: false
+
+/localization/util/localization_health_monitor:
+  ros__parameters:
+    ekf_pose_topic: /localization/pose_with_covariance
+    ndt_pose_topic: /localization/pose_estimator/pose_with_covariance
+    nvtl_topic: /localization/pose_estimator/nearest_voxel_transformation_likelihood
+    zone_weight_topic: /localization/pose_estimator/degeneracy_covariance_relay/debug/zone_weight
+    state_topic: /localization/initialization_state
+    output_topic: /indoor_localization/health
+    ndt_timeout_warn_sec: 1.0
+    ndt_timeout_error_sec: 3.0
+    # Initial task5 stationary samples: correct ~1.47, symmetric wrong ~1.24.
+    # Recalibrate after collecting moving data in room and corridor.
+    nvtl_warn: 1.40
+    nvtl_error: 1.30
+    nvtl_bad_count: 5
+    lat_sigma_warn: 0.08
+    lat_sigma_error: 0.15
+    long_sigma_warn: 0.5
+    long_sigma_error: 1.0
+    long_sigma_scale_in_zone: 3.0
+

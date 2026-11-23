@@ -1,0 +1,346 @@
+#!@DETECTOR_PYTHON@
+import copy
+import sys
+import time
+
+sys.path.append('/usr/lib/python3/dist-packages')
+from autoware_perception_msgs.msg import ObjectClassification
+import rclpy
+from rclpy.node import Node
+from tier4_perception_msgs.msg import DetectedObjectsWithFeature
+
+
+def _roi_xyxy(feature_object):
+    roi = feature_object.feature.roi
+    return (
+        float(roi.x_offset),
+        float(roi.y_offset),
+        float(roi.x_offset + roi.width),
+        float(roi.y_offset + roi.height),
+    )
+
+
+def _intersection_over_union(a, b):
+    ix1 = max(a[0], b[0])
+    iy1 = max(a[1], b[1])
+    ix2 = min(a[2], b[2])
+    iy2 = min(a[3], b[3])
+    iw = max(0.0, ix2 - ix1)
+    ih = max(0.0, iy2 - iy1)
+    intersection = iw * ih
+    area_a = max(0.0, a[2] - a[0]) * max(0.0, a[3] - a[1])
+    area_b = max(0.0, b[2] - b[0]) * max(0.0, b[3] - b[1])
+    union = area_a + area_b - intersection
+    if union <= 0.0:
+        return 0.0
+    containment = intersection / max(1.0, min(area_a, area_b))
+    return max(intersection / union, containment)
+
+
+def _highest_label(feature_object):
+    classifications = feature_object.object.classification
+    if not classifications:
+        return ObjectClassification.UNKNOWN, 0.0
+    best = max(classifications, key=lambda item: item.probability)
+    return best.label, float(best.probability)
+
+
+class RoiMerger(Node):
+    """Merge custom ROIs with the built-in YOLOX ROI stream."""
+
+    def __init__(self):
+        super().__init__('custom_roi_merger')
+        self.match_threshold = float(self.declare_parameter(
+            'match_threshold', 0.45).value)
+        self.custom_source_weight = float(self.declare_parameter(
+            'custom_source_weight', 1.15).value)
+        self.custom_car_weight = float(self.declare_parameter(
+            'custom_car_weight', 1.15).value)
+        self.custom_pedestrian_weight = float(self.declare_parameter(
+            'custom_pedestrian_weight', 1.30).value)
+        self.custom_bollard_weight = float(self.declare_parameter(
+            'custom_bollard_weight', 1.05).value)
+        self.custom_pedestrian_medium_confidence = float(self.declare_parameter(
+            'custom_pedestrian_medium_confidence', 0.50).value)
+        self.custom_car_medium_confidence = float(self.declare_parameter(
+            'custom_car_medium_confidence', 0.45).value)
+        self.custom_bollard_medium_confidence = float(self.declare_parameter(
+            'custom_bollard_medium_confidence', 0.40).value)
+        self.custom_pedestrian_high_confidence = float(self.declare_parameter(
+            'custom_pedestrian_high_confidence', 0.75).value)
+        self.custom_car_high_confidence = float(self.declare_parameter(
+            'custom_car_high_confidence', 0.80).value)
+        self.custom_bollard_high_confidence = float(self.declare_parameter(
+            'custom_bollard_high_confidence', 0.80).value)
+        self.custom_semantic_hold_sec = float(self.declare_parameter(
+            'custom_semantic_hold_sec', 0.30).value)
+        self.custom_semantic_hold_max_misses = int(self.declare_parameter(
+            'custom_semantic_hold_max_misses', 3).value)
+        self.custom_human_conflict_score = float(self.declare_parameter(
+            'custom_human_conflict_score', 0.55).value)
+        self.custom_vehicle_conflict_score = float(self.declare_parameter(
+            'custom_vehicle_conflict_score', 0.70).value)
+        self.custom_stale_sec = float(self.declare_parameter(
+            'custom_stale_sec', 0.35).value)
+        self.stamp_slop_sec = float(self.declare_parameter(
+            'stamp_slop_sec', 0.2).value)
+
+        self.publisher = self.create_publisher(
+            DetectedObjectsWithFeature, '~/output/rois', 10)
+        self.builtin_subscription = self.create_subscription(
+            DetectedObjectsWithFeature, '~/input/builtin_rois',
+            self.on_builtin_rois, 10)
+        self.custom_subscription = self.create_subscription(
+            DetectedObjectsWithFeature, '~/input/custom_rois',
+            self.on_custom_rois, 10)
+
+        self.latest_custom = None
+        self.latest_custom_received = 0.0
+        self.semantic_memory = []
+        self.published = 0
+        self.report_start = time.monotonic()
+        self.get_logger().info(
+            'ROI merger ready: built-in ROIs are always the fallback.')
+
+    def on_custom_rois(self, message):
+        self.latest_custom = self._stabilize_custom(message)
+        self.latest_custom_received = time.monotonic()
+
+    def _stamp_difference(self, a, b):
+        a_ns = a.stamp.sec * 1_000_000_000 + a.stamp.nanosec
+        b_ns = b.stamp.sec * 1_000_000_000 + b.stamp.nanosec
+        return abs(a_ns - b_ns) / 1_000_000_000.0
+
+    def _custom_is_fresh(self, builtin_header):
+        if self.latest_custom is None:
+            return False
+        if time.monotonic() - self.latest_custom_received > self.custom_stale_sec:
+            return False
+        return (
+            self._stamp_difference(builtin_header, self.latest_custom.header)
+            <= self.stamp_slop_sec
+        )
+
+    def _custom_class_weight(self, label):
+        if label == ObjectClassification.CAR:
+            return self.custom_car_weight
+        if label == ObjectClassification.PEDESTRIAN:
+            return self.custom_pedestrian_weight
+        if label == ObjectClassification.UNKNOWN:
+            return self.custom_bollard_weight
+        return 1.0
+
+    def _custom_medium_confidence(self, label):
+        if label == ObjectClassification.CAR:
+            return self.custom_car_medium_confidence
+        if label == ObjectClassification.PEDESTRIAN:
+            return self.custom_pedestrian_medium_confidence
+        if label == ObjectClassification.UNKNOWN:
+            return self.custom_bollard_medium_confidence
+        return self.custom_car_medium_confidence
+
+    def _custom_high_confidence(self, label):
+        if label == ObjectClassification.CAR:
+            return self.custom_car_high_confidence
+        if label == ObjectClassification.PEDESTRIAN:
+            return self.custom_pedestrian_high_confidence
+        if label == ObjectClassification.UNKNOWN:
+            return self.custom_bollard_high_confidence
+        return self.custom_car_high_confidence
+
+    @staticmethod
+    def _supports_semantic_hold(label):
+        return label in (
+            ObjectClassification.CAR,
+            ObjectClassification.PEDESTRIAN,
+        )
+
+    def _stabilize_custom(self, message):
+        now = time.monotonic()
+        output = DetectedObjectsWithFeature()
+        output.header = message.header
+        matched_memory = set()
+        new_memory = []
+
+        for custom_object in message.feature_objects:
+            label, raw_probability = _highest_label(custom_object)
+            box = _roi_xyxy(custom_object)
+            best_index = None
+            best_overlap = 0.0
+            for index, memory in enumerate(self.semantic_memory):
+                overlap = _intersection_over_union(box, memory['box'])
+                if overlap > best_overlap:
+                    best_index = index
+                    best_overlap = overlap
+
+            if raw_probability >= self._custom_medium_confidence(label):
+                accepted = copy.deepcopy(custom_object)
+                output.feature_objects.append(accepted)
+                new_memory.append({
+                    'box': box,
+                    'label': label,
+                    'object': copy.deepcopy(accepted),
+                    'last_seen': now,
+                    'misses': 0,
+                })
+                if best_index is not None:
+                    matched_memory.add(best_index)
+                continue
+
+            if (
+                best_index is not None
+                and best_overlap >= self.match_threshold
+                and self._supports_semantic_hold(
+                    self.semantic_memory[best_index]['label'])
+            ):
+                matched_memory.add(best_index)
+                previous = self.semantic_memory[best_index]
+                misses = previous['misses'] + 1
+                if (
+                    misses <= self.custom_semantic_hold_max_misses
+                    and now - previous['last_seen'] <= self.custom_semantic_hold_sec
+                ):
+                    held = copy.deepcopy(previous['object'])
+                    held.feature.roi = copy.deepcopy(custom_object.feature.roi)
+                    output.feature_objects.append(held)
+                    new_memory.append({
+                        'box': box,
+                        'label': previous['label'],
+                        'object': copy.deepcopy(held),
+                        'last_seen': now,
+                        'misses': misses,
+                    })
+
+        for index, previous in enumerate(self.semantic_memory):
+            if index in matched_memory:
+                continue
+            misses = previous['misses'] + 1
+            if (
+                self._supports_semantic_hold(previous['label'])
+                and misses <= self.custom_semantic_hold_max_misses
+                and now - previous['last_seen'] <= self.custom_semantic_hold_sec
+            ):
+                held = copy.deepcopy(previous['object'])
+                output.feature_objects.append(held)
+                new_memory.append({
+                    'box': previous['box'],
+                    'label': previous['label'],
+                    'object': copy.deepcopy(held),
+                    'last_seen': previous['last_seen'],
+                    'misses': misses,
+                })
+
+        self.semantic_memory = new_memory
+        return output
+
+    def _weighted_custom_object(self, custom):
+        output = copy.deepcopy(custom)
+        label, _ = _highest_label(output)
+        factor = self.custom_source_weight * self._custom_class_weight(label)
+        output.object.existence_probability = min(
+            1.0, output.object.existence_probability * factor)
+        for classification in output.object.classification:
+            classification.probability = min(
+                1.0, classification.probability * factor)
+        return output
+
+    def _custom_effective_score(self, custom):
+        label, probability = _highest_label(custom)
+        return min(
+            1.0,
+            probability
+            * self.custom_source_weight
+            * self._custom_class_weight(label),
+        )
+
+    def _custom_wins(self, custom, builtin):
+        custom_label, raw_probability = _highest_label(custom)
+        builtin_label, _ = _highest_label(builtin)
+        effective_score = self._custom_effective_score(custom)
+
+        if custom_label == builtin_label:
+            return True
+        if builtin_label == ObjectClassification.UNKNOWN:
+            return True
+
+        # Do not let the coarse custom "car" class overwrite a more specific
+        # vehicle class unless its weighted score is clearly higher.
+        if custom_label == ObjectClassification.PEDESTRIAN:
+            return (
+                raw_probability >= self.custom_pedestrian_high_confidence
+                and effective_score >= self.custom_human_conflict_score
+            )
+        if custom_label == ObjectClassification.CAR:
+            return (
+                raw_probability >= self.custom_car_high_confidence
+                and effective_score >= self.custom_vehicle_conflict_score
+            )
+        return False
+
+    def _merge(self, builtin, custom):
+        suppressed_builtin = set()
+        custom_extras = []
+        builtin_objects = builtin.feature_objects
+
+        for custom_object in custom.feature_objects:
+            custom_box = _roi_xyxy(custom_object)
+            best_index = None
+            best_overlap = 0.0
+            for index, builtin_object in enumerate(builtin_objects):
+                overlap = _intersection_over_union(
+                    custom_box, _roi_xyxy(builtin_object))
+                if overlap > best_overlap:
+                    best_overlap = overlap
+                    best_index = index
+
+            if best_index is None or best_overlap < self.match_threshold:
+                custom_extras.append(self._weighted_custom_object(custom_object))
+            elif self._custom_wins(custom_object, builtin_objects[best_index]):
+                custom_extras.append(self._weighted_custom_object(custom_object))
+                suppressed_builtin.add(best_index)
+
+        output = DetectedObjectsWithFeature()
+        output.header = builtin.header
+        for index, builtin_object in enumerate(builtin_objects):
+            if index not in suppressed_builtin:
+                output.feature_objects.append(copy.deepcopy(builtin_object))
+        output.feature_objects.extend(custom_extras)
+        return output
+
+    def on_builtin_rois(self, builtin):
+        if self._custom_is_fresh(builtin.header):
+            output = self._merge(builtin, self.latest_custom)
+        else:
+            output = builtin
+        self.publisher.publish(output)
+        self.published += 1
+
+        now = time.monotonic()
+        if now - self.report_start >= 5.0:
+            elapsed = now - self.report_start
+            source = 'merged' if output is not builtin else 'builtin-only'
+            self.get_logger().info(
+                f'ROI merger: {self.published / elapsed:.2f} Hz, '
+                f'last_source={source}, boxes={len(output.feature_objects)}'
+            )
+            self.published = 0
+            self.report_start = now
+
+
+def main():
+    rclpy.init()
+    node = None
+    try:
+        node = RoiMerger()
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        if node is not None:
+            node.destroy_node()
+        if rclpy.ok():
+            rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()

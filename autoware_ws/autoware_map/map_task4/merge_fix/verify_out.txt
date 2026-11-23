@@ -1,0 +1,67 @@
+loaded lanelet2_map_merge_fixed.osm: 9 lanelets
+
+=== lanelets ===
+  2000 lane_id='start' one_way=no vehicle=yes left_pts=5 right_pts=6
+  2001 lane_id='park' one_way=no vehicle=yes left_pts=15 right_pts=15
+  2002 lane_id='conn' one_way=no vehicle=yes left_pts=66 right_pts=66
+  2003 lane_id='main_w' one_way=no vehicle=yes left_pts=6 right_pts=6
+  2004 lane_id='east_out' one_way=no vehicle=yes left_pts=34 right_pts=34
+  2005 lane_id='east_in' one_way=no vehicle=yes left_pts=34 right_pts=34
+  2006 lane_id='uturn' one_way=no vehicle=yes left_pts=37 right_pts=37
+  2007 lane_id='start_north' one_way=no vehicle=yes left_pts=12 right_pts=11
+  2008 lane_id='park_loop' one_way=no vehicle=yes left_pts=33 right_pts=33
+
+=== routing graph ===
+  2000 start        next=['start_north', 'park_loop'] prev=[]
+                    lefts=[] rights=[]
+  2001 park         next=['park_loop'] prev=['start_north']
+                    lefts=[] rights=[]
+  2002 conn         next=['east_in'] prev=['park_loop']
+                    lefts=[] rights=[]
+  2003 main_w       next=['east_out'] prev=[]
+                    lefts=[] rights=[]
+  2004 east_out     next=['uturn'] prev=['main_w']
+                    lefts=['east_in'] rights=[]
+  2005 east_in      next=['uturn'] prev=['conn']
+                    lefts=[] rights=['east_out']
+  2006 uturn        next=['east_in'] prev=['east_out']
+                    lefts=[] rights=[]
+  2007 start_north  next=['park'] prev=['start']
+                    lefts=[] rights=[]
+  2008 park_loop    next=['start'] prev=['park', 'conn']
+                    lefts=[] rights=[]
+
+=== lane change permission (dashed shared boundary) ===
+  east_out -> east_in: True
+  east_in -> east_out: True
+
+=== reachability (following, both directions) ===
+  from start       : ['conn', 'east_in', 'east_out', 'main_w', 'park', 'park_loop', 'start', 'start_north', 'uturn']
+  from park        : ['conn', 'east_in', 'east_out', 'main_w', 'park', 'park_loop', 'start', 'start_north', 'uturn']
+  from conn        : ['conn', 'east_in', 'east_out', 'main_w', 'park', 'park_loop', 'start', 'start_north', 'uturn']
+  from main_w      : ['conn', 'east_in', 'east_out', 'main_w', 'park', 'park_loop', 'start', 'start_north', 'uturn']
+  from east_out    : ['conn', 'east_in', 'east_out', 'main_w', 'park', 'park_loop', 'start', 'start_north', 'uturn']
+  from east_in     : ['conn', 'east_in', 'east_out', 'main_w', 'park', 'park_loop', 'start', 'start_north', 'uturn']
+  from uturn       : ['conn', 'east_in', 'east_out', 'main_w', 'park', 'park_loop', 'start', 'start_north', 'uturn']
+  from start_north : ['conn', 'east_in', 'east_out', 'main_w', 'park', 'park_loop', 'start', 'start_north', 'uturn']
+  from park_loop   : ['conn', 'east_in', 'east_out', 'main_w', 'park', 'park_loop', 'start', 'start_north', 'uturn']
+
+=== overlap check ===
+  fork/junction overlap: park <-> conn ~= 6.51 m^2
+  fork/junction overlap: start_north <-> park_loop ~= 6.21 m^2
+
+=== route checks ===
+  main_w -> east_out: main_w -> east_out
+  conn -> east_in: conn -> east_in
+  start -> uturn: start -> park_loop -> conn -> east_in -> east_out -> uturn
+  east_out -> main_w: east_out -> main_w
+  uturn -> main_w: uturn -> east_out -> main_w
+
+=== routing graph validity ===
+  OK
+
+=== summary ===
+  inherent lanelet2 fork overlaps (info only):
+    park <-> conn: 6.51 m^2
+    start_north <-> park_loop: 6.21 m^2
+  all checks passed

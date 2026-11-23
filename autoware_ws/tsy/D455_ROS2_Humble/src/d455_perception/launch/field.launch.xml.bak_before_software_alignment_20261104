@@ -1,0 +1,29 @@
+<launch>
+  <arg name="start_camera" default="false"/>
+  <arg name="camera_ns" default="/sensing/camera"/>
+  <arg name="camera_name" default="camera0"/>
+  <arg name="color_topic" default="$(var camera_ns)/$(var camera_name)/color/image_raw"/>
+  <arg name="depth_topic" default="$(var camera_ns)/$(var camera_name)/depth/image_rect_raw"/>
+  <group if="$(var start_camera)">
+    <include file="$(find-pkg-share realsense2_camera)/launch/rs_launch.py">
+      <arg name="camera_namespace" value="$(var camera_ns)"/>
+      <arg name="camera_name" value="$(var camera_name)"/>
+      <arg name="enable_color" value="true"/>
+      <arg name="enable_depth" value="true"/>
+      <!-- The detector aligns raw depth in software. Keep the camera-side
+           syncer/align/filters off so aligned_depth_to_color cannot stall. -->
+      <arg name="enable_sync" value="false"/>
+      <arg name="align_depth.enable" value="false"/>
+      <arg name="spatial_filter.enable" value="false"/>
+      <arg name="temporal_filter.enable" value="false"/>
+      <arg name="hole_filling_filter.enable" value="false"/>
+    </include>
+  </group>
+  <node pkg="d455_perception" exec="detect" name="d455_perception" output="screen">
+    <remap from="/sensing/camera/camera0/color/image_raw" to="$(var color_topic)"/>
+    <remap from="/sensing/camera/camera0/depth/image_rect_raw" to="$(var depth_topic)"/>
+    <remap from="/sensing/camera/camera0/color/camera_info" to="$(var camera_ns)/$(var camera_name)/color/camera_info"/>
+    <remap from="/sensing/camera/camera0/depth/camera_info" to="$(var camera_ns)/$(var camera_name)/depth/camera_info"/>
+    <remap from="/sensing/camera/camera0/extrinsics/depth_to_color" to="$(var camera_ns)/$(var camera_name)/extrinsics/depth_to_color"/>
+  </node>
+</launch>

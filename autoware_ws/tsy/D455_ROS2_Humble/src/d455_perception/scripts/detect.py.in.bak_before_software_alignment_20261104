@@ -1,0 +1,158 @@
+#!@DETECTOR_PYTHON@
+import json
+import os
+from pathlib import Path
+import sys
+
+# Ubuntu apt dependencies of rclpy are also needed when reusing the capture venv.
+sys.path.append('/usr/lib/python3/dist-packages')
+from ament_index_python.packages import get_package_share_directory
+from message_filters import ApproximateTimeSynchronizer, Subscriber
+from realsense2_camera_msgs.msg import Extrinsics
+import rclpy
+from rclpy.node import Node
+from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
+from rcl_interfaces.msg import ParameterDescriptor, FloatingPointRange
+from sensor_msgs.msg import CameraInfo, Image
+from std_msgs.msg import String
+
+runtime = Path(get_package_share_directory('d455_perception')) / 'runtime'
+sys.path.insert(0, str(runtime))
+os.environ.setdefault('YOLO_AUTOINSTALL', 'false')
+os.environ.setdefault('YOLO_OFFLINE', 'true')
+from bollard_detector import BollardDetector, draw_detections
+from depth_alignment import DepthProjector
+from ros_images import unpack_image
+
+
+class Perception(Node):
+    def __init__(self):
+        super().__init__('d455_perception')
+        threshold = self.declare_parameter('confidence', 0.4, ParameterDescriptor(
+            floating_point_range=[FloatingPointRange(from_value=0., to_value=1., step=0.)])).value
+        fixed = ParameterDescriptor(read_only=True)
+        imgsz = self.declare_parameter('imgsz', 960, fixed).value
+        device = self.declare_parameter('device', 'cpu', fixed).value
+        self.detector = BollardDetector(runtime / 'models/best.pt', device=device, imgsz=imgsz, confidence=threshold)
+        stream = QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT)
+        self.overlay = self.create_publisher(Image, '~/image_annotated', stream)
+        self.result = self.create_publisher(String, '~/detections', 5)
+        base = '/sensing/camera/camera0'
+        self.color = Subscriber(self, Image, base+'/color/image_raw', qos_profile=stream)
+        self.depth = Subscriber(self, Image, base+'/depth/image_rect_raw', qos_profile=stream)
+        self.sync = ApproximateTimeSynchronizer([self.color, self.depth], 5, 0.020)
+        self.sync.registerCallback(self.process)
+        self._color_k = None
+        self._color_d = None
+        self._color_size = None
+        self._depth_k = None
+        self._depth_size = None
+        self._extrinsics = None
+        self._projector = None
+        self._projector_logged = False
+        self.create_subscription(CameraInfo, base+'/color/camera_info', self.on_color_info, stream)
+        self.create_subscription(CameraInfo, base+'/depth/camera_info', self.on_depth_info, stream)
+        extrinsics_qos = QoSProfile(depth=1, reliability=ReliabilityPolicy.RELIABLE,
+                                    durability=DurabilityPolicy.TRANSIENT_LOCAL)
+        self.create_subscription(Extrinsics, base+'/extrinsics/depth_to_color',
+                                 self.on_extrinsics, extrinsics_qos)
+        self.received = False
+        self.create_timer(5., self.check_input)
+        self.get_logger().info('Ready. Waiting for RGB, raw depth, camera_info and depth_to_color extrinsics.')
+
+    def on_color_info(self, msg):
+        k = tuple(float(v) for v in msg.k)
+        d = tuple(float(v) for v in msg.d)
+        size = (int(msg.width), int(msg.height))
+        if k == self._color_k and d == self._color_d and size == self._color_size:
+            return
+        self._color_k, self._color_d, self._color_size = k, d, size
+        self._refresh_projector()
+
+    def on_depth_info(self, msg):
+        k = tuple(float(v) for v in msg.k)
+        size = (int(msg.width), int(msg.height))
+        if k == self._depth_k and size == self._depth_size:
+            return
+        self._depth_k, self._depth_size = k, size
+        self._refresh_projector()
+
+    def on_extrinsics(self, msg):
+        extrinsics = (tuple(float(v) for v in msg.rotation),
+                      tuple(float(v) for v in msg.translation))
+        if extrinsics == self._extrinsics:
+            return
+        self._extrinsics = extrinsics
+        self._refresh_projector()
+
+    def _refresh_projector(self):
+        if (self._color_k is None or self._depth_k is None or
+                self._extrinsics is None):
+            return
+        try:
+            projector = DepthProjector(
+                self._color_k, self._color_d, self._depth_k,
+                self._extrinsics[0], self._extrinsics[1],
+                self._color_size, self._depth_size)
+        except (TypeError, ValueError) as exc:
+            self.get_logger().error(f'Cannot build raw-depth projector: {exc}',
+                                    throttle_duration_sec=3.)
+            self._projector = None
+            return
+        self._projector = projector
+        if not self._projector_logged:
+            self._projector_logged = True
+            self.get_logger().info(
+                'Raw-depth software alignment ready '
+                f'({self._depth_size[0]}x{self._depth_size[1]} -> '
+                f'{self._color_size[0]}x{self._color_size[1]}).')
+
+    def check_input(self):
+        if not self.received:
+            self.get_logger().warning('Waiting for a usable RGB-D pair. Check raw depth, camera_info and depth_to_color extrinsics.')
+
+    def process(self, color_msg, depth_msg):
+        try:
+            color = unpack_image(color_msg)
+            raw_depth = unpack_image(depth_msg, depth=True)
+            if self._projector is None:
+                raise ValueError('Waiting for raw-depth camera_info and depth_to_color extrinsics')
+            projected = self._projector.project(raw_depth)
+            self.detector.confidence = self.get_parameter('confidence').value
+            pred = self.detector.predict_projected(
+                {'color_bgr': color, 'depth_projected': projected}, 0.001)
+            self.received = True
+            stamp = color_msg.header.stamp
+            ds = depth_msg.header.stamp
+            data = dict(stamp={'sec': stamp.sec, 'nanosec': stamp.nanosec}, frame_id=color_msg.header.frame_id,
+                        depth_stamp={'sec': ds.sec, 'nanosec': ds.nanosec},
+                        depth_frame_id=depth_msg.header.frame_id,
+                        depth_alignment='software_raw_depth', **pred)
+            self.result.publish(String(data=json.dumps(data, allow_nan=False)))
+            if self.overlay.get_subscription_count():
+                image = color.copy()
+                h,w = image.shape[:2]
+                draw_detections(image, pred, (w,h))
+                self.overlay.publish(Image(header=color_msg.header, height=h, width=w, encoding='bgr8',
+                                           is_bigendian=0, step=w*3, data=image.tobytes()))
+        except Exception as exc:
+            self.get_logger().error(f'Frame rejected: {exc}', throttle_duration_sec=3.)
+
+
+def main():
+    rclpy.init()
+    try:
+        node = Perception()
+        try:
+            rclpy.spin(node)
+        finally:
+            node.destroy_node()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        if rclpy.ok():
+            rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()

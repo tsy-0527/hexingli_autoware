@@ -1,0 +1,1 @@
+/usr/bin/g++ -fPIC -O3 -DNDEBUG -shared -Wl,-soname,libMap.so.2 -o libMap.so.2.0.0 CMakeFiles/Map.dir/src/map/io.cpp.o  -Wl,-rpath,/home/tang/autoware_map/map_task4/third_party/dufomap/local_deps/usr/lib/x86_64-linux-gnu: -llz4 /usr/lib/x86_64-linux-gnu/libtbb.so.12.5 /usr/lib/gcc/x86_64-linux-gnu/11/libgomp.so /usr/lib/x86_64-linux-gnu/libpthread.a 

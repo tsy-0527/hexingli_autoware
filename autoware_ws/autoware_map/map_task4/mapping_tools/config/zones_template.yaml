@@ -1,0 +1,29 @@
+# 地图区域标注（地图系，单位 m，地面 z=0）
+# 在 CloudCompare / RViz 里量好坐标后填写。多边形按顺序给顶点，不用首尾重复。
+# 填完后重新运行 build_map_package.py，限速掩膜会自动生成。
+frame: map
+
+# 房间框 → 房间全局初始化的候选区域（0.6–2.85 m 切层似然场 + FFT 在框内搜索）
+rooms: []
+#  - name: room_301
+#    polygon: [[0.0, 0.0], [6.0, 0.0], [6.0, 4.5], [0.0, 4.5]]
+
+# 走廊区 → 走廊协方差中继（纵向退化段，两端 2 m 渐变）、定位健康监测
+corridors: []
+#  - name: corridor_3F
+#    polygon: [[6.0, 1.0], [30.0, 1.0], [30.0, 3.0], [6.0, 3.0]]
+#    axis_deg: 0.0          # 走廊方向（退化方向），地图系 yaw
+
+# 站点 → route_navigator 的途经点 / 终点
+stations: []
+#  - {name: dock, x: 1.0, y: 1.0, yaw: 0.0}
+#  - {name: room_301_bed, x: 4.5, y: 3.0, yaw: 1.57}
+
+# 限速区 → SpeedFilter 掩膜（m/s，重叠时取最严）
+speed_zones: []
+#  - {name: room_301, limit: 0.30, polygon: [[0.0, 0.0], [6.0, 0.0], [6.0, 4.5], [0.0, 4.5]]}
+#  - {name: door_301, limit: 0.20, polygon: [[5.6, 1.2], [6.6, 1.2], [6.6, 2.4], [5.6, 2.4]]}
+
+# 室内外交接点（RTK 固定 + 室内地图覆盖处），坐标与室外系的对应关系见 manifest 的 T_map_to_outdoor
+handover: []
+#  - {name: east_door, x: 30.0, y: 2.0, yaw: 0.0}

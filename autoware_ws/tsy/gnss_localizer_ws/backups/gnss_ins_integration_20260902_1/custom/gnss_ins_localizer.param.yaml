@@ -1,0 +1,22 @@
+/**:
+  ros__parameters:
+    map_frame: map
+    base_frame: base_link
+    gins_frame: gnss_ins_link
+    override_gins_frame_id: true
+
+    swap_roll_pitch_source: true
+    roll_sign:  1
+    pitch_sign: -1
+
+    sigma_xy_full: 0.05
+    sigma_z_full: 0.10
+    # The external INS heading shows low-speed jitter/drift during bring-up.
+    # 0.3 deg is too optimistic and makes EKF reject the pose by its
+    # Mahalanobis gate even while the vehicle is stationary.
+    sigma_yaw_full_deg: 3.0
+    sigma_xy_degraded: 0.5
+    sigma_z_degraded: 1.0
+    sigma_yaw_degraded_deg: 3.0
+
+    stale_timeout_sec: 0.2

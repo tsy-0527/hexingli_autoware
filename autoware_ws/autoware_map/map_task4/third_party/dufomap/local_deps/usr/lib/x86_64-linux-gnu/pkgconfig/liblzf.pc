@@ -1,0 +1,10 @@
+prefix=/usr
+includedir=${prefix}/include/liblzf
+libdir=${prefix}/lib/x86_64-linux-gnu
+
+Name: liblzf
+Description: A very small data compression library
+URL: http://software.schmorp.de/pkg/liblzf.html
+Version: 3.6
+Cflags: -I${includedir}
+Libs: -L${libdir} -llzf

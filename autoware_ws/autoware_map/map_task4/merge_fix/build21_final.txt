@@ -1,0 +1,34 @@
+
+=== lane width check ===
+  start        width min= 2.500 max= 2.530 m
+  start_north  width min= 2.490 max= 2.530 m
+  park         width min= 2.423 max= 2.500 m
+  park_loop    width min= 2.411 max= 2.530 m
+  conn         width min= 2.493 max= 2.500 m
+  main_w       width min= 2.500 max= 2.500 m
+  main_link    width min= 2.431 max= 2.500 m
+  east_out     width min= 2.498 max= 2.500 m
+  east_in      width min= 2.499 max= 2.500 m
+  uturn        width min= 2.481 max= 2.500 m
+
+=== polyline check ===
+  20 boundary polylines checked
+geometry checks: OK
+
+written: /home/tang/autoware_map/map_task4/merge_fix/lanelet2_map21_merge_fixed.osm
+nodes=1506 ways=30 lanelets=10
+  2000 start        left=1000  right=1001 
+  2007 start_north  left=1002  right=1003 
+  2001 park         left=1004  right=1005 
+  2008 park_loop    left=1006  right=1007 
+  2002 conn         left=1008  right=1009 
+  2003 main_w       left=1010  right=1011 
+  2009 main_link    left=1012  right=1013 
+  2004 east_out     left=1014  right=1015 
+  2005 east_in      left=1016  right=1017 
+  2006 uturn        left=1018  right=1019 
+
+=== Y merge/exit edges ===
+  conn       start L=  34.499,  11.133 R=  32.097,  10.442 | end L=  66.171, -75.725 R=  65.152, -78.008
+  main_link  start L=  50.021, -78.731 R=  49.941, -81.230 | end L=  66.171, -75.725 R=  65.152, -78.008
+  east_in    start L=  66.171, -75.725 R=  65.152, -78.008 | end L= 176.666, -72.368 R= 175.522, -74.591

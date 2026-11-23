@@ -1,0 +1,17 @@
+# Coordinates are in the common Autoware `map` frame, metres.
+#
+# Fill these from the measured latitude/longitude <-> map matching points.
+# The enter polygon should lie inside the larger exit polygon to provide
+# hysteresis and prevent mode chatter at the doorway. Do not enable automatic
+# switching until both polygons have been overlaid and checked in RViz.
+indoor_enter_polygon: []
+# Example only:
+# indoor_enter_polygon: [[1.5, 7.0], [4.0, 7.0], [4.0, 48.5], [1.5, 48.5]]
+
+indoor_exit_polygon: []
+# Example only:
+# indoor_exit_polygon: [[0.5, 5.5], [5.0, 5.5], [5.0, 50.0], [0.5, 50.0]]
+
+# Matching points retained here for calibration traceability once supplied:
+# matching_points:
+#   - {name: east_door, latitude: 0.0, longitude: 0.0, map_x: 0.0, map_y: 0.0}

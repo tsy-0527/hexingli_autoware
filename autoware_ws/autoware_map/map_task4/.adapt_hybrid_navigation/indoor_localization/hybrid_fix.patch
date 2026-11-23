@@ -1,0 +1,2405 @@
+diff --git a/CHANGES_hybrid_fix.md b/CHANGES_hybrid_fix.md
+new file mode 100644
+index 0000000..4c99642
+--- /dev/null
++++ b/CHANGES_hybrid_fix.md
+@@ -0,0 +1,56 @@
++# 融合导航逻辑修正清单
++
++解压到 /home/tang/autoware_map/map_task4/indoor_localization 覆盖同名文件即可（只包含改动和新增的文件），
++然后重新 colcon build。代码改动的 diff 见 hybrid_fix.patch。
++`outdoor_lanelet/lanelet2_map.osm` 需要另外拷到 `map_path` 下替换车道图（见 outdoor_lanelet/README.md）。
++
++## 逻辑错误（已修正，离线仿真复现过原版的问题）
++
++| 问题 | 后果 | 修正位置 |
++|---|---|---|
++| 室外时 route_navigator 也接受室内站点任务 | Nav2 没有底盘权限却在规划控制，进度检查失败后触发倒车等恢复行为；交权瞬间车被直接带走 | route_navigator.py：只有室内拿到权限才接受任务，权限收回时取消任务 |
++| 交权时不检查目标控制器是否在输出速度 | 交还室外时 Autoware 挂着旧路线在输出 0.8 m/s，交权瞬间底盘直接收到 0.8 m/s | hybrid_core.py：目标控制器必须在输出停车（先交权、再下任务） |
++| 车速取自定位，且没有超时 | 车速数据断流后一直用最后一个值（0），车可能在动也交权 | hybrid_mode_manager.py：底盘 VelocityReport 优先，断流视为"可能在动" |
++| 定位健康没有超时 | 健康数据停发后一直认为 OK | hybrid_mode_manager.py：1 s 超时 |
++| 只在进室内时检查定位健康 | NDT 是全程唯一定位，出室外交权时定位坏了也照交 | 两个方向都检查 |
++| 手动请求在任何位置都执行 | 在路中间切换，车停在不能继续的地方 | 配了围栏时必须在门口交接带，否则服务返回 success=false |
++| GNSS 初始化参数没传到定位栈；组件里 GNSS 话题写死 | hybrid launch 里写的 gnss_enabled=true 实际不生效 | 两个 launch 补传参；默认用 gnss_init:=false 显式关闭（原因见 HYBRID_NAVIGATION.md） |
++| 室内栅格默认用整个校园的 denoised 栅格 | Nav2 在室外也能规划 | 默认改为 map_20261117_legacy_indoor |
++| allow_unknown: false 被全局代价地图的雷达清除绕过 | 门外被雷达扫过的未知格变成空闲，可以规划出去 | 新增 KeepoutFilter 禁行掩膜 |
++
++## 地图与配准（已处理）
++
++| 问题 | 处理 |
++|---|---|
++| 旧室内图配准错误（yaw −0.111°，平移 −11.169, 55.407），室内被放到北侧停车场上；stations.yaml 和房间多边形都跟着错 | 墙体 2D ICP 重新配准：yaw 3.422°，平移 (11.185, −18.210)，中位误差 0.05 m。站点、房间多边形全部重新换算 |
++| 室内栅格没有门前区域，交接点到门之间无法规划 | 从 20261117 点云生成门前区域（door_apron），并入 nav_map；门洞强制可通行 |
++| 门前 0.15–0.22 m 路沿坎在栅格里是空的，Nav2 会直接翻坎进门 | 坎、坡道栏杆、平台边、南侧路沿画成障碍；坡道通道强制可通行；新增路线节点 ramp_approach、door_ramp，经坡道进出门 |
++| 录制时站在主路上的人在栅格里是障碍 | 从 door_apron 清掉 |
++| 室外车道图：14 条车道左右边界反了、6 条整段车道与分段车道重叠、最南侧车道缺一段 | outdoor_lanelet/fix_lanelet.py 修正（不移动任何点） |
++| 没有室内外切换围栏和交接位姿 | hybrid_switch_zones.yaml 按南门生成；交接点 (29.000, −76.049) |
++
++## 新增文件
++
++- indoor_navigation/tools/register_legacy_grids.py   旧栅格 → 统一坐标系，合并门前区域、强制可通行、障碍折线、限速区
++- indoor_navigation/tools/make_keepout_mask.py       生成禁行掩膜
++- indoor_navigation/tools/rebuild_maps.sh            一条命令重建 map_20261117_legacy_indoor
++- map_20261117_legacy_indoor/                        室内 + 门前栅格、限速、禁行掩膜、配准参数
++- outdoor_lanelet/                                   修正后的车道图、检查和修正脚本
++- offline_sim/                                       不需要 ROS 的交接流程仿真（9 个场景）
++
++## 验证
++
++- indoor_navigation 单元测试 14 项通过（含经坡道进出门的路线断言），room_global_localizer 测试 3 项通过
++- offline_sim 9 个场景（29 项检查）全部通过；场景 9 用真实围栏和站点：交接点进门、路线先到坡道口再上坡道
++- 门前路线用离线 Hybrid-A*（R_min 1.3 m，车身 + 0.03 m）在新 nav_map 上校验：进门、出门都能走通，不倒车
++- 车道图检查：边界反向 0、同向重叠 0
++- 没有在实车和真实 ROS 环境里运行过，按 HYBRID_NAVIGATION.md 的"上车前检查"从架空车轮开始
++
++## 仍需确认（详见 HYBRID_NAVIGATION.md 末尾）
++
++1. map_task4 的 NDT 点云是不是 20261117 点云
++2. 用修正后的车道图替换；路网剩余问题（北侧环路不连通、路口缺转向等）
++3. 坡道口、栏杆间距、门洞宽度现场核对
++4. 门口一带是建图漂移区，交接前看定位健康
++5. GNSS 与地图的经纬度配准
++6. hall_station_1 / hall_station_2 的位置和航向
+diff --git a/HYBRID_NAVIGATION.md b/HYBRID_NAVIGATION.md
+index fc1d5aa..e9bb4a2 100644
+--- a/HYBRID_NAVIGATION.md
++++ b/HYBRID_NAVIGATION.md
+@@ -2,18 +2,29 @@
+ 
+ ## 架构
+ 
+-- 全程只有一套 Autoware、一个 `map` 坐标系和一条定位输出。
+-- 定位使用 MID-360 NDT + `gyro_odom` + EKF；室外由 GINS2000/gnss_poser 生成
+-  `/sensing/gnss/gnss_poser/pose_with_covariance`，用于自动初始定位。
+-- 室外规划/控制使用 Lanelet2 + Autoware。
+-- 室内规划使用二维栅格 + Nav2，输出经过碰撞监测和阿克曼转换。
+-- 两个控制器只写 `/hybrid/outdoor/*` 和 `/hybrid/indoor/*`。只有
+-  `hybrid_mode_manager` 可以发布底盘实际订阅的
+-  `/control/command/control_cmd` 与 `/control/command/gear_cmd`。
+-- 每次切换先输出停车指令；实测车速持续低于 0.03 m/s 达 1 秒，并且目标控制器
+-  命令新鲜、室内定位健康时才交权。
+-
+-不要再同时运行原来的室内和室外启动命令；融合启动脚本已经包含两者需要的组件。
++- 全程只有一套 Autoware、一个 `map` 坐标系和一条定位输出（MID-360 NDT + `gyro_odom` + EKF）。
++  室内外**不切换定位**，只切换"谁控制底盘"。
++- 室外规划/控制：Lanelet2 + Autoware。
++- 室内规划/控制：二维栅格 + Nav2 → collision_monitor → 阿克曼转换。
++- 两个控制器只写私有话题 `/hybrid/outdoor/*`、`/hybrid/indoor/*`。只有 `hybrid_mode_manager`
++  发布底盘实际订阅的 `/control/command/control_cmd` 与 `/control/command/gear_cmd`。
++- 室内栅格只覆盖室内：栅格外是"未知"，Nav2 `allow_unknown: false`，并且有禁行掩膜（KeepoutFilter）兜底。
++
++## 交权规则（全部满足才交权）
++
++| # | 条件 | 不满足时 |
++|---|---|---|
++| 1 | 一发起切换就输出停车（v=0，a=−0.5） | — |
++| 2 | 车速数据新鲜（底盘 VelocityReport 优先，其次定位速度），且持续 < 0.03 m/s 达 1 s | 继续停车，重新计时；车速断流视为"可能在动" |
++| 3 | 目标控制器命令新鲜（节点活着） | 继续停车 |
++| 4 | **目标控制器此刻输出的是停车**（\|v\| ≤ 0.05） | 继续停车。所以必须**先交权、再下任务** |
++| 5 | 定位健康（level 不是 ERROR，健康数据 1 s 内有更新）。**两个方向都要求** | 继续停车 |
++| 6 | 配了围栏时，手动请求必须在门口交接带（进室内：在 exit 围栏内；出室外：在 enter 围栏外） | 服务直接返回 `success: false` |
++
++`/hybrid_mode_manager/state` 里的 `block_reason` 会说明当前卡在哪一条。
++
++另外 `route_navigator` 只有在 `mode=indoor, phase=active` 时才接受站点任务；室内权限被收回
++（开始切换、或状态断流）时会自动取消正在执行的 Nav2 任务。
+ 
+ ## 编译与启动
+ 
+@@ -21,61 +32,129 @@
+ cd /home/tang/autoware_map/map_task4/indoor_localization
+ source /opt/ros/humble/setup.bash
+ source /home/tang/autoware/install/setup.bash
+-colcon build --packages-select indoor_localization indoor_navigation --symlink-install
++colcon build --packages-select indoor_localization indoor_navigation room_global_localizer --symlink-install
+ 
+ ./run_hybrid_navigation.sh
+ ```
+ 
+-默认以室外模式启动。第一次实车联调保持自动切换关闭，使用停车式手动交接：
++默认以室外模式启动，GNSS 自动初始化默认关闭（原因见文末），启动后在 RViz 用 2D Pose Estimate
++给初值，或在室内用房间全局初始化。
++
++## 交接流程（停车式手动交接）
++
++**室外 → 室内**
+ 
+ ```bash
+-# 室外 -> 室内（先给 Nav2 下发室内目标，使室内控制源开始输出）
++# 1. Autoware 把车开到门口交接点 (29.000, -76.049) 并停下（车道终点 = 交接点）
++# 2. 请求室内权限
+ ros2 service call /hybrid_mode_manager/set_indoor std_srvs/srv/SetBool "{data: true}"
++# 3. 等到 mode=indoor, phase=active
++ros2 topic echo /hybrid_mode_manager/state
++# 4. 再下发室内站点任务
++ros2 topic pub --once /route_navigator/command std_msgs/String '{data: "{\"cmd\": \"goto\", \"station\": \"room_home\"}"}'
++```
+ 
+-# 室内 -> 室外（先在 Autoware 设置室外车道路线）
+-ros2 service call /hybrid_mode_manager/set_indoor std_srvs/srv/SetBool "{data: false}"
++**室内 → 室外**
+ 
+-# 查看当前权属、切换阶段、源命令新鲜度和定位健康状态
+-ros2 topic echo /hybrid_mode_manager/state
++```bash
++# 1. 室内站点任务把车开回门口交接点并停下（站点 south_door_out，经坡道、掉头后车头朝东）
++# 2. 请求室外权限（此时 Autoware 必须处于停车状态，不要提前设路线）
++ros2 service call /hybrid_mode_manager/set_indoor std_srvs/srv/SetBool "{data: false}"
++# 3. 等到 mode=outdoor, phase=active
++# 4. 再在 Autoware 设置室外路线并 engage
+ ```
+ 
++> 和原文档相反：**不要**在交权之前给 Nav2 下目标。原来的写法会让 Nav2 在没有底盘权限时空转，
++> 进度检查失败后触发倒车等恢复行为；交权瞬间车会被一条已经"着急"的路径直接带走。
++
+ ## 自动切换（待录入实测匹配点）
+ 
+-当前工作区没有收到用户所述的“经纬度匹配点”附件，因此不能安全猜门口围栏。
+-把实测点录入 `config/hybrid_switch_zones.yaml`：
++把实测点录入 `config/hybrid_switch_zones.yaml`（统一 `map` 坐标，不能直接填经纬度）：
+ 
+-- `indoor_enter_polygon`：较小的进入围栏；
+-- `indoor_exit_polygon`：包住进入围栏的较大退出围栏，用于防抖；
+-- 坐标必须是当前统一 Autoware `map` 坐标，不能直接填经纬度。
++- `indoor_enter_polygon`：室内区域（较小）；
++- `indoor_exit_polygon`：包住它的较大区域。两者之间的带状区域就是门口交接带，交接点要放在这条带里。
+ 
+-在 RViz 核对边界后再启动：
++配好之后手动请求也会做位置检查。在 RViz 核对边界后再启动：
+ 
+ ```bash
+ ./run_hybrid_navigation.sh automatic_switching:=true
+ ```
+ 
+-围栏只负责请求模式，仍然不能越过停车、命令超时和室内定位健康检查。
++> 现在的 `hybrid_switch_zones.yaml` 已按南门录好，但**自动切换不适合这个布局**：Autoware 不会开进建筑轮廓，
++> Nav2 也被禁行掩膜限制在门前区域，围栏触发条件不会满足。保持 `automatic_switching: false`，
++> 由任务层在"Autoware 到达交接点"之后调用 `set_indoor`；围栏只用于手动请求的位置检查。
++
++围栏只负责发起请求，仍然要满足上面全部交权条件。注意自动进门后只是拿到权限，
++还需要任务层下发室内站点任务。
++
++## 室内栅格：map_20261117_legacy_indoor
++
++`grid_map_path` 默认是 `map_20261117_legacy_indoor`：旧室内地图的栅格按
++`legacy_room_registration.yaml`（yaw 3.422°，平移 11.185, −18.210；墙体 ICP 中位误差 0.05 m）变换到统一坐标系，
++再拼上从 20261117 点云生成的门前区域（见该目录 README.txt）。
++
++> **更正**：之前的配准（yaw −0.111°，平移 −11.169, 55.407）是错的，把室内图放到了北侧停车场上；
++> 当时"20261117 点云没录到这栋楼、走廊被树冠堵死"的说法也是错的。这栋楼就是走廊在 x≈29、y −58 ~ −19
++> 的那栋，点云里有它。`stations.yaml`、房间全局初始化的 `room_polygon` 都已按新配准换算。
++
++重新生成：`bash indoor_navigation/tools/rebuild_maps.sh`（在仓库根目录）。
++
++## 南门：交接点、坎和坡道
++
++```
++                 door_inside (26.9, -68.8)  ← 门内
++      ─────────── 立面 y≈-70.8，门洞 x≈26.9，宽约 1.2 m ───────────
++         平台                                        平台
++  ┌栏杆──────────┐ ↗
++  │  坡道 →→→→  │      ← 路沿坎 0.15–0.22 m（x 19–42），不能直接上
++  └栏杆──────────┘
++   ↑ 坡道口 ramp_approach (18.2, -76.3)       south_door_out / 交接点 (29.0, -76.049)
++   └──── 主路上掉头 ←←←←←←←←←←←←←←←←←←←←←←←←← Autoware 西行到此停车
++```
++
++- **坎**：门前 x 19–42 整排路沿，比路面高 0.15–0.22 m，东头在 x≈41.8 拐向北接到楼边。
++- **坡道**：在门的西边，x 17.7–24、y −75.4 ~ −74.0，两侧栏杆，净宽约 1.2 m（车宽加余量 0.63 m）。
++  西头和路面齐平，往东升高约 0.14 m 后接上门前平台（坡度约 3%）。车只能从西南角约 1.5 m 宽的坡道口拐进去。
++- 栅格里坎、栏杆、坡道西侧平台边、主路南侧路沿都画成了障碍，所以 Nav2 只能走坡道。
++- 路线节点（`stations.yaml`）：`south_door_out` → `ramp_approach`（坡道口，南北向）→ `door_ramp`（坡道中线，东西向）→ `door_inside`。
++  进门在坡道口朝北、坡道上朝东上坡；出门反过来。只放一个坡道点不够：按"前一点 → 后一点"判断方向时，
++  从交接点出发会让车朝西经过坡道。
++- 离线 Hybrid-A*（R_min 1.3 m、车身轮廓 + 0.03 m）校验：进门约 25 m、出门约 25 m，全程前进、不倒车，
++  掉头在交接点西侧主路上完成，车身始终在 exit 围栏内。坡道和掉头区限速 0.2 m/s。
++- 交接点和 Autoware 路线终点都没变：仍是 (29.000, −76.049)，进门车头朝西，出门车头朝东。
++
++**禁行掩膜为什么必须有**：`allow_unknown: false` 只挡静态图里的未知格。全局代价地图的 VoxelLayer
++开着 clearing，`combination_method: 1` 取最大值时，雷达射线扫过的未知格会被改写成空闲，门外几米到
++十米的室外区域又能规划了。KeepoutFilter 在所有图层之后把掩膜外的格子强制设为禁行。
+ 
+ ## 上车前检查
+ 
+ ```bash
+ # 最终底盘命令必须只有 hybrid_mode_manager 一个发布者
+ ros2 topic info /control/command/control_cmd --verbose
+-
+-# 两个源都应存在；未规划的一侧允许暂时没有数据
++# 两个源都应存在
+ ros2 topic hz /hybrid/outdoor/control_cmd
+ ros2 topic hz /hybrid/indoor/control_cmd
+-
+-# 统一定位与 GNSS 初始位姿
+-ros2 topic hz /localization/kinematic_state
+-ros2 topic hz /sensing/gnss/gnss_poser/pose_with_covariance
++# 交权用的车速和健康
++ros2 topic hz /vehicle/status/velocity_status
++ros2 topic echo /indoor_localization/health --once
++# 禁行掩膜生效
++ros2 topic echo /keepout_costmap_filter_info --once
+ ```
+ 
+-先架空车轮或断开驱动电机验证模式切换。确认切换阶段始终先输出零速、最终命令只有一个
+-发布者后，再以低速测试门口往返。
+-
+-## 已修正的坐标问题
+-
+-原 `stations.yaml` 仍是旧室内地图坐标，而当前点云/栅格已经注册到 20261117 校园地图。
+-站点和路径节点现已按 `legacy_room_registration.yaml` 转换到统一 `map` 坐标；否则 Nav2
+-目标会整体错位约 55 m。
++先架空车轮或断开驱动电机验证：切换阶段始终先输出零速；室外时下发室内站点任务会被拒绝；
++交还室外时 Autoware 若在输出速度，状态会一直停在 stopping 并给出原因。
++
++## 仍需你确认的问题（代码改不了）
++
++1. **NDT 地图。** `map_path` 默认 `/home/tang/autoware_map/map_task4`，请确认其中的 `pointcloud_map.pcd`
++   就是 20261117 点云（或其清理版）。门前那个录制时站着的人只从规划栅格里删了，点云里还在，对 NDT 影响很小。
++2. **车道图。** 用 `outdoor_lanelet/lanelet2_map.osm`（修正版）替换 `map_path` 下的车道图，修正内容和剩余的路网问题
++   见 `outdoor_lanelet/README.md`。
++3. **门前尺寸现场核对。** 坡道口宽度（约 1.5 m）、栏杆间净宽（约 1.2 m）、门洞宽度（约 1.2 m）都是从点云量的，
++   请用卷尺核对；如有出入，改 `indoor_navigation/tools/rebuild_maps.sh` 里的折线和矩形后重新生成。
++4. **门口一带是 20261117 建图的漂移区**（开头和结尾两次经过，两层相差约 1–1.3 m），门前 NDT 可能不稳，
++   交接前先看 `/indoor_localization/health`。
++5. **GNSS 自动初始化。** 用 `gnss_init:=true` 才打开，默认关闭：地图 `projector_type: Local`，
++   还没有和经纬度配准，GNSS 位姿不能直接当这张图里的初值。
++6. **站点航向。** `hall_station_1`、`hall_station_2` 的位置和航向仍是 TODO。
+diff --git a/indoor_localization_realtime/launch/__pycache__/task5_combined_localization.launch.cpython-313.pyc b/indoor_localization_realtime/launch/__pycache__/task5_combined_localization.launch.cpython-313.pyc
+new file mode 100644
+index 0000000..5e86571
+Binary files /dev/null and b/indoor_localization_realtime/launch/__pycache__/task5_combined_localization.launch.cpython-313.pyc differ
+diff --git a/indoor_localization_realtime/launch/task5_combined_localization.launch.py b/indoor_localization_realtime/launch/task5_combined_localization.launch.py
+index d11e267..3689cb4 100644
+--- a/indoor_localization_realtime/launch/task5_combined_localization.launch.py
++++ b/indoor_localization_realtime/launch/task5_combined_localization.launch.py
+@@ -43,11 +43,13 @@ def generate_launch_description():
+             default_value=(
+                 '/home/tang/autoware_map/map_task4/indoor_localization/'
+                 'map_20261117_denoised')),
++        # 室内栅格用旧室内地图按 legacy_room_registration（2026-11-17 重新配准）变换后的版本，
++        # 含南门门前区域；整个校园的 denoised 栅格会让 Nav2 在室外也能规划。
+         DeclareLaunchArgument(
+             'grid_map_path',
+             default_value=(
+                 '/home/tang/autoware_map/map_task4/indoor_localization/'
+-                'map_20261117_denoised')),
++                'map_20261117_legacy_indoor')),
+         DeclareLaunchArgument('launch_perception', default_value='false'),
+         DeclareLaunchArgument('launch_planning', default_value='false'),
+         DeclareLaunchArgument('launch_control', default_value='false'),
+@@ -115,6 +117,13 @@ def generate_launch_description():
+                 # publisher of the final NDT input.
+                 'input_pointcloud': '/sensing/lidar/concatenated/pointcloud',
+                 'vehicle_model': 'yunle_vehicle',
++                # 修正：定位栈实际在这里启动（上面 Autoware 的 launch_localization=false），
++                # GNSS 初始化相关参数必须传到这里，原来只传给了 Autoware，等于没生效。
++                'gnss_enabled': LaunchConfiguration('gnss_enabled'),
++                'automatic_pose_initializer_enabled': LaunchConfiguration(
++                    'automatic_pose_initializer_enabled'),
++                'pose_initializer_gnss_pose_topic': LaunchConfiguration(
++                    'pose_initializer_gnss_pose_topic'),
+             }.items()),
+ 
+         IncludeLaunchDescription(
+@@ -164,6 +173,7 @@ def generate_launch_description():
+                 'use_sim_time': 'false',
+                 'nav_map_yaml': PathJoinSubstitution([grid_map_path, 'nav_map.yaml']),
+                 'speed_mask_yaml': PathJoinSubstitution([grid_map_path, 'speed_mask.yaml']),
++                'keepout_mask_yaml': PathJoinSubstitution([grid_map_path, 'keepout_mask.yaml']),
+                 'launch_mode_manager': LaunchConfiguration('launch_mode_manager'),
+                 'initial_mode': LaunchConfiguration('initial_mode'),
+             }.items()),
+diff --git a/indoor_localization_realtime/launch/task5_localization_component.launch.xml b/indoor_localization_realtime/launch/task5_localization_component.launch.xml
+index 16221e1..3cc906b 100644
+--- a/indoor_localization_realtime/launch/task5_localization_component.launch.xml
++++ b/indoor_localization_realtime/launch/task5_localization_component.launch.xml
+@@ -10,6 +10,8 @@
+   <arg name="system_run_mode" default="online"/>
+   <arg name="gnss_enabled" default="false"/>
+   <arg name="automatic_pose_initializer_enabled" default="false"/>
++  <!-- 修正：原来下面写死了 /sensing/gnss/pose_with_covariance，上层传进来的话题不生效 -->
++  <arg name="pose_initializer_gnss_pose_topic" default="/sensing/gnss/pose_with_covariance"/>
+   <arg name="pose_initializer_stop_check_enabled" default="true"/>
+   <arg name="use_sim_time" default="false"/>
+   <arg name="vehicle_model" default="yunle_vehicle"/>
+@@ -33,7 +35,7 @@
+     <arg name="initial_pose" value="$(var initial_pose)"/>
+     <arg name="gnss_enabled" value="$(var gnss_enabled)"/>
+     <arg name="automatic_pose_initializer_enabled" value="$(var automatic_pose_initializer_enabled)"/>
+-    <arg name="pose_initializer_gnss_pose_topic" value="/sensing/gnss/pose_with_covariance"/>
++    <arg name="pose_initializer_gnss_pose_topic" value="$(var pose_initializer_gnss_pose_topic)"/>
+     <arg name="pose_initializer_stop_check_enabled" value="$(var pose_initializer_stop_check_enabled)"/>
+ 
+     <arg name="localization_error_monitor_param_path" value="$(var loc_config_path)/localization_error_monitor.param.yaml"/>
+diff --git a/indoor_navigation/config/hybrid_switch_zones.yaml b/indoor_navigation/config/hybrid_switch_zones.yaml
+index b3667de..74e6b24 100644
+--- a/indoor_navigation/config/hybrid_switch_zones.yaml
++++ b/indoor_navigation/config/hybrid_switch_zones.yaml
+@@ -1,17 +1,22 @@
+-# Coordinates are in the common Autoware `map` frame, metres.
++# 室内外切换围栏（统一 map 坐标，米）。2026-11-17 按重新配准后的室内地图生成。
+ #
+-# Fill these from the measured latitude/longitude <-> map matching points.
+-# The enter polygon should lie inside the larger exit polygon to provide
+-# hysteresis and prevent mode chatter at the doorway. Do not enable automatic
+-# switching until both polygons have been overlaid and checked in RViz.
+-indoor_enter_polygon: []
+-# Example only:
+-# indoor_enter_polygon: [[1.5, 7.0], [4.0, 7.0], [4.0, 48.5], [1.5, 48.5]]
+-
+-indoor_exit_polygon: []
+-# Example only:
+-# indoor_exit_polygon: [[0.5, 5.5], [5.0, 5.5], [5.0, 50.0], [0.5, 50.0]]
++# indoor_enter_polygon：建筑轮廓（旧室内栅格已知区域，外扩 0.2 m）
++# indoor_exit_polygon ：建筑轮廓 + 南门门前区域（x 15~40，y -79~-69，含主路北侧两条车道和雨棚）
++# 两者之间的带状区域就是门口交接带，交接点 (29.0, -76.049) 在带内。
++# 交接点 → 掉头 → 坡道 → 门 这一整段 Nav2 动作（x 17.6–29.7，y -77.8~-68.8，含车身）都在 exit 围栏内。
++#
++# 手动请求的位置检查（hybrid_mode_manager 的 manual_requires_zone）：
++#   进室内：车在 exit 围栏内；出室外：车在 enter 围栏外。在交接点两者都满足。
++# 自动切换（automatic_switching）不适合这个布局：Autoware 不会开进建筑轮廓，Nav2 也被禁行掩膜限制在
++# 门前区域内，围栏触发条件永远不会满足。请保持 automatic_switching: false，由任务层在
++# "Autoware 到达交接点"之后调用 set_indoor。
++indoor_enter_polygon: [[17.38, -71.55], [16.80, -70.88], [16.62, -67.35], [9.43, -67.55], [8.78, -68.25], [8.43, -67.65], [6.22, -67.80], [5.95, -67.53], [5.70, -59.32], [6.15, -59.32], [6.35, -61.18], [6.88, -61.40], [19.78, -60.55], [22.52, -61.05], [24.15, -60.88], [23.95, -55.72], [24.48, -55.10], [27.63, -54.95], [27.60, -52.38], [28.05, -51.72], [27.55, -37.72], [27.45, -36.88], [26.95, -36.47], [26.90, -34.32], [27.40, -33.72], [27.05, -25.47], [26.72, -25.15], [25.38, -25.60], [24.05, -25.42], [23.75, -20.22], [23.58, -19.75], [22.72, -19.70], [15.38, -20.20], [14.90, -21.47], [15.35, -22.38], [15.55, -25.57], [14.48, -25.85], [10.42, -25.65], [9.95, -25.22], [10.15, -21.52], [9.70, -17.57], [10.08, -16.95], [14.63, -16.65], [14.55, -14.47], [15.82, -13.20], [20.23, -13.10], [20.52, -16.45], [26.48, -16.25], [26.60, -12.52], [28.83, -12.20], [29.40, -12.52], [29.45, -15.67], [29.90, -16.22], [29.75, -21.47], [30.25, -22.07], [30.30, -24.12], [38.57, -23.85], [39.50, -24.52], [39.25, -25.57], [39.60, -29.12], [39.07, -30.20], [30.48, -30.55], [30.15, -30.88], [31.15, -57.58], [31.35, -58.22], [31.98, -58.45], [37.32, -58.20], [37.80, -58.68], [38.25, -70.22], [37.72, -70.60], [30.13, -70.70], [23.88, -71.45], [23.28, -71.10], [18.98, -71.15]]
++indoor_exit_polygon: [[39.98, -79.00], [15.03, -79.00], [15.00, -69.03], [16.83, -69.00], [16.70, -67.42], [9.43, -67.55], [8.78, -68.25], [8.43, -67.65], [6.22, -67.80], [5.95, -67.53], [5.65, -60.92], [5.92, -59.10], [6.35, -61.18], [6.88, -61.40], [19.78, -60.55], [23.88, -61.00], [24.20, -60.68], [23.95, -55.72], [24.48, -55.10], [27.42, -55.00], [27.80, -54.62], [27.60, -52.38], [28.05, -51.08], [27.55, -37.72], [27.45, -36.88], [26.95, -36.47], [26.90, -34.32], [27.40, -33.72], [27.00, -25.28], [24.05, -25.42], [23.75, -20.22], [23.38, -19.70], [15.38, -20.20], [14.90, -21.38], [15.35, -22.38], [15.32, -25.80], [10.42, -25.65], [9.95, -25.22], [9.85, -17.17], [14.63, -16.65], [14.55, -14.47], [15.53, -13.25], [20.23, -13.10], [20.52, -16.45], [26.28, -16.30], [26.60, -15.97], [26.60, -12.52], [29.18, -12.30], [29.45, -15.67], [29.95, -16.67], [29.75, -21.47], [30.25, -22.07], [30.30, -24.12], [38.57, -23.85], [39.50, -24.52], [39.25, -25.57], [39.60, -29.12], [39.07, -30.20], [30.48, -30.55], [30.15, -31.47], [31.15, -57.58], [31.35, -58.22], [31.98, -58.45], [37.32, -58.20], [37.80, -58.68], [38.15, -68.97], [40.00, -69.03]]
+ 
+-# Matching points retained here for calibration traceability once supplied:
+-# matching_points:
+-#   - {name: east_door, latitude: 0.0, longitude: 0.0, map_x: 0.0, map_y: 0.0}
++# 交接位姿（统一 map 坐标）
++handover:
++  # 进门：Autoware 的路线终点。主路最北侧车道西行（lanelet 950111），车头朝西。
++  autoware_goal: {x: 29.000, y: -76.049, yaw_deg: -177.366}
++  # 出门：Nav2 站点 south_door_out，车头朝东，交权后 Autoware 从东行车道（lanelet 50111）出发。
++  nav2_station: {name: south_door_out, x: 29.000, y: -76.049, yaw_deg: 2.634}
++  door: {center_x: 26.9, facade_y: -70.8, opened_width_m: 1.2}   # 门宽按轨迹推断，需现场确认
+diff --git a/indoor_navigation/config/indoor_navigation_nodes.param.yaml b/indoor_navigation/config/indoor_navigation_nodes.param.yaml
+index b3a5170..40df49b 100644
+--- a/indoor_navigation/config/indoor_navigation_nodes.param.yaml
++++ b/indoor_navigation/config/indoor_navigation_nodes.param.yaml
+@@ -35,6 +35,10 @@ route_navigator:
+     action_name: navigate_through_poses
+     behavior_tree: ""
+     reject_when_health_error: true
++    # 只有拿到室内底盘权限时才接受站点任务；失去权限时取消正在执行的 Nav2 任务
++    require_indoor_authority: true
++    hybrid_state_topic: /hybrid_mode_manager/state
++    hybrid_state_timeout: 1.0
+ 
+ hybrid_mode_manager:
+   ros__parameters:
+@@ -46,11 +50,17 @@ hybrid_mode_manager:
+     output_control_topic: /control/command/control_cmd
+     output_gear_topic: /control/command/gear_cmd
+     odom_topic: /localization/kinematic_state
++    velocity_topic: /vehicle/status/velocity_status   # 底盘实测车速，优先于定位速度
+     indoor_health_topic: /indoor_localization/health
+     rate_hz: 30.0
+     stop_speed: 0.03
+     stop_hold_time: 1.0
+     source_timeout: 0.5
++    idle_speed: 0.05                    # 交权瞬间目标控制器输出必须是停车：先交权，再下任务
++    speed_timeout: 0.5                  # 车速断流 → 不交权
++    health_timeout: 1.0                 # 定位健康断流 → 视为不健康
++    require_health_for_outdoor: true    # NDT 是全程唯一定位，出门交权也要求定位健康
++    manual_requires_zone: true          # 配了围栏后，手动请求必须在门口交接带
+     # Keep false until the measured GNSS/map matching-point attachment has
+     # been copied into hybrid_switch_zones.yaml and verified in RViz.
+     automatic_switching: false
+diff --git a/indoor_navigation/config/nav2_indoor.param.yaml b/indoor_navigation/config/nav2_indoor.param.yaml
+index a1ce286..bf6a7df 100644
+--- a/indoor_navigation/config/nav2_indoor.param.yaml
++++ b/indoor_navigation/config/nav2_indoor.param.yaml
+@@ -9,16 +9,32 @@ map_server:
+     # Keep a concrete default here. On ROS 2 Humble, the later node-scoped
+     # parameter file can override an inline launch dictionary and leave this
+     # empty, producing an active map_server that never publishes a map.
+-    yaml_filename: /home/tang/autoware_map/map_task4/indoor_localization/map_20261117_denoised/nav_map.yaml
++    yaml_filename: /home/tang/autoware_map/map_task4/indoor_localization/map_20261117_legacy_indoor/nav_map.yaml
+     topic_name: map
+     frame_id: map
+ 
+ filter_mask_server:
+   ros__parameters:
+-    yaml_filename: /home/tang/autoware_map/map_task4/indoor_localization/map_20261117_denoised/speed_mask.yaml
++    yaml_filename: /home/tang/autoware_map/map_task4/indoor_localization/map_20261117_legacy_indoor/speed_mask.yaml
+     topic_name: speed_filter_mask
+     frame_id: map
+ 
++# 禁行掩膜（KeepoutFilter）：只允许在室内栅格已建图范围内规划。
++# allow_unknown: false 挡不住全局代价地图里被雷达射线"清成空闲"的室外未知格，必须用掩膜。
++keepout_mask_server:
++  ros__parameters:
++    yaml_filename: /home/tang/autoware_map/map_task4/indoor_localization/map_20261117_legacy_indoor/keepout_mask.yaml
++    topic_name: keepout_filter_mask
++    frame_id: map
++
++keepout_info_server:
++  ros__parameters:
++    type: 0                      # 0 = KEEPOUT
++    filter_info_topic: /keepout_costmap_filter_info
++    mask_topic: /keepout_filter_mask
++    base: 0.0
++    multiplier: 1.0
++
+ costmap_filter_info_server:
+   ros__parameters:
+     type: 2                      # 2 = SPEED_FILTER_ABSOLUTE (m/s)
+@@ -296,7 +312,7 @@ global_costmap:
+       footprint_padding: 0.03
+       transform_tolerance: 0.3
+       plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
+-      filters: ["speed_filter"]
++      filters: ["speed_filter", "keepout_filter"]
+       static_layer:
+         plugin: "nav2_costmap_2d::StaticLayer"
+         map_subscribe_transient_local: true
+@@ -346,6 +362,10 @@ global_costmap:
+         enabled: true
+         filter_info_topic: /costmap_filter_info
+         speed_limit_topic: /speed_limit
++      keepout_filter:
++        plugin: "nav2_costmap_2d::KeepoutFilter"
++        enabled: true
++        filter_info_topic: /keepout_costmap_filter_info
+       always_send_full_costmap: true
+ 
+ behavior_server:
+@@ -412,4 +432,4 @@ lifecycle_manager_navigation:
+ lifecycle_manager_filters:
+   ros__parameters:
+     autostart: true
+-    node_names: ["filter_mask_server", "costmap_filter_info_server"]
++    node_names: ["filter_mask_server", "costmap_filter_info_server", "keepout_mask_server", "keepout_info_server"]
+diff --git a/indoor_navigation/config/stations.yaml b/indoor_navigation/config/stations.yaml
+index 3e9ba99..594b577 100644
+--- a/indoor_navigation/config/stations.yaml
++++ b/indoor_navigation/config/stations.yaml
+@@ -1,18 +1,24 @@
+ # Route graph in the registered 20261117 campus map frame (metres / degrees).
+-# Converted from the legacy room frame with map_20261117_denoised/
+-# legacy_room_registration.yaml.  All indoor grids, NDT and the outdoor
+-# Lanelet2 map therefore use the same `map` frame.
++# 2026-11-17：用重新配准后的 legacy_room_registration.yaml（ICP，墙体中位误差 0.05 m）换算。
++#   原来的站点按错误配准换算，整体落在北侧停车场上（偏了约 23 m / 71 m）。
+ # Nodes: [x, y] or [x, y, axis_deg]. With an axis the vehicle passes the node along that line
+ # (either direction). Hybrid-A* plans between nodes,
+ # including the door turn and any turn-around, so do NOT put nodes inside the doorway.
+ nodes:
+-  room_center:      [11.407, 44.963]   # middle of the room (9.0 x 5.6 m)
+-  corridor_north:   [5.547, 39.374, 88.889]
+-  corridor_mid:     [5.225, 28.375, 88.889]
+-  corridor_south:   [5.007, 18.875, 88.889]
+-  hall_entrance:    [2.949, 14.879, 89.889]
+-  hall_center:      [2.738, 8.879]
+-  hall_west:        [-9.260, 8.903]    # TODO(site): move to your real hall station
++  room_center:      [34.358, -27.242]   # middle of the room (9.0 x 5.6 m)
++  corridor_north:   [28.854, -33.181, 92.422]
++  corridor_mid:     [29.211, -44.179, 92.422]
++  corridor_south:   [29.579, -53.675, 92.422]
++  hall_entrance:    [27.771, -57.790, 93.422]
++  hall_center:      [27.931, -63.792]
++  hall_west:        [15.956, -64.507]   # TODO(site): move to your real hall station
++  door_inside:      [26.900, -68.800, 93.422]   # 南门内侧（门洞中心 x≈26.9，立面 y≈-70.8）
++  # 门前有一道 0.15–0.22 m 的路沿坎（x 19–42，已在 nav_map 里画成障碍），只能走西头的坡道：
++  #   主路 → ramp_approach（坡道口，南北向）→ door_ramp（坡道中段，东西向）→ 门
++  # 坡道在 x 17.7–24、y -75.4..-74.0，两侧栏杆，净宽约 1.2 m，相对路面升高约 0.14 m（坡度约 3%）。
++  door_ramp:        [21.200, -74.680, 2.634]    # 坡道中线；进门朝东上坡，出门朝西下坡
++  ramp_approach:    [18.200, -76.300, 90.0]     # 坡道口外的主路上；进门朝北拐进坡道，出门朝南拐出
++  south_door_out:   [29.000, -76.049]           # 南门外主路最北侧车道中心（室内外交接点）
+ edges:
+   - [room_center, corridor_north]
+   - [corridor_north, corridor_mid]
+@@ -20,7 +26,12 @@ edges:
+   - [corridor_south, hall_entrance]
+   - [hall_entrance, hall_center]
+   - [hall_center, hall_west]
++  - [hall_center, door_inside]
++  - [door_inside, door_ramp]
++  - [door_ramp, ramp_approach]
++  - [ramp_approach, south_door_out]
+ stations:
+-  room_home:        {node: room_center, yaw_deg: 179.889}  # nose towards the door
+-  hall_station_1:   {node: hall_center, yaw_deg: 89.889}   # TODO(site): measured handover heading
+-  hall_station_2:   {node: hall_west,   yaw_deg: -0.111}   # TODO(site)
++  room_home:        {node: room_center, yaw_deg: -176.578}  # nose towards the door
++  hall_station_1:   {node: hall_center, yaw_deg: 93.422}   # TODO(site): measured heading
++  hall_station_2:   {node: hall_west, yaw_deg: 3.422}   # TODO(site)
++  south_door_out:   {node: south_door_out, yaw_deg: 2.634}   # 出门交接：车头朝东，沿主路东行车道离开
+diff --git a/indoor_navigation/indoor_navigation/hybrid_core.py b/indoor_navigation/indoor_navigation/hybrid_core.py
+index 1974361..8b1192e 100644
+--- a/indoor_navigation/indoor_navigation/hybrid_core.py
++++ b/indoor_navigation/indoor_navigation/hybrid_core.py
+@@ -1,4 +1,13 @@
+-"""ROS-independent state machine used by the indoor/outdoor command arbiter."""
++"""ROS-independent state machine used by the indoor/outdoor command arbiter.
++
++交权规则（全部满足才把底盘交给目标控制器）：
++  1. 先输出停车指令；
++  2. 车速数据新鲜，且持续低于 stop_speed 达 stop_hold_time；
++  3. 目标控制器的命令新鲜（节点活着）；
++  4. 目标控制器此刻输出的是"停车"（|v| ≤ idle_speed）——先交权、再下发任务，
++     避免交权瞬间车被一条旧路线/旧目标直接带走；
++  5. 定位健康（两个方向都要求，NDT 是全程唯一定位源）。
++"""
+ from dataclasses import dataclass
+ 
+ 
+@@ -13,10 +22,11 @@ class ArbiterParams:
+     stop_speed: float = 0.03
+     stop_hold_time: float = 1.0
+     source_timeout: float = 0.5
++    idle_speed: float = 0.05
+ 
+ 
+ class ModeArbiter:
+-    """Require a stationary hold and a fresh target command before handover."""
++    """Require a stationary hold and a fresh, idle target command before handover."""
+ 
+     def __init__(self, initial_mode=OUTDOOR, params=None):
+         self.p = params or ArbiterParams()
+@@ -25,9 +35,12 @@ class ModeArbiter:
+         self.phase = ACTIVE
+         self.stopped_since = None
+         self.last_source_time = {OUTDOOR: None, INDOOR: None}
++        self.last_source_speed = {OUTDOOR: None, INDOOR: None}
++        self.block_reason = ''
+ 
+-    def note_source(self, mode, now):
++    def note_source(self, mode, now, cmd_speed=None):
+         self.last_source_time[mode] = now
++        self.last_source_speed[mode] = cmd_speed
+ 
+     def request(self, mode):
+         if mode not in (OUTDOOR, INDOOR):
+@@ -36,28 +49,55 @@ class ModeArbiter:
+         if mode != self.mode:
+             self.phase = STOPPING
+             self.stopped_since = None
++        elif self.phase == STOPPING:
++            # 切换途中撤回请求：仍然先停稳，再把权限还给原控制器
++            self.stopped_since = None
+ 
+     def source_fresh(self, mode, now):
+         stamp = self.last_source_time[mode]
+         return stamp is not None and now - stamp <= self.p.source_timeout
+ 
+-    def step(self, now, speed, target_healthy=True):
++    def source_idle(self, mode):
++        v = self.last_source_speed[mode]
++        return v is None or abs(v) <= self.p.idle_speed
++
++    def step(self, now, speed, target_healthy=True, speed_valid=True):
++        """speed_valid=False（车速数据断流）时一律视为"可能在动"，不交权。"""
+         if self.phase == ACTIVE:
++            self.block_reason = ''
+             return self.mode, False
+ 
++        if not speed_valid:
++            self.stopped_since = None
++            self.block_reason = 'vehicle speed unavailable'
++            return self.mode, True
++
+         if abs(speed) > self.p.stop_speed:
+             self.stopped_since = None
++            self.block_reason = f'vehicle moving ({speed:.2f} m/s)'
+             return self.mode, True
+ 
+         if self.stopped_since is None:
+             self.stopped_since = now
++            self.block_reason = 'stop hold started'
+             return self.mode, True
+ 
+-        held = now - self.stopped_since >= self.p.stop_hold_time
+-        if held and target_healthy and self.source_fresh(self.requested_mode, now):
+-            self.mode = self.requested_mode
++        target = self.requested_mode
++        if now - self.stopped_since < self.p.stop_hold_time:
++            self.block_reason = 'stop hold'
++        elif not target_healthy:
++            self.block_reason = 'localization not healthy'
++        elif not self.source_fresh(target, now):
++            self.block_reason = f'{target} command stale'
++        elif not self.source_idle(target):
++            self.block_reason = (f'{target} controller is commanding motion '
++                                 f'({self.last_source_speed[target]:.2f} m/s); '
++                                 'switch first, then send the route/goal')
++        else:
++            self.mode = target
+             self.phase = ACTIVE
+             self.stopped_since = None
++            self.block_reason = ''
+             return self.mode, False
+         return self.mode, True
+ 
+@@ -78,3 +118,30 @@ def point_in_polygon(x, y, polygon):
+         j = i
+     return inside
+ 
++
++def check_manual_request(target, position, enter_polygon, exit_polygon):
++    """手动请求的位置检查。返回 (ok, reason)。
++
++    enter_polygon：室内区域（小）；exit_polygon：包住它的大区域。两者之间的带状区域就是门口交接带。
++      - 请求进室内：车必须在 exit_polygon 内（门口或室内）；
++      - 请求出室外：车必须在 enter_polygon 外（门口或室外）。
++    围栏没配置时放行（返回 ok=True，reason 提示未检查）。
++    """
++    if len(enter_polygon) < 3 or len(exit_polygon) < 3:
++        return True, 'switch zones not configured; position not checked'
++    if position is None:
++        return False, 'no vehicle position'
++    x, y = position
++    if target == INDOOR and not point_in_polygon(x, y, exit_polygon):
++        return False, 'vehicle is not at the doorway/indoor area (outside exit polygon)'
++    if target == OUTDOOR and point_in_polygon(x, y, enter_polygon):
++        return False, 'vehicle is still inside the indoor area; drive to the doorway first'
++    return True, 'position ok'
++
++
++def health_ok(data):
++    """indoor_localization/health JSON → 是否允许交权。WARN 允许（限速 0.5），ERROR/STALE 不允许。"""
++    try:
++        return data.get('level') not in ('ERROR', 'STALE') and float(data.get('speed_factor', 0.0)) > 0.0
++    except (AttributeError, TypeError, ValueError):
++        return False
+diff --git a/indoor_navigation/indoor_navigation/hybrid_mode_manager.py b/indoor_navigation/indoor_navigation/hybrid_mode_manager.py
+index 20e21da..7293dd9 100644
+--- a/indoor_navigation/indoor_navigation/hybrid_mode_manager.py
++++ b/indoor_navigation/indoor_navigation/hybrid_mode_manager.py
+@@ -4,7 +4,14 @@ The two controllers publish to private source topics.  This node is the only
+ publisher to the Yunle bridge topics.  Every ownership change is stop-first:
+ the current source is replaced by a zero command, the measured vehicle speed
+ must remain below the threshold for a hold period, and the target source must
+-have a fresh command before it receives authority.
++have a fresh *idle* command before it receives authority.
++
++修正要点（相对原版）：
++  - 车速优先取底盘 VelocityReport（不依赖定位），数据断流视为"可能在动"，不交权；
++  - 定位健康数据带超时；两个方向交权都要求定位健康（NDT 是全程唯一定位源）；
++  - 目标控制器交权瞬间必须在输出停车：先交权，再给 Nav2 / Autoware 下任务；
++  - 配置了围栏时，手动请求要在门口交接带才接受，不满足就返回 success=false；
++  - 状态里给出当前卡在哪一步（block_reason）。
+ """
+ import json
+ import os
+@@ -19,7 +26,7 @@ from std_srvs.srv import SetBool
+ from autoware_vehicle_msgs.msg import GearCommand
+ 
+ from .hybrid_core import ACTIVE, INDOOR, OUTDOOR, ArbiterParams, ModeArbiter
+-from .hybrid_core import point_in_polygon
++from .hybrid_core import check_manual_request, health_ok, point_in_polygon
+ 
+ 
+ def _load_control_type():
+@@ -31,6 +38,18 @@ def _load_control_type():
+         return 'legacy', AckermannControlCommand
+ 
+ 
++def _load_velocity_type():
++    try:
++        from autoware_vehicle_msgs.msg import VelocityReport
++        return VelocityReport
++    except ImportError:
++        try:
++            from autoware_auto_vehicle_msgs.msg import VelocityReport
++            return VelocityReport
++        except ImportError:
++            return None
++
++
+ class HybridModeManager(Node):
+     def __init__(self):
+         super().__init__('hybrid_mode_manager')
+@@ -43,11 +62,17 @@ class HybridModeManager(Node):
+         d('output_control_topic', '/control/command/control_cmd')
+         d('output_gear_topic', '/control/command/gear_cmd')
+         d('odom_topic', '/localization/kinematic_state')
++        d('velocity_topic', '/vehicle/status/velocity_status')   # 底盘实测车速（优先）
+         d('indoor_health_topic', '/indoor_localization/health')
+         d('rate_hz', 30.0)
+         d('stop_speed', 0.03)
+         d('stop_hold_time', 1.0)
+         d('source_timeout', 0.5)
++        d('idle_speed', 0.05)              # 目标控制器交权时输出速度上限
++        d('speed_timeout', 0.5)            # 车速数据超过这个时间没更新 → 视为无效
++        d('health_timeout', 1.0)           # 健康数据超过这个时间没更新 → 视为不健康
++        d('require_health_for_outdoor', True)
++        d('manual_requires_zone', True)    # 配了围栏时，手动请求必须在门口交接带
+         d('automatic_switching', False)
+         d('switch_zones_file', '')
+         g = lambda k: self.get_parameter(k).value  # noqa: E731
+@@ -58,13 +83,19 @@ class HybridModeManager(Node):
+         self.arbiter = ModeArbiter(initial, ArbiterParams(
+             stop_speed=float(g('stop_speed')),
+             stop_hold_time=float(g('stop_hold_time')),
+-            source_timeout=float(g('source_timeout'))))
++            source_timeout=float(g('source_timeout')),
++            idle_speed=float(g('idle_speed'))))
+         self.kind, self.Control = _load_control_type()
+         self.controls = {OUTDOOR: None, INDOOR: None}
+         self.gears = {OUTDOOR: None, INDOOR: None}
+-        self.speed = 0.0
++        self.speed_timeout = float(g('speed_timeout'))
++        self.health_timeout = float(g('health_timeout'))
++        self.require_health_outdoor = bool(g('require_health_for_outdoor'))
++        self.manual_requires_zone = bool(g('manual_requires_zone'))
++        self.v_report = None          # (t, v)
++        self.v_odom = None            # (t, v)
+         self.position = None
+-        self.indoor_healthy = False
++        self.health = None            # (t, dict)
+         self.automatic_switching = bool(g('automatic_switching'))
+         self.enter_polygon = []
+         self.exit_polygon = []
+@@ -74,11 +105,13 @@ class HybridModeManager(Node):
+                 raise FileNotFoundError(f'switch_zones_file not found: {zones_file}')
+             with open(zones_file, encoding='utf-8') as f:
+                 zones = yaml.safe_load(f) or {}
+-            self.enter_polygon = zones.get('indoor_enter_polygon', [])
+-            self.exit_polygon = zones.get('indoor_exit_polygon', self.enter_polygon)
++            self.enter_polygon = zones.get('indoor_enter_polygon') or []
++            self.exit_polygon = zones.get('indoor_exit_polygon') or self.enter_polygon
+         if self.automatic_switching and (
+                 len(self.enter_polygon) < 3 or len(self.exit_polygon) < 3):
+             raise ValueError('automatic switching needs valid enter and exit polygons')
++        if len(self.enter_polygon) < 3:
++            self.get_logger().warn('switch zones not configured: manual requests are not position-checked')
+ 
+         self.control_pub = self.create_publisher(self.Control, g('output_control_topic'), 10)
+         self.gear_pub = self.create_publisher(GearCommand, g('output_gear_topic'), 10)
+@@ -92,6 +125,11 @@ class HybridModeManager(Node):
+         self.create_subscription(GearCommand, g('indoor_gear_topic'),
+                                  lambda m: self.on_gear(INDOOR, m), 10)
+         self.create_subscription(Odometry, g('odom_topic'), self.on_odom, 10)
++        VelocityReport = _load_velocity_type()
++        if VelocityReport is not None and g('velocity_topic'):
++            self.create_subscription(VelocityReport, g('velocity_topic'), self.on_velocity, 10)
++        else:
++            self.get_logger().warn('VelocityReport not available; using localization speed only')
+         self.create_subscription(String, g('indoor_health_topic'), self.on_indoor_health, 10)
+         self.create_service(SetBool, '~/set_indoor', self.on_set_indoor)
+         self.create_timer(1.0 / float(g('rate_hz')), self.tick)
+@@ -101,36 +139,78 @@ class HybridModeManager(Node):
+     def now_sec(self):
+         return self.get_clock().now().nanoseconds * 1e-9
+ 
++    # ------------------------------------------------------------------ inputs
++    def cmd_speed(self, msg):
++        try:
++            if self.kind == 'control':
++                return float(msg.longitudinal.velocity)
++            return float(msg.longitudinal.speed)
++        except AttributeError:
++            return None
++
+     def on_control(self, mode, msg):
+         self.controls[mode] = msg
+-        self.arbiter.note_source(mode, self.now_sec())
++        self.arbiter.note_source(mode, self.now_sec(), self.cmd_speed(msg))
+ 
+     def on_gear(self, mode, msg):
+         self.gears[mode] = msg
+ 
+     def on_odom(self, msg):
+-        self.speed = float(msg.twist.twist.linear.x)
++        self.v_odom = (self.now_sec(), float(msg.twist.twist.linear.x))
+         self.position = (float(msg.pose.pose.position.x), float(msg.pose.pose.position.y))
+ 
++    def on_velocity(self, msg):
++        self.v_report = (self.now_sec(), float(msg.longitudinal_velocity))
++
+     def on_indoor_health(self, msg):
+         try:
+             data = json.loads(msg.data)
+-            self.indoor_healthy = data.get('level') not in ('ERROR', 'STALE') and \
+-                float(data.get('speed_factor', 0.0)) > 0.0
+         except (ValueError, TypeError):
+-            self.indoor_healthy = False
++            data = {}
++        self.health = (self.now_sec(), data)
++
++    def speed(self, now):
++        """(speed, valid, source)：底盘车速优先，其次定位速度。"""
++        for src, v in (('chassis', self.v_report), ('localization', self.v_odom)):
++            if v is not None and now - v[0] <= self.speed_timeout:
++                return v[1], True, src
++        return 0.0, False, 'none'
++
++    def healthy(self, now):
++        if self.health is None or now - self.health[0] > self.health_timeout:
++            return False
++        return health_ok(self.health[1])
+ 
++    def target_healthy(self, now):
++        if self.arbiter.requested_mode == OUTDOOR and not self.require_health_outdoor:
++            return True
++        return self.healthy(now)
++
++    # ------------------------------------------------------------------ service
+     def on_set_indoor(self, request, response):
+         target = INDOOR if request.data else OUTDOOR
++        if self.arbiter.phase == ACTIVE and self.arbiter.mode == target:
++            response.success = True
++            response.message = f'already {target}'
++            return response
++        if self.manual_requires_zone:
++            ok, why = check_manual_request(target, self.position, self.enter_polygon, self.exit_polygon)
++            if not ok:
++                response.success = False
++                response.message = f'{target} request rejected: {why}'
++                self.get_logger().error(response.message)
++                return response
++            if 'not configured' in why:
++                self.get_logger().warn(why)
+         self.arbiter.request(target)
+         response.success = True
+-        response.message = f'{target} requested; stop-first handover started'
++        response.message = (f'{target} requested; stop-first handover started. '
++                            f'Send the {"Nav2 station goal" if target == INDOOR else "Autoware route"} '
++                            'AFTER /hybrid_mode_manager/state shows mode=' + target + ', phase=active')
+         self.get_logger().warn(response.message)
+         return response
+ 
+-    def target_healthy(self):
+-        return self.arbiter.requested_mode != INDOOR or self.indoor_healthy
+-
++    # ------------------------------------------------------------------ output
+     def make_stop(self):
+         msg = self.Control()
+         stamp = self.get_clock().now().to_msg()
+@@ -155,6 +235,7 @@ class HybridModeManager(Node):
+ 
+     def tick(self):
+         now = self.now_sec()
++        speed, speed_valid, speed_src = self.speed(now)
+         if self.automatic_switching and self.position is not None and \
+                 self.arbiter.phase == ACTIVE:
+             x, y = self.position
+@@ -167,7 +248,7 @@ class HybridModeManager(Node):
+                 self.arbiter.request(OUTDOOR)
+                 self.get_logger().warn('left indoor geofence; stop-first handover requested')
+         mode, force_stop = self.arbiter.step(
+-            now, self.speed, target_healthy=self.target_healthy())
++            now, speed, target_healthy=self.target_healthy(now), speed_valid=speed_valid)
+         source = self.controls[mode]
+         if force_stop or source is None or not self.arbiter.source_fresh(mode, now):
+             self.control_pub.publish(self.make_stop())
+@@ -175,16 +256,22 @@ class HybridModeManager(Node):
+             self.control_pub.publish(source)
+             if self.gears[mode] is not None:
+                 self.gear_pub.publish(self.gears[mode])
++        h = self.health[1] if self.health else {}
+         self.state_pub.publish(String(data=json.dumps({
+             'mode': self.arbiter.mode,
+             'requested_mode': self.arbiter.requested_mode,
+             'phase': self.arbiter.phase,
+             'force_stop': force_stop,
+-            'speed': round(self.speed, 3),
+-            'indoor_healthy': self.indoor_healthy,
++            'block_reason': self.arbiter.block_reason,
++            'speed': round(speed, 3),
++            'speed_source': speed_src,
++            'localization_healthy': self.healthy(now),
++            'localization_level': h.get('level'),
++            'indoor_healthy': self.healthy(now),          # 兼容原字段名
+             'outdoor_fresh': self.arbiter.source_fresh(OUTDOOR, now),
+             'indoor_fresh': self.arbiter.source_fresh(INDOOR, now),
+             'automatic_switching': self.automatic_switching,
++            'zones_configured': len(self.enter_polygon) >= 3,
+         }, ensure_ascii=False)))
+ 
+ 
+@@ -196,4 +283,3 @@ def main():
+     finally:
+         node.destroy_node()
+         rclpy.shutdown()
+-
+diff --git a/indoor_navigation/indoor_navigation/route_navigator.py b/indoor_navigation/indoor_navigation/route_navigator.py
+index c8def4c..7179cbd 100644
+--- a/indoor_navigation/indoor_navigation/route_navigator.py
++++ b/indoor_navigation/indoor_navigation/route_navigator.py
+@@ -10,7 +10,12 @@ Stations  : config/stations.yaml (route graph)
+ 
+ A "goto" is rejected while localization health is ERROR. The route is sent to Nav2
+ as NavigateThroughPoses; Hybrid-A* plans between the waypoints.
++
++修正：融合导航时，只有 hybrid_mode_manager 报告 mode=indoor 且 phase=active（室内已拿到
++底盘权限）才接受 goto；权限被收回（切换开始或状态断流）时取消正在执行的 Nav2 任务。
++原来在室外也能下发室内目标，Nav2 控制器空转、进度检查失败后会触发倒车等恢复行为。
+ """
++import time
+ import json
+ import math
+ 
+@@ -40,6 +45,9 @@ class RouteNavigator(Node):
+         d('action_name', 'navigate_through_poses')
+         d('behavior_tree', '')          # empty = bt_navigator default
+         d('reject_when_health_error', True)
++        d('require_indoor_authority', True)
++        d('hybrid_state_topic', '/hybrid_mode_manager/state')
++        d('hybrid_state_timeout', 1.0)
+         g = lambda k: self.get_parameter(k).value  # noqa
+         self.g = g
+         with open(g('stations_file')) as f:
+@@ -51,6 +59,10 @@ class RouteNavigator(Node):
+         self.create_subscription(Odometry, g('odom_topic'), self.on_odom, 10)
+         self.create_subscription(String, g('health_topic'), self.on_health, 10)
+         self.create_service(Trigger, '~/cancel', self.on_cancel_srv)
++        self.hybrid = None          # (wall time, dict)
++        if g('require_indoor_authority'):
++            self.create_subscription(String, g('hybrid_state_topic'), self.on_hybrid, 10)
++            self.create_timer(0.2, self.check_authority)
+         self.client = ActionClient(self, NavigateThroughPoses, g('action_name'))
+         self.pose = None
+         self.health = None
+@@ -68,6 +80,33 @@ class RouteNavigator(Node):
+         except ValueError:
+             pass
+ 
++    def on_hybrid(self, m):
++        try:
++            self.hybrid = (time.monotonic(), json.loads(m.data))
++        except ValueError:
++            pass
++
++    def has_authority(self):
++        """(ok, reason)"""
++        if not self.g('require_indoor_authority'):
++            return True, ''
++        if self.hybrid is None or time.monotonic() - self.hybrid[0] > self.g('hybrid_state_timeout'):
++            return False, 'no state from hybrid_mode_manager'
++        h = self.hybrid[1]
++        if h.get('mode') != 'indoor' or h.get('phase') != 'active':
++            return False, (f'no indoor control authority (mode={h.get("mode")}, phase={h.get("phase")}); '
++                           'call /hybrid_mode_manager/set_indoor true and wait for phase=active')
++        return True, ''
++
++    def check_authority(self):
++        if self.goal_handle is None or self.state.get('state') == 'CANCELING':
++            return
++        ok, why = self.has_authority()
++        if not ok:
++            self.get_logger().warn(f'cancel Nav2 goal: {why}')
++            self.goal_handle.cancel_goal_async()
++            self.update('CANCELING', reason=why)
++
+     def on_command(self, m):
+         try:
+             c = json.loads(m.data)
+@@ -91,6 +130,9 @@ class RouteNavigator(Node):
+             return self.update('REJECTED', station=station, reason='unknown station')
+         if self.pose is None:
+             return self.update('REJECTED', station=station, reason='no localization')
++        ok, why = self.has_authority()
++        if not ok:
++            return self.update('REJECTED', station=station, reason=why)
+         if self.g('reject_when_health_error') and self.health and self.health.get('level') == 'ERROR':
+             return self.update('REJECTED', station=station,
+                                reason='localization ERROR: ' + ', '.join(self.health.get('reasons', [])))
+diff --git a/indoor_navigation/launch/__pycache__/hybrid_navigation.launch.cpython-313.pyc b/indoor_navigation/launch/__pycache__/hybrid_navigation.launch.cpython-313.pyc
+new file mode 100644
+index 0000000..4ae3ac2
+Binary files /dev/null and b/indoor_navigation/launch/__pycache__/hybrid_navigation.launch.cpython-313.pyc differ
+diff --git a/indoor_navigation/launch/hybrid_navigation.launch.py b/indoor_navigation/launch/hybrid_navigation.launch.py
+index 7a907d4..e171700 100644
+--- a/indoor_navigation/launch/hybrid_navigation.launch.py
++++ b/indoor_navigation/launch/hybrid_navigation.launch.py
+@@ -27,9 +27,12 @@ def generate_launch_description():
+             description='Combined NDT point cloud and outdoor Lanelet2 map'),
+         DeclareLaunchArgument(
+             'grid_map_path',
++            # 修正：原来指向 map_20261117_denoised（整个校园 265 x 252 m 的栅格），Nav2 在室外也能规划。
++            # 改成旧室内地图按 legacy_room_registration（2026-11-17 重新配准）变换后的栅格，
++            # 只含室内和南门门前区域（主路、坡道），站点全部可达。
+             default_value=(
+                 '/home/tang/autoware_map/map_task4/indoor_localization/'
+-                'map_20261117_denoised')),
++                'map_20261117_legacy_indoor')),
+         DeclareLaunchArgument('vehicle_model', default_value='yunle_vehicle'),
+         DeclareLaunchArgument('vehicle_id', default_value='default'),
+         DeclareLaunchArgument('use_sim_time', default_value='false'),
+@@ -41,6 +44,11 @@ def generate_launch_description():
+         DeclareLaunchArgument('check_external_emergency_heartbeat', default_value='false'),
+         DeclareLaunchArgument('initial_mode', default_value='outdoor'),
+         DeclareLaunchArgument('automatic_switching', default_value='false'),
++        # 修正：GNSS 自动初始化默认关闭。当前地图 projector_type 是 Local，且 20261117 地图
++        # 还没有和经纬度做配准（经纬度匹配点未录入），GNSS 位姿不能直接当这张图里的初值。
++        # 原来这两个参数其实也没传到定位栈，实际一直是关闭的；这里把行为显式化。
++        # 配准完成、并核对过 gnss_poser 输出与 NDT 位姿一致后，再用 gnss_init:=true 打开。
++        DeclareLaunchArgument('gnss_init', default_value='false'),
+ 
+         # Start vehicle/sensing/map once.  NDT + gyro odometry remains the
+         # canonical localization over the shared campus frame.  GINS supplies
+@@ -59,8 +67,8 @@ def generate_launch_description():
+                 'launch_navigation': 'true',
+                 'navigation_controller': LaunchConfiguration('navigation_controller'),
+                 'launch_mode_manager': 'false',
+-                'gnss_enabled': 'true',
+-                'automatic_pose_initializer_enabled': 'true',
++                'gnss_enabled': LaunchConfiguration('gnss_init'),
++                'automatic_pose_initializer_enabled': LaunchConfiguration('gnss_init'),
+                 # livox_sensor_kit intentionally keeps gnss_poser separate
+                 # from the gnss-ins pose estimator. In NDT mode this is the
+                 # GINS-backed GNSS pose available for initialization.
+diff --git a/indoor_navigation/launch/indoor_navigation.launch.py b/indoor_navigation/launch/indoor_navigation.launch.py
+index 95945ed..109bad0 100644
+--- a/indoor_navigation/launch/indoor_navigation.launch.py
++++ b/indoor_navigation/launch/indoor_navigation.launch.py
+@@ -16,7 +16,7 @@ import os
+ 
+ from ament_index_python.packages import get_package_share_directory
+ from launch import LaunchDescription
+-from launch.actions import DeclareLaunchArgument, OpaqueFunction
++from launch.actions import DeclareLaunchArgument, LogInfo, OpaqueFunction
+ from launch.conditions import IfCondition
+ from launch.substitutions import LaunchConfiguration
+ from launch_ros.actions import Node
+@@ -32,9 +32,26 @@ def _setup(context):
+         ctrl_params.append(os.path.join(share, 'config', 'controller_rpp.param.yaml'))
+     nav_map = lc('nav_map_yaml') or os.path.join(share, 'maps', 'indoor_nav_2d.yaml')
+     mask = lc('speed_mask_yaml') or os.path.join(share, 'maps', 'speed_mask.yaml')
++    common = {'use_sim_time': lc('use_sim_time') == 'true'}
++    # 禁行掩膜：默认与导航栅格同目录的 keepout_mask.yaml（tools/make_keepout_mask.py 生成）
++    keepout = lc('keepout_mask_yaml') or os.path.join(os.path.dirname(nav_map), 'keepout_mask.yaml')
++    use_keepout = os.path.isfile(keepout)
++    filter_nodes = ['filter_mask_server', 'costmap_filter_info_server']
++    keepout_actions = []
++    if use_keepout:
++        filter_nodes += ['keepout_mask_server', 'keepout_info_server']
++        keepout_actions = [
++            Node(package='nav2_map_server', executable='map_server', name='keepout_mask_server', output='screen',
++                 parameters=[nav2_params, common, {'yaml_filename': keepout}]),
++            Node(package='nav2_map_server', executable='costmap_filter_info_server',
++                 name='keepout_info_server', output='screen', parameters=[nav2_params, common]),
++        ]
++    else:
++        # 没有掩膜时 KeepoutFilter 收不到 filter info，只会周期性告警、不生效，代价地图照常工作
++        keepout_actions = [LogInfo(msg=f'[警告] 找不到禁行掩膜 {keepout}：KeepoutFilter 不生效，Nav2 可能规划到'
++                                       '门外被雷达清空的室外区域。用 tools/make_keepout_mask.py 生成。')]
+     stations = lc('stations_file') or os.path.join(share, 'config', 'stations.yaml')
+     bt_dir = os.path.join(share, 'behavior_trees')
+-    common = {'use_sim_time': lc('use_sim_time') == 'true'}
+     odom_remap = [('odom', '/localization/kinematic_state')]
+ 
+     return [
+@@ -45,6 +62,7 @@ def _setup(context):
+              parameters=[nav2_params, common, {'yaml_filename': mask}]),
+         Node(package='nav2_map_server', executable='costmap_filter_info_server',
+              name='costmap_filter_info_server', output='screen', parameters=[nav2_params, common]),
++        *keepout_actions,
+         # ---------------- Nav2 core ----------------
+         Node(package='nav2_planner', executable='planner_server', name='planner_server', output='screen',
+              parameters=[nav2_params, common]),
+@@ -62,7 +80,7 @@ def _setup(context):
+         Node(package='nav2_lifecycle_manager', executable='lifecycle_manager', name='lifecycle_manager_navigation',
+              output='screen', parameters=[nav2_params, common]),
+         Node(package='nav2_lifecycle_manager', executable='lifecycle_manager', name='lifecycle_manager_filters',
+-             output='screen', parameters=[nav2_params, common]),
++             output='screen', parameters=[nav2_params, common, {'node_names': filter_nodes}]),
+         # ---------------- vehicle side ----------------
+         Node(package='indoor_navigation', executable='ackermann_cmd_converter', name='ackermann_cmd_converter',
+              output='screen', parameters=[own_params, common]),
+@@ -84,6 +102,8 @@ def generate_launch_description():
+         DeclareLaunchArgument('controller', default_value='mppi', description='mppi | rpp'),
+         DeclareLaunchArgument('nav_map_yaml', default_value='', description='default: package maps/indoor_nav_2d.yaml'),
+         DeclareLaunchArgument('speed_mask_yaml', default_value='', description='default: package maps/speed_mask.yaml'),
++        DeclareLaunchArgument('keepout_mask_yaml', default_value='',
++                              description='default: keepout_mask.yaml next to nav_map_yaml'),
+         DeclareLaunchArgument('stations_file', default_value='', description='default: package config/stations.yaml'),
+         DeclareLaunchArgument('use_sim_time', default_value='false'),
+         DeclareLaunchArgument('launch_mode_manager', default_value='true'),
+diff --git a/indoor_navigation/test/test_hybrid_core.py b/indoor_navigation/test/test_hybrid_core.py
+index 6fc97d1..311a666 100644
+--- a/indoor_navigation/test/test_hybrid_core.py
++++ b/indoor_navigation/test/test_hybrid_core.py
+@@ -40,3 +40,70 @@ def test_point_in_polygon():
+     assert point_in_polygon(1.0, 1.0, p)
+     assert not point_in_polygon(3.0, 1.0, p)
+ 
++
++
++# ---------------------------------------------------------------- 修正后新增
++from indoor_navigation.hybrid_core import check_manual_request, health_ok  # noqa: E402
++
++
++def _ready(a, mode, t, v=0.0):
++    a.note_source(mode, t, v)
++
++
++def test_stale_speed_blocks_handover():
++    a = ModeArbiter(OUTDOOR, ArbiterParams(stop_hold_time=0.5))
++    a.request(INDOOR)
++    _ready(a, INDOOR, 0.0)
++    a.step(0.0, 0.0)
++    _ready(a, INDOOR, 0.6)
++    assert a.step(0.6, 0.0, speed_valid=False) == (OUTDOOR, True)
++    assert a.block_reason == 'vehicle speed unavailable'
++    # 恢复后重新计时
++    _ready(a, INDOOR, 0.7)
++    assert a.step(0.7, 0.0) == (OUTDOOR, True)
++    _ready(a, INDOOR, 1.25)
++    assert a.step(1.25, 0.0) == (INDOOR, False)
++
++
++def test_target_must_be_idle():
++    a = ModeArbiter(INDOOR, ArbiterParams(stop_hold_time=0.5))
++    a.request(OUTDOOR)
++    a.step(0.0, 0.0)
++    _ready(a, OUTDOOR, 0.6, v=1.2)          # Autoware 还在执行旧路线
++    assert a.step(0.6, 0.0) == (INDOOR, True)
++    assert 'commanding motion' in a.block_reason
++    _ready(a, OUTDOOR, 0.7, v=0.0)          # Autoware 停下来了
++    assert a.step(0.7, 0.0) == (OUTDOOR, False)
++
++
++def test_cancel_during_stopping_returns_to_original_after_hold():
++    a = ModeArbiter(OUTDOOR, ArbiterParams(stop_hold_time=0.5))
++    a.request(INDOOR)
++    a.step(0.0, 0.0)
++    a.request(OUTDOOR)                      # 撤回
++    assert a.phase == STOPPING
++    _ready(a, OUTDOOR, 0.1)
++    a.step(0.1, 0.0)
++    _ready(a, OUTDOOR, 0.7)
++    assert a.step(0.7, 0.0) == (OUTDOOR, False)
++    assert a.phase == ACTIVE
++
++
++def test_manual_request_zone_gate():
++    enter = [(0, 0), (10, 0), (10, 10), (0, 10)]           # 室内
++    exit_ = [(-3, -3), (13, -3), (13, 13), (-3, 13)]      # 室内 + 门口带
++    assert check_manual_request(INDOOR, (-2, 5), enter, exit_)[0]      # 门口带：可以进
++    assert not check_manual_request(INDOOR, (-6, 5), enter, exit_)[0]  # 离门太远
++    assert check_manual_request(OUTDOOR, (-2, 5), enter, exit_)[0]     # 门口带：可以出
++    assert not check_manual_request(OUTDOOR, (5, 5), enter, exit_)[0]  # 还在室内深处
++    assert not check_manual_request(INDOOR, None, enter, exit_)[0]
++    ok, why = check_manual_request(INDOOR, (100, 100), [], [])
++    assert ok and 'not configured' in why
++
++
++def test_health_ok():
++    assert health_ok({'level': 'OK', 'speed_factor': 1.0})
++    assert health_ok({'level': 'WARN', 'speed_factor': 0.5})
++    assert not health_ok({'level': 'ERROR', 'speed_factor': 0.0})
++    assert not health_ok({})
++    assert not health_ok(None)
+diff --git a/indoor_navigation/test/test_nav_core.py b/indoor_navigation/test/test_nav_core.py
+index a6e6d16..12540a9 100644
+--- a/indoor_navigation/test/test_nav_core.py
++++ b/indoor_navigation/test/test_nav_core.py
+@@ -67,12 +67,24 @@ def test_route():
+     import yaml
+     d = yaml.safe_load(open(os.path.join(os.path.dirname(__file__), '..', 'config', 'stations.yaml')))
+     g = RouteGraph.from_dict(d)
+-    nodes, wps = g.route(22.8, -10.6, 'hall_station_1')
++    # 起点坐标：旧室内坐标 (22.8, -10.6)（房间）按 legacy_room_registration.yaml 换算到统一 map 坐标
++    nodes, wps = g.route(34.58, -27.43, 'hall_station_1')
+     print('route room -> hall_station_1:', nodes, [(round(x, 2), round(y, 2), round(math.degrees(a))) for x, y, a in wps])
+     assert nodes[-1] == d['stations']['hall_station_1']['node'] and nodes[0] != 'room_center'
+-    nodes2, wps2 = g.route(13.0, -46.0, 'room_home')
++    nodes2, wps2 = g.route(26.91, -63.35, 'room_home')   # 旧室内坐标 (13.0, -46.0)，大厅
+     print('route hall -> room_home:', nodes2, [(round(x, 2), round(y, 2), round(math.degrees(a))) for x, y, a in wps2])
+     assert nodes2[-1] == 'room_center' and abs(math.degrees(wps2[-1][2]) - d['stations']['room_home']['yaw_deg']) < 1e-6
++    # 交接点（南门外主路）进门、以及从房间出门到交接点
++    # 门前路沿坎不能直接上，必须经坡道：进门坡道口朝北、坡道上朝东；出门反过来
++    deg = lambda a: round(math.degrees(a) % 360.0, 3)
++    n3, w3 = g.route(29.0, -76.05, 'room_home')
++    print('route handover -> room_home:', n3, [(round(x, 2), round(y, 2), deg(a)) for x, y, a in w3])
++    assert n3[:3] == ['ramp_approach', 'door_ramp', 'door_inside'] and n3[-1] == 'room_center', n3
++    assert deg(w3[0][2]) == 90.0 and deg(w3[1][2]) == 2.634, w3[:2]
++    n4, w4 = g.route(34.36, -27.24, 'south_door_out')
++    print('route room -> south_door_out:', n4[-4:], [(round(x, 2), round(y, 2), deg(a)) for x, y, a in w4[-4:]])
++    assert n4[-4:] == ['door_inside', 'door_ramp', 'ramp_approach', 'south_door_out'], n4
++    assert deg(w4[-3][2]) == 182.634 and deg(w4[-2][2]) == 270.0 and abs(deg(w4[-1][2]) - 2.634) < 1e-6, w4[-3:]
+ 
+ if __name__ == '__main__':
+     test_curvature_and_limits(); test_presteer_and_rate(); test_direction_change(); test_timeout_and_factor(); test_route()
+diff --git a/indoor_navigation/tools/make_keepout_mask.py b/indoor_navigation/tools/make_keepout_mask.py
+new file mode 100644
+index 0000000..73d46df
+--- /dev/null
++++ b/indoor_navigation/tools/make_keepout_mask.py
+@@ -0,0 +1,110 @@
++#!/usr/bin/env python3
++"""生成 Nav2 KeepoutFilter 掩膜：只允许在导航栅格"已建图"的范围内规划。
++
++为什么需要：planner 的 allow_unknown: false 只挡住静态图里的"未知"格子。但全局代价地图的
++VoxelLayer 开着 clearing，雷达射线扫过的未知格会被改成"空闲"（combination_method=1 是取最大值，
++NO_INFORMATION 会被 FREE 覆盖），门外几米到十米的室外区域就又能规划了。KeepoutFilter 在所有
++图层之后把掩膜外的格子强制设成禁行，不受雷达清除影响。
++
++允许区域 = 栅格里已知（空闲或障碍）的格子 → 闭运算补掉 ≤ fill_hole 米的小未知洞 → 外扩 margin 米；
++可选再与 --allowed-polygons 里的多边形求交（只保留室内 + 门口交接带）。
++
++usage:
++  make_keepout_mask.py <nav_map.yaml> <out_dir> [--margin 0.3] [--fill-hole 1.0]
++                       [--allowed-polygons zones.yaml]   # yaml: allowed_polygons: [[[x,y],...], ...]
++输出：keepout_mask.pgm / keepout_mask.yaml（mode trinary：黑=禁行，白=允许）
++"""
++import argparse
++import os
++
++import numpy as np
++import yaml
++from scipy import ndimage
++
++
++def read_pgm(path):
++    with open(path, 'rb') as f:
++        data = f.read()
++    toks, i = [], 0
++    while len(toks) < 4:
++        while data[i:i + 1].isspace():
++            i += 1
++        if data[i:i + 1] == b'#':
++            while data[i:i + 1] not in (b'\n', b''):
++                i += 1
++            continue
++        j = i
++        while not data[j:j + 1].isspace():
++            j += 1
++        toks.append(data[i:j])
++        i = j
++    w, h = int(toks[1]), int(toks[2])
++    return np.frombuffer(data[i + 1:i + 1 + w * h], dtype=np.uint8).reshape(h, w)
++
++
++def in_polygon(GX, GY, poly):
++    poly = np.asarray(poly, float)
++    inside = np.zeros(GX.shape, bool)
++    x0, y0 = poly[-1]
++    for x1, y1 in poly:
++        cond = (y1 > GY) != (y0 > GY)
++        with np.errstate(divide='ignore', invalid='ignore'):
++            xi = (x0 - x1) * (GY - y1) / (y0 - y1) + x1
++        inside ^= cond & (GX <= xi)
++        x0, y0 = x1, y1
++    return inside
++
++
++def main():
++    ap = argparse.ArgumentParser()
++    ap.add_argument('nav_yaml')
++    ap.add_argument('out_dir')
++    ap.add_argument('--margin', type=float, default=0.3)
++    ap.add_argument('--fill-hole', type=float, default=1.0)
++    ap.add_argument('--allowed-polygons', default='')
++    a = ap.parse_args()
++
++    meta = yaml.safe_load(open(a.nav_yaml))
++    img = read_pgm(os.path.join(os.path.dirname(a.nav_yaml), meta['image']))
++    res = float(meta['resolution'])
++    x0, y0 = float(meta['origin'][0]), float(meta['origin'][1])
++    neg = int(meta.get('negate', 0))
++    occ_t, free_t = float(meta['occupied_thresh']), float(meta['free_thresh'])
++    p = (img.astype(float) / 255.0) if neg else (255.0 - img.astype(float)) / 255.0
++    known = (p > occ_t) | (p < free_t)
++
++    r = max(1, int(round(a.fill_hole / 2 / res)))
++    allowed = ndimage.binary_closing(known, structure=np.ones((2 * r + 1, 2 * r + 1), bool))
++    allowed = ndimage.binary_fill_holes(allowed) & ndimage.binary_dilation(
++        known, iterations=max(1, int(round(a.fill_hole / res))))   # 只补内部小洞，不补外围大片
++    m = int(round(a.margin / res))
++    if m > 0:
++        allowed = ndimage.binary_dilation(allowed, iterations=m)
++
++    if a.allowed_polygons:
++        polys = (yaml.safe_load(open(a.allowed_polygons)) or {}).get('allowed_polygons') or []
++        if polys:
++            h, w = img.shape
++            gx = x0 + (np.arange(w) + 0.5) * res
++            gy = y0 + (np.arange(h) + 0.5) * res
++            GX, GY = np.meshgrid(gx, gy)
++            pm = np.zeros((h, w), bool)
++            for poly in polys:
++                pm |= in_polygon(GX, GY, poly)
++            allowed &= np.flipud(pm)           # PGM 第 0 行 = y 最大
++
++    os.makedirs(a.out_dir, exist_ok=True)
++    out = np.where(allowed, 254, 0).astype(np.uint8)
++    with open(os.path.join(a.out_dir, 'keepout_mask.pgm'), 'wb') as f:
++        f.write(f'P5\n{out.shape[1]} {out.shape[0]}\n255\n'.encode())
++        f.write(out.tobytes())
++    with open(os.path.join(a.out_dir, 'keepout_mask.yaml'), 'w') as f:
++        f.write('image: keepout_mask.pgm\nmode: trinary\n'
++                f'resolution: {res}\norigin: [{x0}, {y0}, 0.0]\n'
++                'negate: 0\noccupied_thresh: 0.65\nfree_thresh: 0.196\n')
++    print(f'允许区域 {allowed.sum() * res * res:.0f} m²，禁行 {(~allowed).sum() * res * res:.0f} m²；'
++          f'原图已知格 {known.sum() * res * res:.0f} m²')
++
++
++if __name__ == '__main__':
++    main()
+diff --git a/indoor_navigation/tools/rebuild_maps.sh b/indoor_navigation/tools/rebuild_maps.sh
+new file mode 100644
+index 0000000..7d9656c
+--- /dev/null
++++ b/indoor_navigation/tools/rebuild_maps.sh
+@@ -0,0 +1,28 @@
++#!/usr/bin/env bash
++# 重新生成 map_20261117_legacy_indoor 下的 nav_map / localization_map / speed_mask / keepout_mask。
++# 在仓库根目录运行：bash indoor_navigation/tools/rebuild_maps.sh
++set -euo pipefail
++D=map_20261117_legacy_indoor
++
++# 门洞、坡道通道强制可通行；路沿坎、坡道栏杆、西侧平台边、南侧路沿画成障碍（离地高度只有 0.1–0.2 m，点云阈值抓不到）
++python3 indoor_navigation/tools/register_legacy_grids.py "$D/legacy_room_registration.yaml" "$D" \
++  --nav map/indoor_nav_2d.yaml --loc map/indoor_loc_2d.yaml \
++  --speed indoor_navigation/maps/speed_mask.yaml \
++  --apron "$D/door_apron.yaml" \
++  --force-free \
++    26.3,-71.4,27.5,-70.2 \
++    17.7,-75.35,24.0,-74.12 \
++  --speed-zone \
++    24.5,-78.6,31.5,-67.5,0.20 \
++    12.0,-80.5,24.5,-73.8,0.20 \
++  --obstacle-line \
++    19.0,-75.5,23.6,-75.3,27.5,-75.05,33.5,-74.8,39.5,-74.45,41.8,-74.4,41.8,-70.0 \
++    17.3,-74.3,18.6,-74.05,23.5,-73.9 \
++    6.0,-76.05,11.0,-76.0,17.35,-75.6 \
++    6.0,-84.0,46.0,-82.3
++#   ^ 1 南侧栏杆 + 门前路沿坎（0.15–0.22 m）+ 东端拐向北的路沿
++#     2 坡道北侧栏杆
++#     3 坡道西侧平台边（高出路面约 0.1 m）
++#     4 主路南侧路沿
++
++python3 indoor_navigation/tools/make_keepout_mask.py "$D/nav_map.yaml" "$D"
+diff --git a/indoor_navigation/tools/register_legacy_grids.py b/indoor_navigation/tools/register_legacy_grids.py
+new file mode 100644
+index 0000000..82f981e
+--- /dev/null
++++ b/indoor_navigation/tools/register_legacy_grids.py
+@@ -0,0 +1,198 @@
++#!/usr/bin/env python3
++"""把旧室内地图坐标系下的 2D 栅格，按 legacy_room_registration.yaml 变换到统一 map 坐标系，
++并（可选）合并门前区域、打开门洞、加限速区。
++
++为什么：20261117 点云里这栋楼的室内结构比较稀（走廊地板几乎没有点），旧室内地图的栅格更完整；
++stations.yaml 也是按同一个配准换算的，用同一个变换最一致。
++
++usage:
++  register_legacy_grids.py <registration.yaml> <out_dir>
++      --nav  map/indoor_nav_2d.yaml   --loc  map/indoor_loc_2d.yaml
++      [--speed indoor_navigation/maps/speed_mask.yaml]
++      [--apron door_apron.yaml]                 # 门前区域（统一坐标系）：障碍一律覆盖，空闲只填未知格
++      [--force-free x0,y0,x1,y1 ...]            # 强制可通行的矩形（门洞）
++      [--speed-zone x0,y0,x1,y1,speed ...]      # 追加限速矩形（m/s）
++      [--obstacle-line x0,y0,x1,y1[,x2,y2...] ...]  # 画成障碍的折线（路沿坎、栏杆等点云高度体现不出来的矮台阶）
++      [--line-width 0.15]                       # 折线宽度 m
++处理顺序：旧室内图 → 门前区域 → force-free → obstacle-line（折线最后画，不会被 force-free 擦掉）
++输出：nav_map / localization_map / speed_mask 的 .yaml/.pgm（统一坐标系，origin 不带 yaw）
++"""
++import argparse
++import math
++import os
++
++import numpy as np
++import yaml
++from scipy import ndimage
++
++
++def read_pgm(path):
++    with open(path, 'rb') as f:
++        data = f.read()
++    toks, i = [], 0
++    while len(toks) < 4:
++        while data[i:i + 1].isspace():
++            i += 1
++        if data[i:i + 1] == b'#':
++            while data[i:i + 1] not in (b'\n', b''):
++                i += 1
++            continue
++        j = i
++        while not data[j:j + 1].isspace():
++            j += 1
++        toks.append(data[i:j])
++        i = j
++    w, h = int(toks[1]), int(toks[2])
++    return np.frombuffer(data[i + 1:i + 1 + w * h], dtype=np.uint8).reshape(h, w)
++
++
++def load_grid(path):
++    meta = yaml.safe_load(open(path))
++    img = read_pgm(os.path.join(os.path.dirname(path), meta['image']))
++    return img, meta
++
++
++def sample(img, meta, X, Y, cval):
++    """在统一坐标 (X, Y) 处按最近邻取 img 的值（img 本身在统一坐标系，origin 不带 yaw）"""
++    res = float(meta['resolution'])
++    ox, oy = float(meta['origin'][0]), float(meta['origin'][1])
++    H, W = img.shape
++    col = np.floor((X - ox) / res).astype(int)
++    row = H - 1 - np.floor((Y - oy) / res).astype(int)
++    ok = (col >= 0) & (col < W) & (row >= 0) & (row < H)
++    out = np.full(X.shape, cval, np.uint8)
++    out[ok] = img[row[ok], col[ok]]
++    return out
++
++
++def transform_grid(src_yaml, R2, t2, cval, close_occupied, extra_bounds=None):
++    img, meta = load_grid(src_yaml)
++    res = float(meta['resolution'])
++    ox, oy = float(meta['origin'][0]), float(meta['origin'][1])
++    H, W = img.shape
++    corners = np.array([[ox, oy], [ox + W * res, oy], [ox, oy + H * res], [ox + W * res, oy + H * res]])
++    c2 = corners @ R2.T + t2
++    lo, hi = c2.min(0), c2.max(0)
++    if extra_bounds is not None:
++        lo, hi = np.minimum(lo, extra_bounds[0]), np.maximum(hi, extra_bounds[1])
++    nlo = np.floor(lo / res) * res
++    NW = int(math.ceil((hi[0] - nlo[0]) / res))
++    NH = int(math.ceil((hi[1] - nlo[1]) / res))
++    gx = nlo[0] + (np.arange(NW) + 0.5) * res
++    gy = nlo[1] + (np.arange(NH) + 0.5) * res
++    GX, GY = np.meshgrid(gx, gy)
++    Q = (np.stack([GX.ravel(), GY.ravel()], 1) - t2) @ R2          # 反变换回旧坐标
++    col = (Q[:, 0] - ox) / res - 0.5
++    row = (H - 1) - ((Q[:, 1] - oy) / res - 0.5)
++    out = ndimage.map_coordinates(img, [row, col], order=0, mode='constant', cval=cval).reshape(NH, NW)
++    if close_occupied:                                              # 补旋转造成的单像素缺口
++        occ = out == 0
++        out[ndimage.binary_closing(occ, structure=np.ones((3, 3), bool)) & ~occ] = 0
++    # out 目前第 0 行 = y 最小；GX/GY 同序
++    return out, GX, GY, meta, (nlo, res)
++
++
++def write_grid(out_dir, name, img_ylow, meta, nlo, res, free_thresh=None, comment=''):
++    img = img_ylow[::-1]
++    with open(os.path.join(out_dir, name + '.pgm'), 'wb') as f:
++        f.write(f'P5\n{img.shape[1]} {img.shape[0]}\n255\n'.encode())
++        f.write(img.astype(np.uint8).tobytes())
++    ft = meta['free_thresh'] if free_thresh is None else free_thresh
++    with open(os.path.join(out_dir, name + '.yaml'), 'w') as f:
++        f.write(comment)
++        f.write(f"image: {name}.pgm\nmode: {meta.get('mode', 'trinary')}\nresolution: {res}\n"
++                f'origin: [{nlo[0]:.3f}, {nlo[1]:.3f}, 0.0]\nnegate: {meta.get("negate", 0)}\n'
++                f"occupied_thresh: {meta['occupied_thresh']}\nfree_thresh: {ft}\n")
++
++
++def rect_mask(GX, GY, r):
++    x0, y0, x1, y1 = r[:4]
++    return (GX >= min(x0, x1)) & (GX <= max(x0, x1)) & (GY >= min(y0, y1)) & (GY <= max(y0, y1))
++
++
++def polyline_mask(GX, GY, pts, width):
++    m = np.zeros(GX.shape, bool)
++    half = width / 2.0
++    for (ax_, ay), (bx, by) in zip(pts[:-1], pts[1:]):
++        dx, dy = bx - ax_, by - ay
++        L2 = dx * dx + dy * dy
++        t = np.clip(((GX - ax_) * dx + (GY - ay) * dy) / L2, 0.0, 1.0) if L2 > 0 else 0.0
++        m |= np.hypot(GX - (ax_ + t * dx), GY - (ay + t * dy)) <= half
++    return m
++
++
++def main():
++    ap = argparse.ArgumentParser()
++    ap.add_argument('registration')
++    ap.add_argument('out_dir')
++    ap.add_argument('--nav', required=True)
++    ap.add_argument('--loc', required=True)
++    ap.add_argument('--speed', default='')
++    ap.add_argument('--apron', default='')
++    ap.add_argument('--force-free', nargs='*', default=[])
++    ap.add_argument('--speed-zone', nargs='*', default=[])
++    ap.add_argument('--obstacle-line', nargs='*', default=[])
++    ap.add_argument('--line-width', type=float, default=0.15)
++    a = ap.parse_args()
++    reg = yaml.safe_load(open(a.registration))
++    R = np.array(reg['rotation'], float)
++    yaw = math.atan2(R[1, 0], R[0, 0])
++    R2 = np.array([[math.cos(yaw), -math.sin(yaw)], [math.sin(yaw), math.cos(yaw)]])
++    t2 = np.array(reg['translation'][:2], float)
++    os.makedirs(a.out_dir, exist_ok=True)
++    note = f'# 由旧室内栅格按 {os.path.basename(a.registration)}（yaw {math.degrees(yaw):.3f}°）变换到统一 map 坐标系\n'
++    print(f'2D 变换：yaw {math.degrees(yaw):.3f}°，平移 ({t2[0]:.3f}, {t2[1]:.3f})')
++
++    apron = None
++    bounds = None
++    if a.apron:
++        aimg, ameta = load_grid(a.apron)
++        ares = float(ameta['resolution'])
++        alo = np.array(ameta['origin'][:2], float)
++        ahi = alo + np.array([aimg.shape[1], aimg.shape[0]]) * ares
++        apron = (aimg, ameta)
++        bounds = (alo, ahi)
++    rects = [[float(v) for v in s.split(',')] for s in a.force_free]
++    zones = [[float(v) for v in s.split(',')] for s in a.speed_zone]
++    lines = []
++    for s in a.obstacle_line:
++        v = [float(t) for t in s.split(',')]
++        if len(v) < 4 or len(v) % 2:
++            raise SystemExit(f'--obstacle-line 需要偶数个坐标（至少两点）：{s}')
++        lines.append(list(zip(v[0::2], v[1::2])))
++
++    # ---------------- 导航栅格
++    nav, GX, GY, meta, (nlo, res) = transform_grid(a.nav, R2, t2, 205, True, bounds)
++    if apron is not None:
++        # 门前区域的障碍一律覆盖（旧室内图在玻璃立面处常记成空闲），空闲只填未知格
++        av = sample(apron[0], apron[1], GX, GY, 205)
++        nav[av == 0] = 0
++        fill = (nav == 205) & (av == 254)
++        nav[fill] = 254
++    for r in rects:
++        nav[rect_mask(GX, GY, r)] = 254
++    for pl in lines:
++        nav[polyline_mask(GX, GY, pl, a.line_width)] = 0
++    write_grid(a.out_dir, 'nav_map', nav, meta, nlo, res, comment=note)
++    print('nav_map', nav.shape[::-1], 'origin', np.round(nlo, 3))
++
++    # ---------------- 定位栅格（房间全局初始化用，不加门前区域）
++    loc, _, _, lmeta, (llo, lres) = transform_grid(a.loc, R2, t2, 205, True)
++    # 旧 loc 图 free_thresh 0.25 会把 205（未知）当成空闲，统一改成 0.10
++    write_grid(a.out_dir, 'localization_map', loc, lmeta, llo, lres, free_thresh=0.10, comment=note)
++
++    # ---------------- 限速掩膜（与导航栅格同网格）
++    if a.speed:
++        sp, _, _, smeta, _ = transform_grid(a.speed, R2, t2, 255, False, bounds)
++        # scale 模式：值 v = (255 - 像素)/255*100，限速 = v*0.01 m/s；v=0 表示不限速。重叠时取更严（v 更小且非 0）
++        vals = np.rint((255.0 - sp.astype(float)) / 255.0 * 100.0)
++        for z in zones:
++            v = float(round(z[4] * 100))
++            m = rect_mask(GX, GY, z)
++            vals[m] = np.where(vals[m] == 0, v, np.minimum(vals[m], v))
++        sp = np.clip(np.rint(255.0 * (1.0 - vals / 100.0)), 0, 255).astype(np.uint8)
++        write_grid(a.out_dir, 'speed_mask', sp, smeta, nlo, res, comment=note)
++
++
++if __name__ == '__main__':
++    main()
+diff --git a/map_20261117_denoised/legacy_room_registration.yaml b/map_20261117_denoised/legacy_room_registration.yaml
+index 94d41a4..b4acb2b 100644
+--- a/map_20261117_denoised/legacy_room_registration.yaml
++++ b/map_20261117_denoised/legacy_room_registration.yaml
+@@ -1,13 +1,22 @@
+ # Rigid registration from the legacy levelled indoor map to the 20261117 map.
+ # p_new = rotation * p_old + translation
++#
++# 2026-11-17 重新配准：旧室内地图的墙体（离地 0.6–2.0 m）对 20261117 点云做 2D ICP，
++#   墙体点 0.2 m 内 83.9%，中位误差 0.05 m。这栋楼是走廊约在 x≈29.5、y −58 ~ −19 的那栋。
++# 原来的配准（yaw -0.111°，平移 -11.169, 55.407）把室内放到了北侧停车场和环路上，
++#   墙体点 0.2 m 内只有 21%，中位误差 0.75 m，已作废。
++# 高度：旧图地面 z=0；20261117 点云在这栋楼里的地面中位 z=-1.664（该区域地面有起伏/漂移，
++#   10%–90% 分位 -2.43 ~ -1.33），2D 栅格不受影响。
+ rotation:
+-  - [0.999837721, 0.001953636, 0.017908538]
+-  - [-0.001940933, 0.999997852, -0.000726714]
+-  - [-0.017909920, 0.000691836, 0.999839365]
+-translation: [-11.169275, 55.406532, -0.737105]
+-yaw_deg: -0.111225
++  - [0.998216799, -0.059692737, 0.0]
++  - [0.059692737, 0.998216799, 0.0]
++  - [0.0, 0.0, 1.0]
++translation: [11.184599, -18.209667, -1.664087]
++yaw_deg: 3.422176
++icp_inlier_ratio_0p2m: 0.839
++icp_median_error_m: 0.052
+ room_polygon_new:
+-  - [7.4021, 42.2705]
+-  - [15.8507, 42.2541]
+-  - [15.8613, 47.6540]
+-  - [7.4127, 47.6704]
++  - [30.5273, -30.1761]
++  - [38.9594, -29.6718]
++  - [38.6372, -24.2815]
++  - [30.205, -24.7858]
+diff --git a/map_20261117_legacy_indoor/README.txt b/map_20261117_legacy_indoor/README.txt
+new file mode 100644
+index 0000000..f8f872a
+--- /dev/null
++++ b/map_20261117_legacy_indoor/README.txt
+@@ -0,0 +1,33 @@
++室内导航用的 2D 栅格（统一 map 坐标系 = 20261117 点云 / 车道图的坐标系）
++
++来源
++  旧室内地图 map/indoor_nav_2d、map/indoor_loc_2d、indoor_navigation/maps/speed_mask，
++  按 legacy_room_registration.yaml 变换：yaw 3.422°，平移 (11.185, -18.210)，
++  2D ICP 墙体点 0.2 m 内 83.9%，中位误差 0.05 m。
++  这栋楼是走廊约在 x≈29、y -58 ~ -19 的那栋，南门在立面 y≈-70.8、x≈26.9。
++
++  注意：之前的配准（yaw -0.111°，平移 -11.169, 55.407）是错的，把室内放到了北侧停车场上，已作废。
++  当时"20261117 点云没录到这栋楼、走廊被树冠堵死"的结论也是错的：点云里有这栋楼，
++  是室内图被放错了位置。
++
++  门前区域（主路、坡道、门前平台）来自 20261117 点云，见 door_apron.yaml。
++
++门前的坎和坡道（2026-11-17 现场点云实测）
++  - 路沿坎：x 19–42 整排，比路面高 0.15–0.22 m，东头在 x≈41.8 拐向北接到楼边。
++  - 坡道：西头 x 17.7–24，y -75.4 ~ -74.0，两侧栏杆，净宽约 1.2 m，坡道口在西南角（x 17.4–19，宽约 1.5 m）。
++    相对路面升高约 0.14 m，坡度约 3%。
++  - 坡道西侧平台高出路面约 0.1 m，主路南侧路沿在 y≈-83 ~ -84。
++  这些台阶太矮，按离地高度提取不出来，用 --obstacle-line 画成障碍。坡道北侧细栏杆在去动态时
++  被误删了约 45% 的点，也一并画上。
++  录制时站在主路上的人（x 20.8–21.9，y -77.6 ~ -76.7）已从 door_apron 里清掉。
++
++文件
++  nav_map.yaml/.pgm           Nav2 静态层（0.05 m）：室内 + 门前区域，路沿坎/栏杆为障碍，门洞和坡道通道强制可通行
++  localization_map.yaml/.pgm  房间全局初始化用（free_thresh 统一改为 0.10，原来 0.25 会把未知当空闲）
++  speed_mask.yaml/.pgm        限速掩膜（房间 0.30 m/s；门口、坡道和门前掉头区 0.20 m/s）
++  keepout_mask.yaml/.pgm      禁行掩膜：只允许在已建图范围内规划
++  door_apron.yaml/.pgm        门前区域（x 6–46，y -86 ~ -68），由 20261117 点云生成
++  legacy_room_registration.yaml  配准参数（map_20261117_denoised 里放了同一份）
++
++重新生成（在仓库根目录）
++  bash indoor_navigation/tools/rebuild_maps.sh
+diff --git a/map_20261117_legacy_indoor/door_apron.yaml b/map_20261117_legacy_indoor/door_apron.yaml
+new file mode 100644
+index 0000000..3d8f7ae
+--- /dev/null
++++ b/map_20261117_legacy_indoor/door_apron.yaml
+@@ -0,0 +1,12 @@
++# 南门门前区域（主路 → 坡道 → 南门），由 20261117 点云（去噪、去动态后）离地 0.10–1.80 m 的点生成。
++# 障碍做了 0.5 m 闭运算（把稀疏的立面点连成墙）。合并时障碍一律覆盖、空闲只填未知格，门洞用 --force-free 打开。
++#   录制时站在主路上的人（x 20.8–21.9, y -77.6..-76.7，高 0.4–1.75 m）已手工清成空闲。
++# 2026-11-17：向西、向南扩到 x 6–46、y -86..-68，给门前掉头留出路面；
++#   路沿坎、坡道栏杆这些"矮台阶"点云的离地高度看不出来，改在 register_legacy_grids.py 里用 --obstacle-line 画。
++image: door_apron.pgm
++mode: trinary
++resolution: 0.05
++origin: [6.0, -86.0, 0.0]
++negate: 0
++occupied_thresh: 0.65
++free_thresh: 0.10
+diff --git a/map_20261117_legacy_indoor/keepout_mask.yaml b/map_20261117_legacy_indoor/keepout_mask.yaml
+new file mode 100644
+index 0000000..7ec90cd
+--- /dev/null
++++ b/map_20261117_legacy_indoor/keepout_mask.yaml
+@@ -0,0 +1,7 @@
++image: keepout_mask.pgm
++mode: trinary
++resolution: 0.05
++origin: [0.8, -86.0, 0.0]
++negate: 0
++occupied_thresh: 0.65
++free_thresh: 0.196
+diff --git a/map_20261117_legacy_indoor/legacy_room_registration.yaml b/map_20261117_legacy_indoor/legacy_room_registration.yaml
+new file mode 100644
+index 0000000..b4acb2b
+--- /dev/null
++++ b/map_20261117_legacy_indoor/legacy_room_registration.yaml
+@@ -0,0 +1,22 @@
++# Rigid registration from the legacy levelled indoor map to the 20261117 map.
++# p_new = rotation * p_old + translation
++#
++# 2026-11-17 重新配准：旧室内地图的墙体（离地 0.6–2.0 m）对 20261117 点云做 2D ICP，
++#   墙体点 0.2 m 内 83.9%，中位误差 0.05 m。这栋楼是走廊约在 x≈29.5、y −58 ~ −19 的那栋。
++# 原来的配准（yaw -0.111°，平移 -11.169, 55.407）把室内放到了北侧停车场和环路上，
++#   墙体点 0.2 m 内只有 21%，中位误差 0.75 m，已作废。
++# 高度：旧图地面 z=0；20261117 点云在这栋楼里的地面中位 z=-1.664（该区域地面有起伏/漂移，
++#   10%–90% 分位 -2.43 ~ -1.33），2D 栅格不受影响。
++rotation:
++  - [0.998216799, -0.059692737, 0.0]
++  - [0.059692737, 0.998216799, 0.0]
++  - [0.0, 0.0, 1.0]
++translation: [11.184599, -18.209667, -1.664087]
++yaw_deg: 3.422176
++icp_inlier_ratio_0p2m: 0.839
++icp_median_error_m: 0.052
++room_polygon_new:
++  - [30.5273, -30.1761]
++  - [38.9594, -29.6718]
++  - [38.6372, -24.2815]
++  - [30.205, -24.7858]
+diff --git a/map_20261117_legacy_indoor/localization_map.yaml b/map_20261117_legacy_indoor/localization_map.yaml
+new file mode 100644
+index 0000000..09261a1
+--- /dev/null
++++ b/map_20261117_legacy_indoor/localization_map.yaml
+@@ -0,0 +1,8 @@
++# 由旧室内栅格按 legacy_room_registration.yaml（yaw 3.422°）变换到统一 map 坐标系
++image: localization_map.pgm
++mode: trinary
++resolution: 0.05
++origin: [0.800, -74.750, 0.0]
++negate: 0
++occupied_thresh: 0.65
++free_thresh: 0.1
+diff --git a/map_20261117_legacy_indoor/nav_map.yaml b/map_20261117_legacy_indoor/nav_map.yaml
+new file mode 100644
+index 0000000..c6ff38d
+--- /dev/null
++++ b/map_20261117_legacy_indoor/nav_map.yaml
+@@ -0,0 +1,8 @@
++# 由旧室内栅格按 legacy_room_registration.yaml（yaw 3.422°）变换到统一 map 坐标系
++image: nav_map.pgm
++mode: trinary
++resolution: 0.05
++origin: [0.800, -86.000, 0.0]
++negate: 0
++occupied_thresh: 0.65
++free_thresh: 0.1
+diff --git a/map_20261117_legacy_indoor/speed_mask.yaml b/map_20261117_legacy_indoor/speed_mask.yaml
+new file mode 100644
+index 0000000..fd9b58c
+--- /dev/null
++++ b/map_20261117_legacy_indoor/speed_mask.yaml
+@@ -0,0 +1,8 @@
++# 由旧室内栅格按 legacy_room_registration.yaml（yaw 3.422°）变换到统一 map 坐标系
++image: speed_mask.pgm
++mode: scale
++resolution: 0.05
++origin: [0.800, -86.000, 0.0]
++negate: 0
++occupied_thresh: 1.0
++free_thresh: 0.0
+diff --git a/offline_sim/build_fake.py b/offline_sim/build_fake.py
+new file mode 100644
+index 0000000..1d68c38
+--- /dev/null
++++ b/offline_sim/build_fake.py
+@@ -0,0 +1,119 @@
++import os, textwrap
++R=os.path.join(os.path.dirname(os.path.abspath(__file__)),'fake')
++def w(p,s):
++    os.makedirs(os.path.dirname(os.path.join(R,p)),exist_ok=True); open(os.path.join(R,p),'w').write(textwrap.dedent(s))
++w('sim.py','''
++class _Bus:
++    def __init__(s): s.subs={}; s.srv={}; s.timers=[]; s.params={}; s.log=[]; s.last={}; s.actions={}; s.count={}
++    def pub(s,topic,m):
++        s.last[topic]=m; s.count[topic]=s.count.get(topic,0)+1
++        for cb in list(s.subs.get(topic,[])): cb(m)
++BUS=_Bus(); CLOCK=[0.0]
++''')
++w('rclpy/__init__.py','def init(*a,**k): pass\ndef spin(n): pass\ndef shutdown(): pass\n')
++w('rclpy/qos.py','''
++class QoSProfile:
++    def __init__(s,**k): pass
++class DurabilityPolicy: TRANSIENT_LOCAL=1
++class ReliabilityPolicy: RELIABLE=1
++''')
++w('rclpy/node.py','''
++import types
++from sim import BUS, CLOCK
++class _T:
++    def __init__(s,t): s.nanoseconds=int(t*1e9)
++    def to_msg(s): return types.SimpleNamespace(sec=int(s.nanoseconds//10**9),nanosec=int(s.nanoseconds%10**9))
++class _C:
++    def now(s): return _T(CLOCK[0])
++class _L:
++    def __init__(s,n): s.n=n
++    def _p(s,l,m): BUS.log.append((s.n,l,m))
++    def info(s,m): s._p('I',m)
++    def warn(s,m): s._p('W',m)
++    def error(s,m): s._p('E',m)
++class _P:
++    def __init__(s,v): s.value=v
++class Node:
++    def __init__(s,name): s._name=name; s._p={}
++    def declare_parameter(s,n,v): s._p[n]=BUS.params.get(s._name,{}).get(n,v)
++    def get_parameter(s,n): return _P(s._p[n])
++    def get_logger(s): return _L(s._name)
++    def get_clock(s): return _C()
++    def create_subscription(s,t,topic,cb,q,**k):
++        topic=topic.replace('~/','/'+s._name+'/'); BUS.subs.setdefault(topic,[]).append(cb)
++    def create_publisher(s,t,topic,q):
++        topic=topic.replace('~/','/'+s._name+'/'); return types.SimpleNamespace(publish=lambda m,topic=topic: BUS.pub(topic,m))
++    def create_service(s,t,name,cb): BUS.srv['/'+s._name+'/'+name.replace('~/','')]=(t,cb)
++    def create_timer(s,p,cb): BUS.timers.append([p,cb,0.0])
++    def destroy_node(s): pass
++''')
++w('rclpy/action.py','''
++import types
++from sim import BUS
++class _F:
++    def __init__(s): s._d=False; s._r=None; s._cbs=[]
++    def set(s,r):
++        s._d=True; s._r=r
++        for cb in s._cbs: cb(s)
++    def done(s): return s._d
++    def result(s): return s._r
++    def add_done_callback(s,cb):
++        if s._d: cb(s)
++        else: s._cbs.append(cb)
++class ActionClient:
++    def __init__(s,node,t,name): BUS.actions[name]=s; s.goals=[]; s.cancels=0; s.result_future=None
++    def wait_for_server(s,timeout_sec=0): return True
++    def send_goal_async(s,goal,feedback_callback=None):
++        s.goals.append(goal); f=_F(); rf=_F(); s.result_future=rf
++        def cancel():
++            s.cancels+=1; rf.set(types.SimpleNamespace(status=5)); return _F()
++        gh=types.SimpleNamespace(accepted=True,get_result_async=lambda: rf,cancel_goal_async=cancel)
++        f.set(gh); return f
++''')
++w('std_msgs/__init__.py',''); w('std_msgs/msg.py','''
++class String:
++    def __init__(s,data=''): s.data=data
++''')
++w('std_srvs/__init__.py',''); w('std_srvs/srv.py','''
++class SetBool:
++    class Request:
++        def __init__(s,data=False): s.data=data
++    class Response:
++        def __init__(s): s.success=False; s.message=''
++class Trigger:
++    class Request: pass
++    class Response:
++        def __init__(s): s.success=False; s.message=''
++''')
++w('nav_msgs/__init__.py',''); w('nav_msgs/msg.py','class Odometry: pass\n')
++w('action_msgs/__init__.py',''); w('action_msgs/msg.py','''
++class GoalStatus: STATUS_SUCCEEDED=4; STATUS_CANCELED=5; STATUS_ABORTED=6
++''')
++w('geometry_msgs/__init__.py',''); w('geometry_msgs/msg.py','''
++import types
++class PoseStamped:
++    def __init__(s):
++        s.header=types.SimpleNamespace(frame_id='',stamp=None)
++        s.pose=types.SimpleNamespace(position=types.SimpleNamespace(x=0.,y=0.,z=0.),orientation=types.SimpleNamespace(x=0.,y=0.,z=0.,w=1.))
++''')
++w('nav2_msgs/__init__.py',''); w('nav2_msgs/action.py','''
++class NavigateThroughPoses:
++    class Goal:
++        def __init__(s): s.poses=[]; s.behavior_tree=''
++''')
++w('autoware_vehicle_msgs/__init__.py',''); w('autoware_vehicle_msgs/msg.py','''
++class GearCommand:
++    NEUTRAL=1; DRIVE=2; REVERSE=20
++    def __init__(s): s.stamp=None; s.command=1
++class VelocityReport:
++    def __init__(s,v=0.0): s.longitudinal_velocity=v
++''')
++w('autoware_control_msgs/__init__.py',''); w('autoware_control_msgs/msg.py','''
++import types
++class Control:
++    def __init__(s):
++        s.stamp=None; s.control_time=None
++        s.lateral=types.SimpleNamespace(stamp=None,control_time=None,steering_tire_angle=0.0,steering_tire_rotation_rate=0.0)
++        s.longitudinal=types.SimpleNamespace(stamp=None,control_time=None,velocity=0.0,acceleration=0.0,is_defined_acceleration=False)
++''')
++print('fake built')
+diff --git a/offline_sim/fake/action_msgs/__init__.py b/offline_sim/fake/action_msgs/__init__.py
+new file mode 100644
+index 0000000..e69de29
+diff --git a/offline_sim/fake/action_msgs/msg.py b/offline_sim/fake/action_msgs/msg.py
+new file mode 100644
+index 0000000..7b781bb
+--- /dev/null
++++ b/offline_sim/fake/action_msgs/msg.py
+@@ -0,0 +1,2 @@
++
++class GoalStatus: STATUS_SUCCEEDED=4; STATUS_CANCELED=5; STATUS_ABORTED=6
+diff --git a/offline_sim/fake/autoware_control_msgs/__init__.py b/offline_sim/fake/autoware_control_msgs/__init__.py
+new file mode 100644
+index 0000000..e69de29
+diff --git a/offline_sim/fake/autoware_control_msgs/msg.py b/offline_sim/fake/autoware_control_msgs/msg.py
+new file mode 100644
+index 0000000..920ba5c
+--- /dev/null
++++ b/offline_sim/fake/autoware_control_msgs/msg.py
+@@ -0,0 +1,7 @@
++
++import types
++class Control:
++    def __init__(s):
++        s.stamp=None; s.control_time=None
++        s.lateral=types.SimpleNamespace(stamp=None,control_time=None,steering_tire_angle=0.0,steering_tire_rotation_rate=0.0)
++        s.longitudinal=types.SimpleNamespace(stamp=None,control_time=None,velocity=0.0,acceleration=0.0,is_defined_acceleration=False)
+diff --git a/offline_sim/fake/autoware_vehicle_msgs/__init__.py b/offline_sim/fake/autoware_vehicle_msgs/__init__.py
+new file mode 100644
+index 0000000..e69de29
+diff --git a/offline_sim/fake/autoware_vehicle_msgs/msg.py b/offline_sim/fake/autoware_vehicle_msgs/msg.py
+new file mode 100644
+index 0000000..bd1d584
+--- /dev/null
++++ b/offline_sim/fake/autoware_vehicle_msgs/msg.py
+@@ -0,0 +1,6 @@
++
++class GearCommand:
++    NEUTRAL=1; DRIVE=2; REVERSE=20
++    def __init__(s): s.stamp=None; s.command=1
++class VelocityReport:
++    def __init__(s,v=0.0): s.longitudinal_velocity=v
+diff --git a/offline_sim/fake/geometry_msgs/__init__.py b/offline_sim/fake/geometry_msgs/__init__.py
+new file mode 100644
+index 0000000..e69de29
+diff --git a/offline_sim/fake/geometry_msgs/msg.py b/offline_sim/fake/geometry_msgs/msg.py
+new file mode 100644
+index 0000000..51324b1
+--- /dev/null
++++ b/offline_sim/fake/geometry_msgs/msg.py
+@@ -0,0 +1,6 @@
++
++import types
++class PoseStamped:
++    def __init__(s):
++        s.header=types.SimpleNamespace(frame_id='',stamp=None)
++        s.pose=types.SimpleNamespace(position=types.SimpleNamespace(x=0.,y=0.,z=0.),orientation=types.SimpleNamespace(x=0.,y=0.,z=0.,w=1.))
+diff --git a/offline_sim/fake/nav2_msgs/__init__.py b/offline_sim/fake/nav2_msgs/__init__.py
+new file mode 100644
+index 0000000..e69de29
+diff --git a/offline_sim/fake/nav2_msgs/action.py b/offline_sim/fake/nav2_msgs/action.py
+new file mode 100644
+index 0000000..defa86f
+--- /dev/null
++++ b/offline_sim/fake/nav2_msgs/action.py
+@@ -0,0 +1,4 @@
++
++class NavigateThroughPoses:
++    class Goal:
++        def __init__(s): s.poses=[]; s.behavior_tree=''
+diff --git a/offline_sim/fake/nav_msgs/__init__.py b/offline_sim/fake/nav_msgs/__init__.py
+new file mode 100644
+index 0000000..e69de29
+diff --git a/offline_sim/fake/nav_msgs/msg.py b/offline_sim/fake/nav_msgs/msg.py
+new file mode 100644
+index 0000000..fd2b473
+--- /dev/null
++++ b/offline_sim/fake/nav_msgs/msg.py
+@@ -0,0 +1 @@
++class Odometry: pass
+diff --git a/offline_sim/fake/rclpy/__init__.py b/offline_sim/fake/rclpy/__init__.py
+new file mode 100644
+index 0000000..a516323
+--- /dev/null
++++ b/offline_sim/fake/rclpy/__init__.py
+@@ -0,0 +1,3 @@
++def init(*a,**k): pass
++def spin(n): pass
++def shutdown(): pass
+diff --git a/offline_sim/fake/rclpy/action.py b/offline_sim/fake/rclpy/action.py
+new file mode 100644
+index 0000000..08fce7d
+--- /dev/null
++++ b/offline_sim/fake/rclpy/action.py
+@@ -0,0 +1,22 @@
++
++import types
++from sim import BUS
++class _F:
++    def __init__(s): s._d=False; s._r=None; s._cbs=[]
++    def set(s,r):
++        s._d=True; s._r=r
++        for cb in s._cbs: cb(s)
++    def done(s): return s._d
++    def result(s): return s._r
++    def add_done_callback(s,cb):
++        if s._d: cb(s)
++        else: s._cbs.append(cb)
++class ActionClient:
++    def __init__(s,node,t,name): BUS.actions[name]=s; s.goals=[]; s.cancels=0; s.result_future=None
++    def wait_for_server(s,timeout_sec=0): return True
++    def send_goal_async(s,goal,feedback_callback=None):
++        s.goals.append(goal); f=_F(); rf=_F(); s.result_future=rf
++        def cancel():
++            s.cancels+=1; rf.set(types.SimpleNamespace(status=5)); return _F()
++        gh=types.SimpleNamespace(accepted=True,get_result_async=lambda: rf,cancel_goal_async=cancel)
++        f.set(gh); return f
+diff --git a/offline_sim/fake/rclpy/node.py b/offline_sim/fake/rclpy/node.py
+new file mode 100644
+index 0000000..5aebfdf
+--- /dev/null
++++ b/offline_sim/fake/rclpy/node.py
+@@ -0,0 +1,29 @@
++
++import types
++from sim import BUS, CLOCK
++class _T:
++    def __init__(s,t): s.nanoseconds=int(t*1e9)
++    def to_msg(s): return types.SimpleNamespace(sec=int(s.nanoseconds//10**9),nanosec=int(s.nanoseconds%10**9))
++class _C:
++    def now(s): return _T(CLOCK[0])
++class _L:
++    def __init__(s,n): s.n=n
++    def _p(s,l,m): BUS.log.append((s.n,l,m))
++    def info(s,m): s._p('I',m)
++    def warn(s,m): s._p('W',m)
++    def error(s,m): s._p('E',m)
++class _P:
++    def __init__(s,v): s.value=v
++class Node:
++    def __init__(s,name): s._name=name; s._p={}
++    def declare_parameter(s,n,v): s._p[n]=BUS.params.get(s._name,{}).get(n,v)
++    def get_parameter(s,n): return _P(s._p[n])
++    def get_logger(s): return _L(s._name)
++    def get_clock(s): return _C()
++    def create_subscription(s,t,topic,cb,q,**k):
++        topic=topic.replace('~/','/'+s._name+'/'); BUS.subs.setdefault(topic,[]).append(cb)
++    def create_publisher(s,t,topic,q):
++        topic=topic.replace('~/','/'+s._name+'/'); return types.SimpleNamespace(publish=lambda m,topic=topic: BUS.pub(topic,m))
++    def create_service(s,t,name,cb): BUS.srv['/'+s._name+'/'+name.replace('~/','')]=(t,cb)
++    def create_timer(s,p,cb): BUS.timers.append([p,cb,0.0])
++    def destroy_node(s): pass
+diff --git a/offline_sim/fake/rclpy/qos.py b/offline_sim/fake/rclpy/qos.py
+new file mode 100644
+index 0000000..6c2ac5d
+--- /dev/null
++++ b/offline_sim/fake/rclpy/qos.py
+@@ -0,0 +1,5 @@
++
++class QoSProfile:
++    def __init__(s,**k): pass
++class DurabilityPolicy: TRANSIENT_LOCAL=1
++class ReliabilityPolicy: RELIABLE=1
+diff --git a/offline_sim/fake/sim.py b/offline_sim/fake/sim.py
+new file mode 100644
+index 0000000..bfee1fe
+--- /dev/null
++++ b/offline_sim/fake/sim.py
+@@ -0,0 +1,7 @@
++
++class _Bus:
++    def __init__(s): s.subs={}; s.srv={}; s.timers=[]; s.params={}; s.log=[]; s.last={}; s.actions={}; s.count={}
++    def pub(s,topic,m):
++        s.last[topic]=m; s.count[topic]=s.count.get(topic,0)+1
++        for cb in list(s.subs.get(topic,[])): cb(m)
++BUS=_Bus(); CLOCK=[0.0]
+diff --git a/offline_sim/fake/std_msgs/__init__.py b/offline_sim/fake/std_msgs/__init__.py
+new file mode 100644
+index 0000000..e69de29
+diff --git a/offline_sim/fake/std_msgs/msg.py b/offline_sim/fake/std_msgs/msg.py
+new file mode 100644
+index 0000000..519d962
+--- /dev/null
++++ b/offline_sim/fake/std_msgs/msg.py
+@@ -0,0 +1,3 @@
++
++class String:
++    def __init__(s,data=''): s.data=data
+diff --git a/offline_sim/fake/std_srvs/__init__.py b/offline_sim/fake/std_srvs/__init__.py
+new file mode 100644
+index 0000000..e69de29
+diff --git a/offline_sim/fake/std_srvs/srv.py b/offline_sim/fake/std_srvs/srv.py
+new file mode 100644
+index 0000000..f76d0fd
+--- /dev/null
++++ b/offline_sim/fake/std_srvs/srv.py
+@@ -0,0 +1,10 @@
++
++class SetBool:
++    class Request:
++        def __init__(s,data=False): s.data=data
++    class Response:
++        def __init__(s): s.success=False; s.message=''
++class Trigger:
++    class Request: pass
++    class Response:
++        def __init__(s): s.success=False; s.message=''
+diff --git a/offline_sim/run_sim.py b/offline_sim/run_sim.py
+new file mode 100644
+index 0000000..35f5752
+--- /dev/null
++++ b/offline_sim/run_sim.py
+@@ -0,0 +1,119 @@
++"""离线仿真：不需要 ROS，用假的 rclpy 跑 hybrid_mode_manager + route_navigator 的交接流程（8 个场景）。
++运行：python3 offline_sim/build_fake.py && python3 offline_sim/run_sim.py
++默认车停在南门外交接点 (29.000, -76.049)；场景 9 用真实的 hybrid_switch_zones.yaml 和 stations.yaml。
++改了 hybrid_mode_manager / route_navigator 之后跑一下，确认交权规则没被改坏。"""
++import sys, os, json, types, importlib, math
++HERE=os.path.dirname(os.path.abspath(__file__))
++PKG=sys.argv[1] if len(sys.argv)>1 else os.path.join(os.path.dirname(HERE),'indoor_navigation')
++sys.path[:0]=[os.path.join(HERE,'fake'),PKG]
++from sim import BUS, CLOCK
++NS=types.SimpleNamespace
++STATIONS=os.path.join(PKG,'config','stations.yaml')
++
++class World:   # 默认停在南门外交接点（hybrid_switch_zones.yaml 的 handover）
++    def __init__(s): s.x,s.y=29.000,-76.049; s.v=0.0; s.aw_v=0.0; s.in_v=0.0; s.health='OK'; s.vr_on=True; s.odom_on=True; s.health_on=True
++W=World()
++
++def fresh(mgr_params=None, nav_params=None):
++    BUS.__init__(); CLOCK[0]=0.0; W.__init__()
++    BUS.params['hybrid_mode_manager']=dict(mgr_params or {})
++    BUS.params['route_navigator']=dict({'stations_file':STATIONS}, **(nav_params or {}))
++    for m in [k for k in sys.modules if k.startswith('indoor_navigation')]: del sys.modules[m]
++    hm=importlib.import_module('indoor_navigation.hybrid_mode_manager'); rn=importlib.import_module('indoor_navigation.route_navigator')
++    return hm.HybridModeManager(), rn.RouteNavigator()
++
++def ctrl(v):
++    from autoware_control_msgs.msg import Control
++    m=Control(); m.longitudinal.velocity=v; return m
++
++def step(dt=1/30):
++    CLOCK[0]+=dt; k=round(CLOCK[0]*30)
++    BUS.pub('/hybrid/outdoor/control_cmd',ctrl(W.aw_v)); BUS.pub('/hybrid/indoor/control_cmd',ctrl(W.in_v))
++    if W.vr_on:
++        from autoware_vehicle_msgs.msg import VelocityReport; BUS.pub('/vehicle/status/velocity_status',VelocityReport(W.v))
++    if W.odom_on:
++        BUS.pub('/localization/kinematic_state',NS(pose=NS(pose=NS(position=NS(x=W.x,y=W.y))),twist=NS(twist=NS(linear=NS(x=W.v)))))
++    if W.health_on and k%6==0:
++        BUS.pub('/indoor_localization/health',NS(data=json.dumps({'level':W.health,'speed_factor':{'OK':1.0,'WARN':0.5,'ERROR':0.0}[W.health],'reasons':[]})))
++    for t in BUS.timers:
++        t[2]+=dt
++        if t[2]>=t[0]-1e-9: t[2]=0.0; t[1]()
++    out=BUS.last.get('/control/command/control_cmd')
++    if out is not None:
++        tgt=out.longitudinal.velocity; W.v+= (tgt-W.v)*min(1.0,dt/0.3); W.x+=W.v*dt
++def run(sec):
++    for _ in range(int(round(sec*30))): step()
++def st(): return json.loads(BUS.last['/hybrid_mode_manager/state'].data)
++def set_indoor(b):
++    from std_srvs.srv import SetBool
++    t,cb=BUS.srv['/hybrid_mode_manager/set_indoor']; r=cb(SetBool.Request(b),SetBool.Response()); return r
++def goto(station):
++    from std_msgs.msg import String
++    BUS.pub('/route_navigator/command',String(json.dumps({'cmd':'goto','station':station})))
++    return json.loads(BUS.last['/route_navigator/status'].data)
++def nav(): return json.loads(BUS.last['/route_navigator/status'].data)
++def out_v(): return BUS.last['/control/command/control_cmd'].longitudinal.velocity
++
++ok=True
++def check(c,msg):
++    global ok; ok&=bool(c); print(('  PASS ' if c else '  FAIL ')+msg)
++
++print('== 1 室外时下发室内站点任务 → 拒绝（原版会接受，Nav2 空转后触发倒车恢复）')
++fresh(); run(1)
++s=goto('room_home'); check(s['state']=='REJECTED' and 'authority' in s['reason'], f"route_navigator: {s['state']} / {s.get('reason','')[:60]}")
++check(len(BUS.actions['navigate_through_poses'].goals)==0,'没有发给 Nav2')
++
++print('== 2 先交权再下任务：室外 → 室内')
++r=set_indoor(True); check(r.success,'set_indoor true 接受（未配围栏，给出警告）')
++run(0.5); check(st()['phase']=='stopping' and out_v()==0.0,'交接中输出停车')
++run(1.0); s=st(); check(s['mode']=='indoor' and s['phase']=='active',f"室内拿到权限 mode={s['mode']} phase={s['phase']}")
++s=goto('room_home'); check(s['state']=='NAVIGATING','室内站点任务被接受')
++W.in_v=0.3; run(0.5); check(abs(out_v()-0.3)<1e-9,'底盘收到室内命令')
++
++print('== 3 室内行驶中请求出门 → 先停车、取消 Nav2 任务，Autoware 空闲后才交权')
++W.aw_v=0.8                                  # Autoware 还挂着一条旧路线想走
++set_indoor(False); run(0.5)
++check(out_v()==0.0,'切换开始即输出停车')
++check(BUS.actions['navigate_through_poses'].cancels==1 and nav()['state'] in ('CANCELING','CANCELED'),f"route_navigator 取消任务（{nav()['state']}）")
++W.in_v=0.0; run(2.0); s=st()
++check(s['mode']=='indoor' and s['phase']=='stopping' and 'commanding motion' in s['block_reason'],f"Autoware 在输出 0.8 m/s 时不交权：{s['block_reason'][:50]}")
++W.aw_v=0.0; run(0.3); s=st(); check(s['mode']=='outdoor' and s['phase']=='active','Autoware 停下后交权给室外')
++W.aw_v=0.5; run(0.5); check(abs(out_v()-0.5)<1e-9,'之后 Autoware 的命令正常下发')
++
++print('== 4 车速数据断流 → 不交权')
++fresh(); run(1); W.vr_on=False; W.odom_on=False; set_indoor(True); run(3); s=st()
++check(s['phase']=='stopping' and s['block_reason']=='vehicle speed unavailable',f"block: {s['block_reason']}")
++W.vr_on=True; run(1.5); check(st()['mode']=='indoor','车速恢复后正常交权')
++
++print('== 5 只有定位速度、底盘车速断流 → 用定位速度')
++fresh(); run(1); W.vr_on=False; set_indoor(True); run(1.6); s=st(); check(s['mode']=='indoor' and s['speed_source']=='localization','改用定位速度并完成交权')
++
++print('== 6 定位不健康 / 健康数据断流 → 两个方向都不交权')
++fresh(); run(1); W.health='ERROR'; run(0.3); set_indoor(True); run(3); check(st()['phase']=='stopping' and 'healthy' in st()['block_reason'],'ERROR 时不进室内')
++W.health='OK'; run(1.5); check(st()['mode']=='indoor','恢复后进入室内')
++W.health_on=False; set_indoor(False); run(3); check(st()['phase']=='stopping','健康数据断流时也不出室外（NDT 是全程定位）')
++
++print('== 7 配了围栏：位置不对时手动请求被拒绝')
++import tempfile; zf=os.path.join(tempfile.gettempdir(),'hybrid_zones_test.yaml'); open(zf,'w').write('indoor_enter_polygon: [[0,0],[10,0],[10,10],[0,10]]\nindoor_exit_polygon: [[-3,-3],[13,-3],[13,13],[-3,13]]\n')
++fresh({'switch_zones_file':zf}); W.x,W.y=-8.0,5.0; run(0.5)
++r=set_indoor(True); check(not r.success and 'not at the doorway' in r.message,f'离门 8 m 时拒绝：{r.message[:60]}')
++W.x=-2.0; run(0.5); r=set_indoor(True); check(r.success,'在门口交接带时接受'); run(1.6); check(st()['mode']=='indoor','交权完成')
++W.x,W.y=5.0,5.0; run(0.5); r=set_indoor(False); check(not r.success and 'inside the indoor area' in r.message,'在室内深处请求出门被拒绝')
++
++print('== 8 切换途中撤回请求 → 停稳后把权限还给原控制器')
++fresh(); run(1); set_indoor(True); run(0.3); set_indoor(False); run(1.6); s=st(); check(s['mode']=='outdoor' and s['phase']=='active','回到室外')
++
++print('== 9 真实围栏 + 站点：交接点进门，路线经坡道；出门回到交接点')
++REAL_ZONES=os.path.join(PKG,'config','hybrid_switch_zones.yaml')
++fresh({'switch_zones_file':REAL_ZONES}); run(0.5)
++r=set_indoor(True); check(r.success,f'在交接点 (29.0, -76.05) 请求进室内被接受：{r.message[:50]}'); run(1.6)
++check(st()['mode']=='indoor','交权完成')
++s=goto('room_home'); g=BUS.actions['navigate_through_poses'].goals[-1]
++wp=[(round(p.pose.position.x,1),round(p.pose.position.y,2),round(math.degrees(2*math.atan2(p.pose.orientation.z,p.pose.orientation.w))%360,1)) for p in g.poses]
++check(s['state']=='NAVIGATING' and wp[0][:2]==(18.2,-76.3) and wp[0][2]==90.0 and wp[1][:2]==(21.2,-74.68) and wp[1][2]==2.6,
++      f'先到坡道口（朝北）再上坡道（朝东）：{wp[:3]}')
++W.x,W.y=26.9,-68.8; run(0.5); r=set_indoor(False); check(not r.success,'停在门内（室内区域里）请求出门被拒绝')
++W.x,W.y=29.0,-76.049; run(0.5); r=set_indoor(False); check(r.success,'回到交接点后请求出门被接受'); run(1.6)
++check(st()['mode']=='outdoor','交还室外')
++
++print('\nALL OK' if ok else '\nSOME FAILED')
+diff --git a/outdoor_lanelet/README.md b/outdoor_lanelet/README.md
+new file mode 100644
+index 0000000..c030861
+--- /dev/null
++++ b/outdoor_lanelet/README.md
+@@ -0,0 +1,45 @@
++# 室外车道图检查与修正
++
++`lanelet2_map_original.osm` 是你发来的原文件，`lanelet2_map.osm` 是修正后的版本。
++**没有移动任何点**，只改了车道的左右边界角色、删掉重复车道、补了一段缺失的车道。
++使用时把 `lanelet2_map.osm` 拷到 `map_path`（默认 `/home/tang/autoware_map/map_task4/`）下替换原文件。
++
++```bash
++python3 check_lanelet.py lanelet2_map.osm          # 检查：反向边界 / 同向重叠 / 断头
++python3 fix_lanelet.py lanelet2_map_original.osm lanelet2_map.osm   # 重新生成修正版
++```
++
++## 坐标系
++
++车道用的是 local_x / local_y，和 20261117 点云、室内栅格是同一个 `map` 坐标系，不需要变换。
++主路（y≈−80 到 −76）、南北向路（x≈60）、北侧环路都和点云里的路面、路缘吻合。
++
++## 修正了什么
++
++| 问题 | 影响 | 修正 |
++|---|---|---|
++| 14 条车道左边界在行驶方向右侧（30112–30114、930112–930114、50110/50111、950110/950111、970382–970385） | Lanelet2 按"左边界节点 + 右边界节点"判断首尾相接，角色反了路口就接不上：主路和南北向路在 x≈68 的路口完全不连通；可行驶区域、换道判断也会出错 | 交换这些车道的 left/right |
++| 整条车道 60110–60112、960110–960112（x 17→182）与分段车道（在 x≈68 路口断开）同向完全重叠 | 同一位置两条同向车道，路线规划会随机选一条，选到整条车道时无法在路口转弯 | 删除这 6 条 |
++| 删除后，最南侧车道在 x 17–68 段没有车道 | 这一段只剩两条车道 | 用文件里现成的边界补上东向（980001）、西向（980002，新增一条反向边界 980010） |
++
++修正后：边界反了 0 条，同向重叠 0 条；主路两个方向都能在 x≈68 路口和南北向路连通，东端掉头环连着东西两向。
++
++## 修正后仍存在的路网结构问题（需要你在 Vector Map Builder 里决定）
++
++1. **北侧环路（970376–970390，停车场一圈）和南边路网不连通。** 没有任何车道连过去，车开不进环路。
++   其中外圈 970376 → 970377 → 970378 是一条没有闭合的单向线，起点没有前驱、终点没有后继。
++2. **路口 x≈68 缺两个转向。** 现在能走的是：主路西行 → 右转北上，南北向路南下 → 左转东行。
++   缺"主路东行 → 左转北上"和"南北向路南下 → 右转西行"。所以从南门往北走、或从北边回南门，
++   都要先开到东端掉头环再折回来（多绕约 230 m）。
++3. **西侧支路（x≈0–4，y −3 到 −30）是死胡同。** 进去的车道在 y≈−29.7 结束，出来的车道没有前驱，
++   中间没有掉头连接，开进去就出不来。这段车道里还有几团障碍（约 (0.5, −19.3)、(2.6, −17.2)，像停着的车）。
++4. **主路西端（x≈17）是尽头**，西行车道在那里结束。南门交接点在 x=29，在尽头之前，不受影响。
++5. **中间车道（B）在东端没有直接接掉头环**，需要先换到两侧车道。中间那两条分隔线是虚线，可以换道，问题不大。
++
++## 和室内的衔接
++
++- 交接点 (29.000, −76.049)：主路最北侧车道中心线上、南门正前方。
++  - 进门：Autoware 路线终点设在这里，西行车道（lanelet 950111），车头朝西（yaw −177.37°）。
++  - 出门：室内站点 `south_door_out` 在同一点，车头朝东（yaw 2.63°），交权后 Autoware 从东行车道（lanelet 50111）出发。
++- 南门在立面 x≈26.9 处。门前有一道 0.15–0.22 m 的路沿坎（x 19–42），车不能从交接点直接往北进门，
++  由 Nav2 在主路上掉头、经西头的坡道（x 17.7–24）上到门前平台再进门，全程约 25 m，见 HYBRID_NAVIGATION.md。
+diff --git a/outdoor_lanelet/check_lanelet.py b/outdoor_lanelet/check_lanelet.py
+new file mode 100644
+index 0000000..f56267a
+--- /dev/null
++++ b/outdoor_lanelet/check_lanelet.py
+@@ -0,0 +1,54 @@
++#!/usr/bin/env python3
++"""车道图检查：左右边界是否反了、同方向重叠、后继/前驱缺失（按 Lanelet2 的节点 ID 规则）。
++用法：check_lanelet.py lanelet2_map.osm"""
++import sys, collections, xml.etree.ElementTree as ET
++import numpy as np
++from scipy.spatial import cKDTree
++
++def load(path):
++    r = ET.parse(path).getroot()
++    nodes = {}
++    for n in r.findall('node'):
++        t = {k.get('k'): k.get('v') for k in n.findall('tag')}
++        nodes[n.get('id')] = np.array([float(t['local_x']), float(t['local_y'])])
++    ways = {w.get('id'): [x.get('ref') for x in w.findall('nd')] for w in r.findall('way')}
++    LL = {}
++    for rl in r.findall('relation'):
++        tags = {k.get('k'): k.get('v') for k in rl.findall('tag')}
++        if tags.get('type') != 'lanelet':
++            continue
++        mem = {m.get('role'): m.get('ref') for m in rl.findall('member')}
++        L = np.array([nodes[i] for i in ways[mem['left']]]); R = np.array([nodes[i] for i in ways[mem['right']]])
++        def arclen(P): return float(np.sum(np.linalg.norm(np.diff(P, axis=0), axis=1)))
++        n = max(2, int(max(arclen(L), arclen(R)) / 0.25) + 1)     # 按 0.25 m 弧长采样
++        def rs(P):
++            d = np.r_[0, np.cumsum(np.linalg.norm(np.diff(P, axis=0), axis=1))]; s = np.linspace(0, d[-1], n)
++            return np.c_[np.interp(s, d, P[:, 0]), np.interp(s, d, P[:, 1])]
++        Lr, Rr = rs(L), rs(R); C = (Lr + Rr) / 2; t = np.diff(C, axis=0); lr = (Lr - Rr)[:-1]
++        LL[rl.get('id')] = dict(C=C, left_ok=float(np.mean(t[:, 0] * lr[:, 1] - t[:, 1] * lr[:, 0] > 0)),
++                                le=ways[mem['left']][-1], re=ways[mem['right']][-1],
++                                ls=ways[mem['left']][0], rs=ways[mem['right']][0])
++    return LL
++
++def main(path):
++    LL = load(path)
++    succ = {a: [b for b, lb in LL.items() if b != a and (la['le'], la['re']) == (lb['ls'], lb['rs'])] for a, la in LL.items()}
++    inv = sorted(k for k, l in LL.items() if l['left_ok'] < 0.9)
++    ov = []
++    for a in LL:
++        for b in LL:
++            if a == b: continue
++            A, B = LL[a]['C'], LL[b]['C']; d, j = cKDTree(B).query(A); on = d < 0.3
++            if on.mean() > 0.8:
++                ta = np.diff(A, axis=0); tb = np.diff(B, axis=0); jj = np.clip(j[:-1], 0, len(tb) - 1)
++                cos = np.sum(ta * tb[jj], 1) / (np.linalg.norm(ta, axis=1) * np.linalg.norm(tb[jj], axis=1) + 1e-9)
++                if np.mean(cos[on[:-1]] > 0.5) > 0.8: ov.append((a, b))
++    print(f'lanelet 数量: {len(LL)}')
++    print(f'左右边界反了: {inv or "无"}')
++    print(f'同方向重叠: {ov or "无"}')
++    print(f'没有后继（路的尽头/需换道）: {sorted(a for a in LL if not succ[a])}')
++    print(f'没有前驱（路的起点/需换道）: {sorted(a for a in LL if not any(a in v for v in succ.values()))}')
++    return 0 if not inv and not ov else 1
++
++if __name__ == '__main__':
++    sys.exit(main(sys.argv[1]))
+diff --git a/outdoor_lanelet/fix_lanelet.py b/outdoor_lanelet/fix_lanelet.py
+new file mode 100644
+index 0000000..0a7b849
+--- /dev/null
++++ b/outdoor_lanelet/fix_lanelet.py
+@@ -0,0 +1,48 @@
++#!/usr/bin/env python3
++"""修正室外车道图（只改拓扑/角色，不移动任何点）：
++  1. 左右边界反了的车道：交换 left/right 成员
++  2. 删除与分段车道同向完全重叠的整条车道（60110-60112、960110-960112）
++  3. 补上最南侧车道在 x≈17-68 段的东西两向车道（删整条车道后这一段会缺）
++用法：fix_lanelet.py <in.osm> <out.osm>
++"""
++import sys, copy, math
++import xml.etree.ElementTree as ET
++import numpy as np
++
++SWAP = ['30112', '30113', '30114', '50110', '50111', '930112', '930113', '930114',
++        '950110', '950111', '970382', '970383', '970384', '970385']
++REMOVE = ['60110', '60111', '60112', '960110', '960111', '960112']
++
++def main(src, dst):
++    tree = ET.parse(src); root = tree.getroot()
++    rels = {r.get('id'): r for r in root.findall('relation')}
++    ways = {w.get('id'): w for w in root.findall('way')}
++    for rid in SWAP:
++        r = rels[rid]
++        mem = {m.get('role'): m for m in r.findall('member')}
++        mem['left'].set('role', 'right'); mem['right'].set('role', 'left')
++    for rid in REMOVE:
++        root.remove(rels[rid])
++    # 南侧车道西段：东向 L=50107 R=50106；西向 L=50106 反向（新 way）R=950107
++    rev = copy.deepcopy(ways['50106']); rev.set('id', '980010')
++    nds = rev.findall('nd')
++    for nd in nds: rev.remove(nd)
++    tags = rev.findall('tag')
++    for t in tags: rev.remove(t)
++    for nd in reversed(nds): rev.append(nd)
++    for t in tags: rev.append(t)
++    last_way = root.findall('way')[-1]
++    root.insert(list(root).index(last_way) + 1, rev)
++    def lanelet(rid, left, right):
++        r = ET.SubElement(root, 'relation', {'id': rid})
++        ET.SubElement(r, 'member', {'type': 'way', 'role': 'left', 'ref': left})
++        ET.SubElement(r, 'member', {'type': 'way', 'role': 'right', 'ref': right})
++        for k, v in (('type', 'lanelet'), ('subtype', 'road'), ('speed_limit', '10'), ('location', 'urban'), ('one_way', 'yes')):
++            ET.SubElement(r, 'tag', {'k': k, 'v': v})
++    lanelet('980001', '50107', '50106')     # 东向
++    lanelet('980002', '980010', '950107')   # 西向
++    ET.indent(tree, space='  ')
++    tree.write(dst, encoding='UTF-8', xml_declaration=True)
++
++if __name__ == '__main__':
++    main(sys.argv[1], sys.argv[2])
+diff --git a/room_global_localizer/config/room_global_localizer.param.yaml b/room_global_localizer/config/room_global_localizer.param.yaml
+index 8888712..a168273 100644
+--- a/room_global_localizer/config/room_global_localizer.param.yaml
++++ b/room_global_localizer/config/room_global_localizer.param.yaml
+@@ -1,8 +1,8 @@
+ /**:
+   ros__parameters:
+     # 2D maps generated from indoor_map_leveled_clean.pcd (same frame as the PCD)
+-    loc_map_yaml: /home/tang/autoware_map/map_task4/indoor_localization/map_20261117_denoised/localization_map.yaml
+-    nav_map_yaml: /home/tang/autoware_map/map_task4/indoor_localization/map_20261117_denoised/nav_map.yaml
++    loc_map_yaml: /home/tang/autoware_map/map_task4/indoor_localization/map_20261117_legacy_indoor/localization_map.yaml
++    nav_map_yaml: /home/tang/autoware_map/map_task4/indoor_localization/map_20261117_legacy_indoor/nav_map.yaml
+ 
+     # Direct PointCloud2 output of the MID-360S driver launched with this package.
+     pointcloud_topic: /sensing/lidar/mid360s/pointcloud
+@@ -40,14 +40,14 @@
+     autoware_init_timeout_sec: 60.0  # perception startup can temporarily load CPU/GPU heavily
+ 
+     # Legacy room registered into the 20261117 map frame.  The old->new
+-    # registration is approximately tx=-11.17 m, ty=+55.41 m,
+-    # yaw=-0.11 deg (with a small 1.03 deg levelling correction).
++    # registration (2026-11-17 ICP, wall median error 0.05 m) is tx=11.185 m,
++    # ty=-18.210 m, yaw=3.422 deg. The earlier -11.17/+55.41 registration was wrong.
+     # Flat list x1,y1,x2,y2,... in the new point-cloud map frame.
+     room_polygon: [
+-      7.4021, 42.2705,
+-      15.8507, 42.2541,
+-      15.8613, 47.6540,
+-      7.4127, 47.6704]
++      30.5273, -30.1761,
++      38.9594, -29.6718,
++      38.6372, -24.2815,
++      30.2050, -24.7858]
+     min_clearance: 0.30
+ 
+     # scan preprocessing, base_link frame (z = height above floor)

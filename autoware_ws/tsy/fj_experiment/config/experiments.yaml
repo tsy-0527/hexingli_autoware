@@ -1,0 +1,52 @@
+# ===================== 实验配置（改这里即可，不用改代码） =====================
+run:
+  run_time: 35.0          # 每次启动后记录多少秒
+  settle_time: 3.0        # 设置起点/终点后等待多少秒
+  initialpose_topic: /initialpose
+  goal_topic: /planning/mission_planning/goal
+  object_topic: /simulation/dummy_perception_publisher/object_info
+  traj_topic: /planning/scenario_planning/trajectory
+  final_topic: /perception/object_recognition/objects   # 规划实际读取的障碍物话题
+
+# 扰动注入节点的公共参数（实测：sigma=0.15 m, rho=0.65）
+injector_common:
+  input_topic: /perception/object_recognition/objects_raw
+  output_topic: /fj/objects_injected
+  sigma: 0.15
+  rho: 0.65
+  p_enter: 0.066          # 实测：平稳漏检率 30%
+  p_exit: 0.154           # 实测：平均连续漏检 6.5 帧
+  fp_rate: 0.0
+
+# 存在性滤波节点的公共参数
+filter_common:
+  input_topic: /fj/objects_injected
+  output_topic: /perception/object_recognition/objects
+  p_fa: 0.05              # 障碍物已消失时仍被“检出”的概率（假设值）
+  pd_good: 0.99
+  pd_bad: 0.0
+  p_enter: 0.066
+  p_exit: 0.154
+  h: 8.0                  # CUSUM 删除阈值，用 calibrate 标定（实测参数下约 12 分钟误删一次）
+  s_soft: 3.5             # 分级响应：S >= s_soft 转为软目标（需大于“一次漏检”的增量）
+  a_soft: 3.0             # 软目标限速：保证能以 3 m/s^2 刹停
+  confirm_hits: 3
+  tentative_drop: 2
+
+scenarios:
+  S0: {obstacle: true,  injector: {dropout_mode: none, sigma: 0.0}}
+  S1: {obstacle: true,  injector: {dropout_mode: burst}}
+  S2: {obstacle: true,  injector: {dropout_mode: iid, p_miss: 0.3}}
+  S3: {obstacle: false, injector: {dropout_mode: none, fp_rate: 0.03}}
+  S4: {obstacle: true,  delete_ahead: 25.0, injector: {dropout_mode: burst}}
+
+methods:
+  M0:     {mode: passthrough}
+  M1_N5:  {mode: khold, hold_frames: 5}
+  M1_N10: {mode: khold, hold_frames: 10}
+  M2:     {mode: cusum}
+  M3:     {mode: graded}
+  # 消融（可选）：软目标仍发给规划，只加限速
+  # M3_pub: {mode: graded, soft_publish: true}
+
+seeds: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]

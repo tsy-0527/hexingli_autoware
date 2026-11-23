@@ -1,0 +1,26 @@
+# Route graph in the registered 20261117 campus map frame (metres / degrees).
+# Converted from the legacy room frame with map_20261117_denoised/
+# legacy_room_registration.yaml.  All indoor grids, NDT and the outdoor
+# Lanelet2 map therefore use the same `map` frame.
+# Nodes: [x, y] or [x, y, axis_deg]. With an axis the vehicle passes the node along that line
+# (either direction). Hybrid-A* plans between nodes,
+# including the door turn and any turn-around, so do NOT put nodes inside the doorway.
+nodes:
+  room_center:      [11.407, 44.963]   # middle of the room (9.0 x 5.6 m)
+  corridor_north:   [5.547, 39.374, 88.889]
+  corridor_mid:     [5.225, 28.375, 88.889]
+  corridor_south:   [5.007, 18.875, 88.889]
+  hall_entrance:    [2.949, 14.879, 89.889]
+  hall_center:      [2.738, 8.879]
+  hall_west:        [-9.260, 8.903]    # TODO(site): move to your real hall station
+edges:
+  - [room_center, corridor_north]
+  - [corridor_north, corridor_mid]
+  - [corridor_mid, corridor_south]
+  - [corridor_south, hall_entrance]
+  - [hall_entrance, hall_center]
+  - [hall_center, hall_west]
+stations:
+  room_home:        {node: room_center, yaw_deg: 179.889}  # nose towards the door
+  hall_station_1:   {node: hall_center, yaw_deg: 89.889}   # TODO(site): measured handover heading
+  hall_station_2:   {node: hall_west,   yaw_deg: -0.111}   # TODO(site)

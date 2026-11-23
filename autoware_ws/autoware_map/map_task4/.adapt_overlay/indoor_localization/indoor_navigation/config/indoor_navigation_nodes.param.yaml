@@ -1,0 +1,67 @@
+ackermann_cmd_converter:
+  ros__parameters:
+    input_topic: /cmd_vel                       # output of collision_monitor
+    odom_topic: /localization/kinematic_state
+    health_topic: /indoor_localization/health   # OK 1.0 / WARN 0.5 / ERROR 0.0
+    use_health_speed_factor: true
+    # ---------------- TODO(chassis interface) ----------------
+    output_type: autoware_control               # autoware_control | ackermann_drive | debug_only
+    # Existing yunle_autoware_bridge subscribes here and converts to SCU/CAN 0x121.
+    # Private source topics. hybrid_mode_manager is the only node allowed to
+    # publish the final /control/command/* topics used by the Yunle bridge.
+    output_topic: /hybrid/indoor/control_cmd
+    gear_topic: /hybrid/indoor/gear_cmd
+    # ----------------------------------------------------------
+    rate_hz: 30.0
+    wheelbase: 0.475
+    max_steer: 0.36652                          # 21 deg
+    max_steer_rate: 0.5236                      # 30 deg/s  TODO(chassis): measure 0 -> 21 deg time
+    max_speed_fwd: 0.5
+    max_speed_rev: 0.2
+    max_accel: 0.3
+    max_decel: 0.5
+    v_eps: 0.02
+    stop_hold_time: 0.5                         # standstill before changing direction
+    start_steer_tolerance: 0.0698               # 4 deg: pre-steer at standstill until within this
+    steer_slowdown_err: 0.1396                  # 8 deg wheel-angle lag -> slow to min factor
+    steer_slowdown_min_factor: 0.3
+    cmd_timeout: 0.5
+
+route_navigator:
+  ros__parameters:
+    odom_topic: /localization/kinematic_state
+    health_topic: /indoor_localization/health
+    map_frame: map
+    action_name: navigate_through_poses
+    behavior_tree: ""
+    reject_when_health_error: true
+    # 只有拿到室内底盘权限时才接受站点任务；失去权限时取消正在执行的 Nav2 任务
+    require_indoor_authority: true
+    hybrid_state_topic: /hybrid_mode_manager/state
+    hybrid_state_timeout: 1.0
+
+hybrid_mode_manager:
+  ros__parameters:
+    initial_mode: outdoor
+    outdoor_control_topic: /hybrid/outdoor/control_cmd
+    outdoor_gear_topic: /hybrid/outdoor/gear_cmd
+    indoor_control_topic: /hybrid/indoor/control_cmd
+    indoor_gear_topic: /hybrid/indoor/gear_cmd
+    output_control_topic: /control/command/control_cmd
+    output_gear_topic: /control/command/gear_cmd
+    odom_topic: /localization/kinematic_state
+    velocity_topic: /vehicle/status/velocity_status   # 底盘实测车速，优先于定位速度
+    indoor_health_topic: /indoor_localization/health
+    rate_hz: 30.0
+    stop_speed: 0.03
+    stop_hold_time: 1.0
+    source_timeout: 0.5
+    idle_speed: 0.05                    # 交权瞬间目标控制器输出必须是停车：先交权，再下任务
+    speed_timeout: 0.5                  # 车速断流 → 不交权
+    health_timeout: 1.0                 # 定位健康断流 → 视为不健康
+    require_health_for_outdoor: true    # NDT 是全程唯一定位，出门交权也要求定位健康
+    manual_requires_zone: true          # 配了围栏后，手动请求必须在门口交接带
+    # Keep false until the measured GNSS/map matching-point attachment has
+    # been copied into hybrid_switch_zones.yaml and verified in RViz.
+    automatic_switching: false
+    switch_zones_file: ""

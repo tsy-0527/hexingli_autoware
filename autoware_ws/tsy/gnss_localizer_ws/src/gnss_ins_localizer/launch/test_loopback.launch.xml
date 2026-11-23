@@ -1,0 +1,30 @@
+<launch>
+  <arg name="map_path"/>
+  <arg name="param_file"
+       default="$(find-pkg-share gnss_ins_localizer)/config/gnss_ins_localizer.param.yaml"/>
+
+  <node pkg="gnss_ins_localizer" exec="gnss_ins_localizer_node"
+        name="gnss_ins_localizer" output="screen">
+    <param from="$(var param_file)"/>
+    <param name="map_path" value="$(var map_path)"/>
+
+    <remap from="~/input/gins"             to="/sensing/gins2000"/>
+    <remap from="~/input/vector_map"       to="/map/vector_map"/>
+    <remap from="~/input/goal"             to="/planning/mission_planning/goal"/>
+    <remap from="~/input/route_state"      to="/planning/mission_planning/route_state"/>
+    <remap from="~/input/kinematic_state"  to="/localization/kinematic_state"/>
+
+    <remap from="~/output/imu"                   to="/gnss_ins_localizer/imu"/>
+    <remap from="~/output/pose_with_covariance"  to="/gnss_ins_localizer/pose_with_covariance"/>
+    <remap from="~/output/twist_with_covariance" to="/gnss_ins_localizer/twist_with_covariance"/>
+    <remap from="~/output/initialpose3d"         to="/gnss_ins_localizer/initialpose3d_debug"/>
+    <remap from="~/output/debug_pose"            to="/gnss_ins_localizer/debug_pose"/>
+  </node>
+
+  <node pkg="gnss_ins_localizer" exec="fake_gins_publisher.py"
+        name="fake_gins_publisher" output="screen">
+    <param name="map_path" value="$(var map_path)"/>
+    <param name="publish_rate_hz" value="100.0"/>
+    <param name="ins_status" value="15"/>
+  </node>
+</launch>

@@ -1,0 +1,18 @@
+loaded /home/tang/下载/lanelet2_map(21).osm: 7 lanelets
+
+=== lanelets ===
+  2000 lane_id=None one_way=no vehicle=yes left_pts=20 right_pts=20
+  2001 lane_id=None one_way=no vehicle=yes left_pts=63 right_pts=63
+  2002 lane_id=None one_way=no vehicle=yes left_pts=44 right_pts=44
+  2003 lane_id=None one_way=no vehicle=yes left_pts=29 right_pts=29
+  2004 lane_id=None one_way=no vehicle=yes left_pts=51 right_pts=51
+  2005 lane_id=None one_way=no vehicle=yes left_pts=64 right_pts=64
+  2006 lane_id=None one_way=no vehicle=yes left_pts=71 right_pts=71
+
+=== routing graph ===
+Traceback (most recent call last):
+  File "/home/tang/autoware_map/map_task4/merge_fix/verify_fixed_map.py", line 183, in <module>
+    sys.exit(main())
+  File "/home/tang/autoware_map/map_task4/merge_fix/verify_fixed_map.py", line 79, in main
+    print(f'  {ll.id} {name:12s} '
+TypeError: unsupported format string passed to NoneType.__format__

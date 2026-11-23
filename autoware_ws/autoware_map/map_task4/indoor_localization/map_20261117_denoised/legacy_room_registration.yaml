@@ -1,0 +1,13 @@
+# Rigid registration from the legacy levelled indoor map to the 20261117 map.
+# p_new = rotation * p_old + translation
+rotation:
+  - [0.999837721, 0.001953636, 0.017908538]
+  - [-0.001940933, 0.999997852, -0.000726714]
+  - [-0.017909920, 0.000691836, 0.999839365]
+translation: [-11.169275, 55.406532, -0.737105]
+yaw_deg: -0.111225
+room_polygon_new:
+  - [7.4021, 42.2705]
+  - [15.8507, 42.2541]
+  - [15.8613, 47.6540]
+  - [7.4127, 47.6704]

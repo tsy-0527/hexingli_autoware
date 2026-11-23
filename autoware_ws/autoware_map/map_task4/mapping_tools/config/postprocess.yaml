@@ -1,0 +1,68 @@
+# 建图后处理参数（所有脚本共用）
+# 标 [必改] 的项请按实车测量值修改
+
+vehicle:
+  # 云乐 Autoware 标定：base_link 位于后轴中心，MID360 位姿为 [0.60, 0.01, 0.57] m。
+  # 来源：livox_sensor_kit_description/config/sensors_calibration.yaml。
+  lidar_height: 0.57               # MID360 光心离地高度 (m)，用于找地面
+  # 车体包围盒，雷达坐标系（x 前 y 左 z 上），用于：
+  #   1) bag2dufo 去除打到自己车身的点
+  #   2) mapclean route_check 的车辆扫掠范围
+  # 云乐车身参数：轴距 0.475，前/后悬 0.1885，轮距 0.463，左右悬 0.0545，高 0.327 m。
+  # 原始雷达系车身范围 x=[-0.7885,0.0635], y=[-0.296,0.276], z=[-0.57,-0.243]；
+  # 以下每侧增加 0.05 m 余量，用于去除车体回波和 route_check 扫掠范围。
+  body_box_in_lidar:
+    x: [-0.8385, 0.1135]
+    y: [-0.3460, 0.3260]
+    z: [-0.6200, -0.1930]
+  # 雷达在 IMU(body) 系下的外参，与 FAST-LIO 配置 extrinsic_T / extrinsic_R 保持一致
+  extrinsic_T_body_lidar: [-0.011, -0.02329, 0.04412]
+  extrinsic_R_body_lidar: [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+
+bag2dufo:
+  cloud_topic: /cloud_registered   # FAST-LIO 世界系去畸变点云（dense_publish_en: true）
+  cloud_frame: world               # world=/cloud_registered；body=/cloud_registered_body
+  odom_topic: /Odometry
+  max_stamp_dt: 0.02               # 点云与里程计时间戳最大允许差 (s)
+  skip_start_sec: 3.0              # 丢掉开头 N 秒（FAST-LIO 初始化阶段）
+  min_range: 0.30
+  max_range: 40.0
+  keyframe_dist: 0.10              # 关键帧：平移 ≥ 0.10 m 或 旋转 ≥ 3° 才存一帧
+  keyframe_angle_deg: 3.0
+  frame_voxel: 0.0                 # 单帧体素降采样，0=不降（DUFOMap 自己会降）
+  merged_voxel: 0.05               # 未去动态的整图（对比 / 兜底用）
+
+mapclean:
+  voxel: 0.05
+  floor_search_radius: 8.0         # 在轨迹周围多大范围内找地面
+  floor_ransac_thresh: 0.03
+  below_floor_tol: 0.10            # 低于地面 10 cm 的点视为反射噪声（镜面/玻璃/水面）
+  max_z: null                      # 高于此值裁掉（null 不裁；天花板对 NDT 有用，默认保留）
+  sor_k: 10                        # 统计离群点
+  sor_std: 2.5
+  ror_radius: 0.20                 # 半径离群点：0.2 m 内少于 3 个邻居
+  ror_min: 3
+  route_check: true                # 车自己开过的空间里不该有障碍点，有则判为动态残影并删除
+  route_z_min: 0.05                # 只检查这个离地高度以上（避开地面）
+  route_shrink: 0.05               # 车体框每边内缩，避免误删贴墙点
+  route_column_top: 2.0            # 残影所在 10 cm 柱子里，车顶以上到此高度的点一并删除（人的上半身）
+
+grids:
+  resolution: 0.05
+  nav_slice: [0.05, 2.0]           # 导航栅格切层（离地高度）
+  loc_slice: [1.20, 2.50]          # 定位栅格切层：取墙体轮廓，避开桌椅和人
+  min_points_per_cell: 1          # 地图已按 0.05 体素降采样，水平面（桌面）每格只有 1 点；孤立单格会自动剔除
+  ground_tol: 0.05                 # |z| < 5 cm 视为地面点
+  free_requires_floor: true        # 空闲 = 射线可达 且 附近见过地面（防止透过玻璃把室外标成空闲）
+  floor_dilate: 0.30
+  ray_pose_step: 0.30              # 每隔 0.3 m 取一个轨迹位姿做 2D 射线
+  ray_count: 720
+  ray_max_range: 20.0
+  pad: 1.0
+  occupied_thresh: 0.65
+  free_thresh: 0.196
+
+validate:
+  sample_every_sec: 2.0
+  inlier_dist: 0.15
+  warn_ratio: 0.70                 # 单帧内点率低于此值报警

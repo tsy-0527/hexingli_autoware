@@ -1,0 +1,435 @@
+# Nav2 (ROS 2 Humble) for the Yunle Ackermann car, indoor.
+# Vehicle: wheelbase 0.475 m, max steer 21 deg (R_min 1.24 m, 1.3 m used), length 0.852, width 0.572,
+#          base_link = rear-axle centre on the floor; front 0.6635 m, rear 0.1885 m, half width 0.286 m.
+# Localization comes from Autoware: TF map -> base_link, odometry /localization/kinematic_state.
+# There is no 'odom' frame, so every "global/odom frame" below is 'map'.
+
+map_server:
+  ros__parameters:
+    # Keep a concrete default here. On ROS 2 Humble, the later node-scoped
+    # parameter file can override an inline launch dictionary and leave this
+    # empty, producing an active map_server that never publishes a map.
+    yaml_filename: /home/tang/autoware_map/map_task4/indoor_localization/map_20261117_legacy_indoor/nav_map.yaml
+    topic_name: map
+    frame_id: map
+
+filter_mask_server:
+  ros__parameters:
+    yaml_filename: /home/tang/autoware_map/map_task4/indoor_localization/map_20261117_legacy_indoor/speed_mask.yaml
+    topic_name: speed_filter_mask
+    frame_id: map
+
+# 禁行掩膜（KeepoutFilter）：只允许在室内栅格已建图范围内规划。
+# allow_unknown: false 挡不住全局代价地图里被雷达射线"清成空闲"的室外未知格，必须用掩膜。
+keepout_mask_server:
+  ros__parameters:
+    yaml_filename: /home/tang/autoware_map/map_task4/indoor_localization/map_20261117_legacy_indoor/keepout_mask.yaml
+    topic_name: keepout_filter_mask
+    frame_id: map
+
+keepout_info_server:
+  ros__parameters:
+    type: 0                      # 0 = KEEPOUT
+    filter_info_topic: /keepout_costmap_filter_info
+    mask_topic: /keepout_filter_mask
+    base: 0.0
+    multiplier: 1.0
+
+costmap_filter_info_server:
+  ros__parameters:
+    type: 2                      # 2 = SPEED_FILTER_ABSOLUTE (m/s)
+    filter_info_topic: /costmap_filter_info
+    mask_topic: /speed_filter_mask
+    base: 0.0
+    multiplier: 0.01             # mask value 20 -> 0.20 m/s
+
+bt_navigator:
+  ros__parameters:
+    global_frame: map
+    robot_base_frame: base_link
+    odom_topic: /localization/kinematic_state
+    bt_loop_duration: 10
+    default_server_timeout: 20
+    # Keep concrete defaults in the node parameter file.  With the combined
+    # launch on ROS 2 Humble, an empty value here wins during parameter-file
+    # merging and bt_navigator accepts RViz goals with an "Empty Tree" error.
+    default_nav_through_poses_bt_xml: /home/tang/autoware_map/map_task4/indoor_localization/indoor_navigation/behavior_trees/navigate_through_poses_ackermann.xml
+    default_nav_to_pose_bt_xml: /home/tang/autoware_map/map_task4/indoor_localization/indoor_navigation/behavior_trees/navigate_to_pose_ackermann.xml
+    plugin_lib_names:
+      - nav2_compute_path_to_pose_action_bt_node
+      - nav2_compute_path_through_poses_action_bt_node
+      - nav2_follow_path_action_bt_node
+      - nav2_wait_action_bt_node
+      - nav2_back_up_action_bt_node
+      - nav2_clear_costmap_service_bt_node
+      - nav2_is_stuck_condition_bt_node
+      - nav2_goal_reached_condition_bt_node
+      - nav2_goal_updated_condition_bt_node
+      - nav2_globally_updated_goal_condition_bt_node
+      - nav2_is_path_valid_condition_bt_node
+      - nav2_rate_controller_bt_node
+      - nav2_distance_controller_bt_node
+      - nav2_speed_controller_bt_node
+      - nav2_truncate_path_action_bt_node
+      - nav2_goal_updater_node_bt_node
+      - nav2_recovery_node_bt_node
+      - nav2_pipeline_sequence_bt_node
+      - nav2_round_robin_node_bt_node
+      - nav2_transform_available_condition_bt_node
+      - nav2_time_expired_condition_bt_node
+      - nav2_path_expiring_timer_condition
+      - nav2_distance_traveled_condition_bt_node
+      - nav2_single_trigger_bt_node
+      - nav2_remove_passed_goals_action_bt_node
+      - nav2_planner_selector_bt_node
+      - nav2_controller_selector_bt_node
+      - nav2_goal_checker_selector_bt_node
+      - nav2_controller_cancel_bt_node
+      - nav2_wait_cancel_bt_node
+      - nav2_back_up_cancel_bt_node
+      # NOTE: spin nodes deliberately not loaded (Ackermann cannot rotate in place)
+
+bt_navigator_navigate_through_poses_rclcpp_node:
+  ros__parameters: {}
+
+bt_navigator_navigate_to_pose_rclcpp_node:
+  ros__parameters: {}
+
+planner_server:
+  ros__parameters:
+    expected_planner_frequency: 1.0
+    planner_plugins: ["GridBased"]
+    GridBased:
+      plugin: "nav2_smac_planner/SmacPlannerHybrid"
+      motion_model_for_search: "REEDS_SHEPP"   # forward + reverse
+      minimum_turning_radius: 1.3              # R_min 1.24 m + margin
+      reverse_penalty: 2.5                     # prefer driving forward
+      change_penalty: 2.0                      # avoid needless direction changes
+      non_straight_penalty: 1.2
+      cost_penalty: 2.0                        # stay in the middle of passages
+      retrospective_penalty: 0.015
+      angle_quantization_bins: 72
+      analytic_expansion_ratio: 3.5
+      analytic_expansion_max_length: 6.0       # >= 4-5 x R_min
+      tolerance: 0.25
+      downsample_costmap: false
+      downsampling_factor: 1
+      allow_unknown: false
+      max_iterations: 1000000
+      max_on_approach_iterations: 1000
+      max_planning_time: 5.0
+      lookup_table_size: 20.0
+      cache_obstacle_heuristic: true
+      smooth_path: true
+      smoother:
+        max_iterations: 1000
+        w_smooth: 0.3
+        w_data: 0.2
+        tolerance: 1.0e-10
+        do_refinement: true
+
+controller_server:
+  ros__parameters:
+    controller_frequency: 20.0
+    min_x_velocity_threshold: 0.001
+    min_y_velocity_threshold: 0.5            # not holonomic
+    min_theta_velocity_threshold: 0.001
+    failure_tolerance: 0.3
+    odom_topic: /localization/kinematic_state
+    speed_limit_topic: /speed_limit
+    progress_checker_plugin: "progress_checker"
+    goal_checker_plugins: ["goal_checker"]
+    controller_plugins: ["FollowPath"]
+    progress_checker:
+      plugin: "nav2_controller::SimpleProgressChecker"
+      required_movement_radius: 0.2
+      movement_time_allowance: 15.0          # slow vehicle + waiting at standstill for pre-steer
+    goal_checker:
+      plugin: "nav2_controller::SimpleGoalChecker"
+      xy_goal_tolerance: 0.10
+      yaw_goal_tolerance: 0.10               # ~6 deg; heading must come from the plan (no turning in place)
+      stateful: true
+    # ---------------- MPPI (default; RPP alternative in controller_rpp.param.yaml) ----------------
+    FollowPath:
+      plugin: "nav2_mppi_controller::MPPIController"
+      motion_model: "Ackermann"
+      AckermannConstraints:
+        min_turning_r: 1.3
+      time_steps: 56
+      model_dt: 0.05                         # 2.8 s horizon
+      batch_size: 2000                       # i7-12700: plenty of headroom
+      iteration_count: 1
+      vx_std: 0.2
+      vy_std: 0.0
+      wz_std: 0.2
+      vx_max: 0.5
+      vx_min: -0.2                           # reverse allowed (cusps from Reeds-Shepp paths)
+      vy_max: 0.0
+      wz_max: 0.4                            # = vx_max / R_min
+      temperature: 0.3
+      gamma: 0.015
+      prune_distance: 1.7
+      transform_tolerance: 0.2
+      enforce_path_inversion: true           # finish a forward segment before reversing
+      inversion_xy_tolerance: 0.15
+      inversion_yaw_tolerance: 0.3
+      visualize: false
+      regenerate_noises: false
+      TrajectoryVisualizer:
+        trajectory_step: 5
+        time_step: 3
+      critics: ["ConstraintCritic", "CostCritic", "GoalCritic", "GoalAngleCritic", "PathAlignCritic", "PathFollowCritic", "PathAngleCritic"]
+      ConstraintCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 4.0
+      CostCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 3.81
+        critical_cost: 300.0
+        consider_footprint: true             # full car outline, needed at the 1.2 m door
+        collision_cost: 1000000.0
+        near_goal_distance: 0.5
+      GoalCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 5.0
+        threshold_to_consider: 1.4
+      GoalAngleCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 3.0
+        threshold_to_consider: 0.5
+      PathAlignCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 14.0
+        max_path_occupancy_ratio: 0.05
+        trajectory_point_step: 3
+        threshold_to_consider: 0.5
+        offset_from_furthest: 20
+        use_path_orientations: true          # Smac paths are kinematically feasible, follow their headings
+      PathFollowCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 5.0
+        offset_from_furthest: 5
+        threshold_to_consider: 1.4
+      PathAngleCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 2.0
+        offset_from_furthest: 4
+        threshold_to_consider: 0.5
+        max_angle_to_furthest: 1.0
+        forward_preference: false            # reverse segments are part of the plan
+      # PreferForwardCritic not used: Smac already penalises reversing (reverse_penalty)
+
+local_costmap:
+  local_costmap:
+    ros__parameters:
+      update_frequency: 10.0
+      publish_frequency: 5.0
+      global_frame: map
+      robot_base_frame: base_link
+      rolling_window: true
+      width: 6
+      height: 6
+      resolution: 0.05
+      footprint: "[[0.6635, 0.286], [0.6635, -0.286], [-0.1885, -0.286], [-0.1885, 0.286]]"
+      footprint_padding: 0.03
+      transform_tolerance: 0.3
+      plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
+      static_layer:
+        plugin: "nav2_costmap_2d::StaticLayer"
+        map_subscribe_transient_local: true
+        # The mapping scan can contain a few returns from the parked vehicle.
+        # Clear only cells covered by the live vehicle footprint so Smac does
+        # not reject the real start pose as "lethal space".
+        footprint_clearing_enabled: true
+      obstacle_layer:                                 # 3D voxel layer, projected to 2D
+        plugin: "nav2_costmap_2d::VoxelLayer"
+        enabled: true
+        publish_voxel_map: true                       # RViz: /local_costmap/voxel_marked_cloud
+        footprint_clearing_enabled: true
+        origin_z: 0.0                                 # floor (base_link z = 0)
+        z_resolution: 0.05
+        z_voxels: 12                                  # 0 - 0.6 m: everything the car (0.327 m) could hit
+        max_obstacle_height: 0.6
+        # Require returns in at least two height voxels before a 2D cell is
+        # marked lethal.  A single MID360 floor reflection / isolated point is
+        # therefore ignored, while walls, furniture and people remain marked.
+        mark_threshold: 2
+        unknown_threshold: 15
+        combination_method: 1
+        # Marking only happens inside the 0-0.6 m grid. Rays to taller points (walls, ceiling)
+        # and to the floor still clear the grid, so people walking away do not leave ghosts.
+        observation_sources: mid360 mid360_floor_clear
+        mid360:                                       # obstacle cloud: z >= 0.05 m, tight vehicle box
+          topic: /indoor_perception/mid360/obstacle_pointcloud
+          data_type: "PointCloud2"
+          marking: true
+          clearing: true
+          min_obstacle_height: 0.05
+          max_obstacle_height: 3.0
+          obstacle_min_range: 0.0
+          obstacle_max_range: 6.0
+          raytrace_min_range: 0.0
+          raytrace_max_range: 8.0
+          observation_persistence: 0.0
+          expected_update_rate: 0.0
+        mid360_floor_clear:                           # raw cloud incl. floor: clearing only
+          topic: /sensing/lidar/concatenated/pointcloud
+          data_type: "PointCloud2"
+          marking: false
+          clearing: true
+          min_obstacle_height: -0.10
+          max_obstacle_height: 3.0
+          raytrace_min_range: 0.0
+          raytrace_max_range: 10.0
+          observation_persistence: 0.0
+          expected_update_rate: 0.0
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        # Narrow indoor setting.  The full polygon footprint is still checked
+        # by MPPI/collision_monitor; this only reduces the surrounding cost
+        # halo so doors and tight corridors remain usable.
+        inflation_radius: 0.45
+        cost_scaling_factor: 5.0
+      always_send_full_costmap: true
+
+global_costmap:
+  global_costmap:
+    ros__parameters:
+      update_frequency: 2.0
+      publish_frequency: 1.0
+      global_frame: map
+      robot_base_frame: base_link
+      resolution: 0.05
+      track_unknown_space: true
+      footprint: "[[0.6635, 0.286], [0.6635, -0.286], [-0.1885, -0.286], [-0.1885, 0.286]]"
+      footprint_padding: 0.03
+      transform_tolerance: 0.3
+      plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
+      filters: ["speed_filter", "keepout_filter"]
+      static_layer:
+        plugin: "nav2_costmap_2d::StaticLayer"
+        map_subscribe_transient_local: true
+        # Remove static-map self returns under the current vehicle only.  This
+        # preserves all obstacles outside the footprint and keeps start-pose
+        # collision checking meaningful.
+        footprint_clearing_enabled: true
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::VoxelLayer"
+        enabled: true
+        publish_voxel_map: false
+        footprint_clearing_enabled: true
+        origin_z: 0.0
+        z_resolution: 0.05
+        z_voxels: 12
+        max_obstacle_height: 0.6
+        # Suppress single-voxel projection noise in the global 2D costmap.
+        mark_threshold: 2
+        unknown_threshold: 15
+        combination_method: 1
+        observation_sources: mid360 mid360_floor_clear
+        mid360:
+          topic: /indoor_perception/mid360/obstacle_pointcloud
+          data_type: "PointCloud2"
+          marking: true
+          clearing: true
+          min_obstacle_height: 0.05
+          max_obstacle_height: 3.0
+          obstacle_max_range: 6.0
+          raytrace_max_range: 8.0
+        mid360_floor_clear:
+          topic: /sensing/lidar/concatenated/pointcloud
+          data_type: "PointCloud2"
+          marking: false
+          clearing: true
+          min_obstacle_height: -0.10
+          max_obstacle_height: 3.0
+          raytrace_max_range: 10.0
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        # Keep a short global halo; footprint collision checks retain the real
+        # 0.852 x 0.572 m vehicle dimensions.
+        inflation_radius: 0.45
+        cost_scaling_factor: 5.0
+      speed_filter:
+        plugin: "nav2_costmap_2d::SpeedFilter"
+        enabled: true
+        filter_info_topic: /costmap_filter_info
+        speed_limit_topic: /speed_limit
+      keepout_filter:
+        plugin: "nav2_costmap_2d::KeepoutFilter"
+        enabled: true
+        filter_info_topic: /keepout_costmap_filter_info
+      always_send_full_costmap: true
+
+behavior_server:
+  ros__parameters:
+    costmap_topic: local_costmap/costmap_raw
+    footprint_topic: local_costmap/published_footprint
+    cycle_frequency: 10.0
+    behavior_plugins: ["backup", "wait"]          # no spin / drive_on_heading for this vehicle
+    backup:
+      plugin: "nav2_behaviors/BackUp"
+    wait:
+      plugin: "nav2_behaviors/Wait"
+    global_frame: map
+    robot_base_frame: base_link
+    transform_tolerance: 0.2
+    simulate_ahead_time: 2.0
+
+collision_monitor:
+  ros__parameters:
+    base_frame_id: base_link
+    odom_frame_id: map                  # no odom frame in this system
+    cmd_vel_in_topic: /cmd_vel_nav      # from controller_server and behavior_server
+    cmd_vel_out_topic: /cmd_vel         # to ackermann_cmd_converter
+    transform_tolerance: 0.3
+    source_timeout: 1.0                 # sensor silent -> stop
+    base_shift_correction: true
+    stop_pub_timeout: 2.0
+    # Direction-aware: the footprint is simulated along the current command for 1.2 s.
+    # Fixed front/rear stop boxes are avoided on purpose: in the 3-point turn the car must be able
+    # to drive away from a wall that is ~10 cm in front of it.
+    polygons: ["FootprintApproach", "BodyStop"]
+    FootprintApproach:
+      type: "polygon"
+      action_type: "approach"
+      points: [0.70, 0.31, 0.70, -0.31, -0.22, -0.31, -0.22, 0.31]
+      time_before_collision: 1.2
+      simulation_time_step: 0.05
+      max_points: 3
+      visualize: true
+      polygon_pub_topic: "polygon_approach"
+      enabled: true
+    BodyStop:                           # something right at the body (2-3 cm margin) -> stop
+      type: "polygon"
+      action_type: "stop"
+      points: [0.69, 0.31, 0.69, -0.31, -0.21, -0.31, -0.21, 0.31]
+      max_points: 3
+      visualize: true
+      polygon_pub_topic: "polygon_body_stop"
+      enabled: true
+    observation_sources: ["mid360"]
+    mid360:
+      type: "pointcloud"
+      topic: /indoor_perception/mid360/obstacle_pointcloud   # z >= 0.05 m, tight vehicle box
+      min_height: 0.05
+      max_height: 0.60
+      enabled: true
+    # TODO(sensor): add a front depth camera and rear ultrasonic source for reliable low obstacles.
+
+lifecycle_manager_navigation:
+  ros__parameters:
+    autostart: true
+    node_names: ["map_server", "planner_server", "controller_server", "behavior_server", "bt_navigator", "collision_monitor"]
+
+lifecycle_manager_filters:
+  ros__parameters:
+    autostart: true
+    node_names: ["filter_mask_server", "costmap_filter_info_server", "keepout_mask_server", "keepout_info_server"]

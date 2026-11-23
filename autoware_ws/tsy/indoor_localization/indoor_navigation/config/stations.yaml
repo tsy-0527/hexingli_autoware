@@ -1,0 +1,47 @@
+# Route graph in the registered 20261117 campus map frame (metres / degrees).
+# 2026-11-17：用重新配准后的 legacy_room_registration.yaml（ICP，墙体中位误差 0.05 m）换算。
+#   原来的站点按错误配准换算，整体落在北侧停车场上（偏了约 23 m / 71 m）。
+# Nodes: [x, y] or [x, y, axis_deg]. With an axis the vehicle passes the node along that line
+# (either direction). Hybrid-A* plans between nodes,
+# including the door turn and any turn-around, so do NOT put nodes inside the doorway.
+nodes:
+  room_center:      [34.358, -27.242]   # middle of the room (9.0 x 5.6 m)
+  # 房间出口不能从 room_center 直接斜切 corridor_north：直线会穿过拐角墙，
+  # 并把车辆斜着送到走廊左墙。下面三点先把车头对正向西，再走约
+  # R=1.6 m 的 90° 圆弧；已按 0.912 x 0.632 m（含 padding）车身轮廓
+  # 对静态栅格逐姿态检查，整条弧不扫墙。
+  room_exit_prepare:  [32.200, -29.100, 3.422]
+  room_exit_approach: [30.500, -29.100, 3.422]
+  room_exit_corner:   [28.900, -30.700, 92.422]
+  corridor_north:   [28.854, -33.181, 92.422]
+  corridor_mid:     [29.211, -44.179, 92.422]
+  corridor_south:   [29.579, -53.675, 92.422]
+  hall_entrance:    [27.771, -57.790, 93.422]
+  hall_center:      [27.931, -63.792]
+  hall_west:        [15.956, -64.507]   # TODO(site): move to your real hall station
+  door_inside:      [26.900, -68.800, 93.422]   # 南门内侧（门洞中心 x≈26.9，立面 y≈-70.8）
+  # 门前有一道 0.15–0.22 m 的路沿坎（x 19–42，已在 nav_map 里画成障碍），只能走西头的坡道：
+  #   主路 → ramp_approach（坡道口，南北向）→ door_ramp（坡道中段，东西向）→ 门
+  # 坡道在 x 17.7–24、y -75.4..-74.0，两侧栏杆，净宽约 1.2 m，相对路面升高约 0.14 m（坡度约 3%）。
+  door_ramp:        [21.200, -74.680, 2.634]    # 坡道中线；进门朝东上坡，出门朝西下坡
+  ramp_approach:    [18.200, -76.300, 90.0]     # 坡道口外的主路上；进门朝北拐进坡道，出门朝南拐出
+  south_door_out:   [29.000, -76.049]           # 南门外主路最北侧车道中心（室内外交接点）
+edges:
+  - [room_center, room_exit_prepare]
+  - [room_exit_prepare, room_exit_approach]
+  - [room_exit_approach, room_exit_corner]
+  - [room_exit_corner, corridor_north]
+  - [corridor_north, corridor_mid]
+  - [corridor_mid, corridor_south]
+  - [corridor_south, hall_entrance]
+  - [hall_entrance, hall_center]
+  - [hall_center, hall_west]
+  - [hall_center, door_inside]
+  - [door_inside, door_ramp]
+  - [door_ramp, ramp_approach]
+  - [ramp_approach, south_door_out]
+stations:
+  room_home:        {node: room_center, yaw_deg: -176.578}  # nose towards the door
+  hall_station_1:   {node: hall_center, yaw_deg: 93.422}   # TODO(site): measured heading
+  hall_station_2:   {node: hall_west, yaw_deg: 3.422}   # TODO(site)
+  south_door_out:   {node: south_door_out, yaw_deg: 2.634}   # 出门交接：车头朝东，沿主路东行车道离开

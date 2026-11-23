@@ -1,0 +1,5 @@
+# Speed zones (m/s), rectangles [xmin, xmax, ymin, ymax] in the map frame.
+# Later entries override earlier ones. Outside all zones: no extra limit (controller vx_max = 0.5).
+zones:
+  - {name: room,      speed: 0.30, rect: [18.4, 27.2, -13.3, -7.6]}
+  - {name: room_door, speed: 0.20, rect: [16.0, 20.0, -13.6, -10.6]}   # 1.5 m before / after the 1.2 m doorway

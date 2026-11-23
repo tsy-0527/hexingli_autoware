@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/tang/autoware_map/map_task4/third_party/dufomap/build_gcc11/ufomap",
+  "command": "/usr/bin/g++ -DMap_EXPORTS -DUFO_PARALLEL=1 -I/home/tang/autoware_map/map_task4/third_party/dufomap/ufomap/include -O3 -DNDEBUG -fPIC -fPIC -fopenmp -std=c++20 -o CMakeFiles/Map.dir/src/map/io.cpp.o -c /home/tang/autoware_map/map_task4/third_party/dufomap/ufomap/src/map/io.cpp",
+  "file": "/home/tang/autoware_map/map_task4/third_party/dufomap/ufomap/src/map/io.cpp"
+}
+]

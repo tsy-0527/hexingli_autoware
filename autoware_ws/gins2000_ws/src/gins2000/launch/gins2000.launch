@@ -1,0 +1,9 @@
+<launch>
+ <node pkg="gins2000" type="gins2000_node" name="gins2000_node" required="true" output="screen" > 
+    <param name="port" value="/dev/ttyUSB0" />
+    <param name="gins2000_baudrate" value="921600" />
+    <param name="gins2000_frame_id" value="gins2000_link" />
+    <param name="gins2000_topic" value="gins2000" />
+ </node> 
+  <node pkg="tf" type="static_transform_publisher" name="gins2000_broadcaster" args="0.0 0.0 0.23 0 0 0 base_footprint gins2000_link 100" respawn="true" />
+</launch>

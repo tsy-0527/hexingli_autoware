@@ -1,0 +1,68 @@
+/**:
+  ros__parameters:
+    # 2D maps generated from indoor_map_leveled_clean.pcd (same frame as the PCD)
+    loc_map_yaml: /home/tang/autoware_map/map_task4/indoor_localization/map_20261117_legacy_indoor/localization_map.yaml
+    nav_map_yaml: /home/tang/autoware_map/map_task4/indoor_localization/map_20261117_legacy_indoor/nav_map.yaml
+
+    # Direct PointCloud2 output of the MID-360S driver launched with this package.
+    pointcloud_topic: /sensing/lidar/mid360s/pointcloud
+    base_frame: base_link
+    map_frame: map
+    pose_topic: /room_global_localizer/pose
+
+    # The whole localization/navigation stack now uses the levelled internal
+    # map frame.  Do not convert the matched pose back to the original task5
+    # point-cloud coordinates.
+    internal_to_output_transform: [
+      1.0, 0.0, 0.0, 0.0,
+      0.0, 1.0, 0.0, 0.0,
+      0.0, 0.0, 1.0, 0.0,
+      0.0, 0.0, 0.0, 1.0]
+
+    # Keep disabled until min_score/max_ratio and the lidar pitch are verified on the vehicle.
+    auto_start: false
+    auto_start_delay: 5.0
+    # Trigger only while the platform is physically stationary.
+    use_velocity_check: false
+    stop_speed_threshold: 0.02
+    stop_hold_sec: 1.0
+    accumulate_sec: 1.0       # vehicle is stationary, accumulate MID-360S frames
+    init_timeout_sec: 15.0
+    max_attempts: 2
+
+    # Autoware combination mode only. A lower 2D gate is safe here because
+    # these seeds are never published as final poses: Top-K seeds are first
+    # refined and checked independently by Autoware's 6-DoF NDT align service.
+    ndt_candidate_count: 3
+    ndt_min_seed_score: 0.60
+    ndt_cluster_position_tolerance: 0.75
+    ndt_cluster_yaw_tolerance_deg: 10.0
+    autoware_init_timeout_sec: 60.0  # perception startup can temporarily load CPU/GPU heavily
+
+    # Legacy room registered into the 20261117 map frame.  The old->new
+    # registration (2026-11-17 ICP, wall median error 0.05 m) is tx=11.185 m,
+    # ty=-18.210 m, yaw=3.422 deg. The earlier -11.17/+55.41 registration was wrong.
+    # Flat list x1,y1,x2,y2,... in the new point-cloud map frame.
+    room_polygon: [
+      30.5273, -30.1761,
+      38.9594, -29.6718,
+      38.6372, -24.2815,
+      30.2050, -24.7858]
+    min_clearance: 0.30
+
+    # scan preprocessing, base_link frame (z = height above floor)
+    z_min: 0.60
+    z_max: 2.85
+    r_min: 0.30
+    r_max: 20.0
+    # Matches livox_sensor_kit_launch/config/self_crop.param.yaml (Yunle vehicle).
+    self_box: [-0.22, 0.75, -0.29, 0.29]
+    voxel: 0.05
+    min_points: 200
+
+    # search / decision (calibrate min_score & max_ratio with real data)
+    sigma: 0.10
+    coarse_res: 0.10
+    coarse_yaw_step_deg: 2.0
+    min_score: 0.70
+    max_ratio: 0.85

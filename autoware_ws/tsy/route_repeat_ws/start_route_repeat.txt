@@ -1,0 +1,19 @@
+1. 先手动启动 Autoware，确认 NDT 雷达定位和点云地图已正常工作
+
+2. 新终端跑主脚本
+# 可选:先单独跑检查
+MAP_DIR=$HOME/autoware_map/map_task1 ~/tsy/route_repeat_ws/preflight_check.sh
+
+# 或者直接跑主脚本(内含检查)
+MAP_DIR=$HOME/autoware_map/map_task1 ~/tsy/route_repeat_ws/run_realcar.sh
+
+3. 检查脚本会审查的项目
+ROS 环境 — ROS_DISTRO / ros2 命令
+地图文件 — lanelet2_map.osm / pointcloud_map.pcd 是否存在
+Autoware 节点 — mission_planner / trajectory_follower / behavior_path_planner
+定位源 — NDT 节点、雷达定位 pose topic 频率、匹配质量 topic
+地图投影 — projector_type、原点、和 params.yaml 一致性（这是最关键的检查）
+车辆状态 — 速度反馈、operation_mode
+Route 服务 — set_lanelet_route / clear_route / change_to_autonomous
+params.yaml 审查 — pose_topic / projector_type / match_distance
+感知/避障 — /perception/obstacle* 是否存在

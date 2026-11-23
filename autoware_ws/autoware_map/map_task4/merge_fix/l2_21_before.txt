@@ -1,0 +1,29 @@
+lanelet2 load: OK
+lanelets: 7
+  id=2000 lane_id=None one_way=no centerline_pts=20 
+  id=2001 lane_id=None one_way=no centerline_pts=63 
+  id=2002 lane_id=None one_way=no centerline_pts=44 
+  id=2003 lane_id=None one_way=no centerline_pts=29 
+  id=2004 lane_id=None one_way=no centerline_pts=51 
+  id=2005 lane_id=None one_way=no centerline_pts=64 
+  id=2006 lane_id=None one_way=no centerline_pts=71 
+
+=== routing graph ===
+  2000 (None): following=[] previous=[] lefts=[] rights=[]
+  2001 (None): following=[] previous=[] lefts=[] rights=[]
+  2002 (None): following=[] previous=[] lefts=[] rights=[]
+  2003 (None): following=[] previous=[] lefts=[] rights=[]
+  2004 (None): following=[] previous=[] lefts=[] rights=[]
+  2005 (None): following=[] previous=[] lefts=[] rights=[]
+  2006 (None): following=[] previous=[] lefts=[] rights=[]
+
+=== reachability (all pairs) ===
+  from 2000 (None): []
+  from 2001 (None): []
+  from 2002 (None): []
+  from 2003 (None): []
+  from 2004 (None): []
+  from 2005 (None): []
+  from 2006 (None): []
+
+=== validity ===

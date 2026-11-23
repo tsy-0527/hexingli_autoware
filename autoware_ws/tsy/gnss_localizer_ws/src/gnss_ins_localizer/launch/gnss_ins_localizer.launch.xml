@@ -1,0 +1,35 @@
+<launch>
+  <arg name="map_path"/>
+  <arg name="param_file" default="$(find-pkg-share gnss_ins_localizer)/config/gnss_ins_localizer.param.yaml"/>
+  <arg name="publish_imu" default="false"/>
+
+  <arg name="input_gins"           default="/sensing/gins2000"/>
+  <arg name="input_vector_map"     default="/map/vector_map"/>
+  <arg name="input_goal"           default="/planning/mission_planning/goal"/>
+  <arg name="input_route_state"    default="/planning/mission_planning/route_state"/>
+  <arg name="input_kinematic"      default="/localization/kinematic_state"/>
+
+  <arg name="output_imu"           default="/sensing/imu/imu_data"/>
+  <arg name="output_pose"          default="/localization/pose_estimator/pose_with_covariance"/>
+  <arg name="output_gnss_pose"     default="/sensing/gnss/pose_with_covariance"/>
+  <arg name="output_twist"         default="/localization/twist_estimator/twist_with_covariance"/>
+  <arg name="output_initialpose"   default="/initialpose3d"/>
+
+  <node pkg="gnss_ins_localizer" exec="gnss_ins_localizer_node" name="gnss_ins_localizer" output="screen">
+    <param from="$(var param_file)"/>
+    <param name="map_path" value="$(var map_path)"/>
+    <param name="publish_imu" value="$(var publish_imu)"/>
+
+    <remap from="~/input/gins"            to="$(var input_gins)"/>
+    <remap from="~/input/vector_map"      to="$(var input_vector_map)"/>
+    <remap from="~/input/goal"            to="$(var input_goal)"/>
+    <remap from="~/input/route_state"     to="$(var input_route_state)"/>
+    <remap from="~/input/kinematic_state" to="$(var input_kinematic)"/>
+
+    <remap from="~/output/imu"                    to="$(var output_imu)"/>
+    <remap from="~/output/pose_with_covariance"   to="$(var output_pose)"/>
+    <remap from="~/output/gnss_pose_with_covariance" to="$(var output_gnss_pose)"/>
+    <remap from="~/output/twist_with_covariance"  to="$(var output_twist)"/>
+    <remap from="~/output/initialpose3d"          to="$(var output_initialpose)"/>
+  </node>
+</launch>

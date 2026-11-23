@@ -1,0 +1,51 @@
+<launch>
+  <arg name="detector_prefix" default=""/>
+  <arg name="device" default="cpu"/>
+  <arg name="imgsz" default="960"/>
+  <arg name="use_compressed_color" default="true"/>
+  <arg name="sync_queue_size" default="30"/>
+  <arg name="sync_slop" default="0.1"/>
+  <arg name="start_camera" default="false"/>
+  <arg name="roi_pointcloud_depth_band" default="0.25"/>
+  <arg name="roi_pointcloud_min_depth" default="0.4"/>
+  <arg name="roi_pointcloud_max_depth" default="8.0"/>
+  <arg name="roi_pointcloud_voxel_size" default="0.03"/>
+  <arg name="camera_ns" default="/sensing/camera"/>
+  <arg name="camera_name" default="camera0"/>
+  <arg name="color_topic" default="$(var camera_ns)/$(var camera_name)/color/image_raw"/>
+  <arg name="color_compressed_topic" default="$(var color_topic)/compressed"/>
+  <arg name="depth_topic" default="$(var camera_ns)/$(var camera_name)/depth/image_rect_raw"/>
+  <group if="$(var start_camera)">
+    <include file="$(find-pkg-share realsense2_camera)/launch/rs_launch.py">
+      <arg name="camera_namespace" value="$(var camera_ns)"/>
+      <arg name="camera_name" value="$(var camera_name)"/>
+      <arg name="enable_color" value="true"/>
+      <arg name="enable_depth" value="true"/>
+      <!-- The detector aligns raw depth in software. Keep the camera-side
+           syncer/align/filters off so aligned_depth_to_color cannot stall. -->
+      <arg name="enable_sync" value="false"/>
+      <arg name="align_depth.enable" value="false"/>
+      <arg name="spatial_filter.enable" value="false"/>
+      <arg name="temporal_filter.enable" value="false"/>
+      <arg name="hole_filling_filter.enable" value="false"/>
+    </include>
+  </group>
+  <node pkg="d455_perception" exec="detect" name="d455_perception" output="screen" launch-prefix="$(var detector_prefix)">
+    <param name="device" value="$(var device)" type="str"/>
+    <param name="imgsz" value="$(var imgsz)"/>
+    <param name="use_compressed_color" value="$(var use_compressed_color)" type="bool"/>
+    <param name="sync_queue_size" value="$(var sync_queue_size)" type="int"/>
+    <param name="sync_slop" value="$(var sync_slop)" type="float"/>
+    <param name="roi_pointcloud_classes" value="[shidunzi]"/>
+    <param name="roi_pointcloud_depth_band" value="$(var roi_pointcloud_depth_band)" type="float"/>
+    <param name="roi_pointcloud_min_depth" value="$(var roi_pointcloud_min_depth)" type="float"/>
+    <param name="roi_pointcloud_max_depth" value="$(var roi_pointcloud_max_depth)" type="float"/>
+    <param name="roi_pointcloud_voxel_size" value="$(var roi_pointcloud_voxel_size)" type="float"/>
+    <remap from="/sensing/camera/camera0/color/image_raw" to="$(var color_topic)"/>
+    <remap from="/sensing/camera/camera0/color/image_raw/compressed" to="$(var color_compressed_topic)"/>
+    <remap from="/sensing/camera/camera0/depth/image_rect_raw" to="$(var depth_topic)"/>
+    <remap from="/sensing/camera/camera0/color/camera_info" to="$(var camera_ns)/$(var camera_name)/color/camera_info"/>
+    <remap from="/sensing/camera/camera0/depth/camera_info" to="$(var camera_ns)/$(var camera_name)/depth/camera_info"/>
+    <remap from="/sensing/camera/camera0/extrinsics/depth_to_color" to="$(var camera_ns)/$(var camera_name)/extrinsics/depth_to_color"/>
+  </node>
+</launch>

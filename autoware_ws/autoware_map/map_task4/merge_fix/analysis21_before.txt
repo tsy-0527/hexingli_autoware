@@ -1,0 +1,45 @@
+file: /home/tang/下载/lanelet2_map(21).osm
+nodes=1022 ways=21 relations=7
+
+=== lanelets ===
+
+lanelet 2000 lane_id=None one_way=no subtype=road
+  left       way=1000 npts=20 start=(0.253,-17.583) end=(8.094,6.247)
+  right      way=1002 npts=20 start=(2.747,-17.417) end=(7.906,3.753)
+  centerline way=1001 npts=20 start=(1.500,-17.500) end=(8.000,5.000)
+
+lanelet 2001 lane_id=None one_way=no subtype=road
+  left       way=1003 npts=63 start=(7.979,6.250) end=(2.824,2.727)
+  right      way=1005 npts=63 start=(8.021,3.750) end=(0.326,2.812)
+  centerline way=1004 npts=63 start=(8.000,5.000) end=(1.575,2.769)
+
+lanelet 2002 lane_id=None one_way=no subtype=road
+  left       way=1006 npts=44 start=(34.499,11.133) end=(61.949,-73.958)
+  right      way=1008 npts=44 start=(32.097,10.442) end=(59.451,-74.042)
+  centerline way=1007 npts=44 start=(33.298,10.788) end=(60.700,-74.000)
+
+lanelet 2003 lane_id=None one_way=no subtype=road
+  left       way=1009 npts=29 start=(18.280,-78.436) end=(59.876,-73.060)
+  right      way=1011 npts=29 start=(18.308,-80.936) end=(61.524,-74.940)
+  centerline way=1010 npts=29 start=(18.294,-79.686) end=(60.700,-74.000)
+
+lanelet 2004 lane_id=None one_way=no subtype=road
+  left       way=1012 npts=51 start=(50.698,-78.754) end=(177.651,-77.705)
+  right      way=1014 npts=51 start=(50.502,-81.246) end=(176.324,-79.823)
+  centerline way=1013 npts=51 start=(50.600,-80.000) end=(176.988,-78.764)
+
+lanelet 2005 lane_id=None one_way=no subtype=road
+  left       way=1015 npts=64 start=(61.392,-72.692) end=(176.666,-72.368)
+  right      way=1017 npts=64 start=(59.672,-74.506) end=(175.522,-74.591)
+  centerline way=1016 npts=64 start=(60.532,-73.599) end=(176.094,-73.479)
+
+lanelet 2006 lane_id=None one_way=no subtype=road
+  left       way=1018 npts=71 start=(177.783,-77.800) end=(175.425,-74.535)
+  right      way=1020 npts=71 start=(176.192,-79.728) end=(176.762,-72.423)
+  centerline way=1019 npts=71 start=(176.988,-78.764) end=(176.094,-73.479)
+
+=== way endpoints (connectivity check) ===
+  shared endpoint (8.0, 5.0): ['1001:B', '1004:A']
+  shared endpoint (60.7, -74.0): ['1007:B', '1010:B']
+  shared endpoint (176.094, -73.479): ['1016:B', '1019:B']
+  shared endpoint (176.988, -78.764): ['1013:B', '1019:A']

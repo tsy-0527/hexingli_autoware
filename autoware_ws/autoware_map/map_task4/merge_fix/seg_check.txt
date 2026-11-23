@@ -1,0 +1,6 @@
+park left n 27 min seg 0.0489 max seg 11.918 n<0.05 2
+park right n 27 min seg 0.1189 max seg 11.918 n<0.05 0
+park_loop left n 38 min seg 0.0486 max seg 14.008 n<0.05 4
+park_loop right n 38 min seg 0.0524 max seg 13.337 n<0.05 0
+uturn left n 71 min seg 0.0493 max seg 9.122 n<0.05 5
+uturn right n 71 min seg 0.0510 max seg 9.098 n<0.05 0

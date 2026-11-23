@@ -1,0 +1,25 @@
+# 20261117 campus map regions, in the current Autoware `map` frame (metres).
+# Derived from legacy_room_registration.yaml and checked against the registered
+# indoor route. Cleaning and grid coverage are intentionally separate.
+
+indoor_cleaning:
+  mean_k: 30
+  std_dev_mul: 1.0
+  context_margin: 0.6
+  # Union of building sections. Points outside this union are copied exactly,
+  # in their original order, without filtering or downsampling.
+  polygons:
+    # South hall
+    - [[-20.275, 0.424], [13.719, 0.358], [13.747, 14.358], [-20.248, 14.424]]
+    # Main corridor
+    - [[2.744, 12.379], [7.744, 12.370], [7.834, 58.370], [2.834, 58.379]]
+    # North indoor wing
+    - [[-13.185, 47.410], [7.812, 47.370], [7.841, 62.370], [-13.155, 62.410]]
+    # Room on the east side
+    - [[5.801, 41.374], [17.799, 41.350], [17.812, 48.350], [5.814, 48.374]]
+
+grid_crop:
+  # Includes the outdoor-lane handover near (-4.87, 6.42), the south hall,
+  # corridor, north wing and room, with about 1 m padding.
+  bounds: [-21.5, -1.0, 19.0, 63.5]  # xmin, ymin, xmax, ymax
+
