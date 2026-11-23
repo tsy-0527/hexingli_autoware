@@ -1,10 +1,31 @@
-#!/bin/bash
-bash record_indoor_route.sh /home/tang/tsy/indoor_route_11201511
-tmux kill-session -t autoware
-# 1 启动实车
---------------------------------------------------------------------------
-# ndt定位
---------------------------------------------------------------------------
+# Autoware 实车、融合感知与调试操作手册
+
+本文档整理自 [`tsy/start_autoware.sh`](tsy/start_autoware.sh)，用于记录本车 Autoware 系统的常用启动、建图、定位、感知、上位机连接、仿真与调试命令。
+
+> [!IMPORTANT]
+> 原始文件是命令备忘录，不是可以从头到尾一次执行的脚本。NDT 定位、组合导航定位、仿真等启动方式互相独立，请根据当前场景选择对应章节执行。
+
+## 工作区
+
+```text
+autoware_ws/
+├── autoware/             # Autoware 主工作区
+├── autoware_map/         # 地图
+├── fastlio_ws/           # FAST-LIO 建图
+├── gins2000_ws/          # GINS2000 驱动与消息
+├── hunter_ws/            # Hunter 相关驱动
+├── livox_ws/             # Livox 驱动
+├── tsy/                  # 辅助脚本、D455 感知和调试工具
+└── yunle_chassis-main/   # 云乐底盘驱动
+```
+
+以下命令沿用车辆当前的绝对路径 `/home/tang/...`。如果部署目录发生变化，需要同步修改路径。
+
+## 一、实车启动
+
+### 1. NDT 定位
+
+```bash
 source /opt/ros/humble/setup.bash
 source ~/livox_ws/install/setup.bash
 source ~/gins2000_ws/install/setup.bash
@@ -21,8 +42,11 @@ ros2 launch autoware_launch autoware.launch.xml \
   automatic_pose_initializer_enabled:=false \
   use_sim_time:=false \
   system_run_mode:=online
-  
-# lidar_camera_fusion 
+```
+
+### 2. NDT 定位 + D455 相机与激光雷达融合
+
+```bash
 source /opt/ros/humble/setup.bash
 source ~/livox_ws/install/setup.bash
 source ~/gins2000_ws/install/setup.bash
@@ -47,13 +71,13 @@ ros2 launch autoware_launch autoware.launch.xml \
   custom_d455_yolo_device:=cuda:0 \
   custom_d455_yolo_imgsz:=640 \
   custom_d455_yolo_confidence:=0.35
---------------------------------------------------------------------------
-# 组合导航定位
---------------------------------------------------------------------------
-# 手动触发起点
-ros2 service call /api/localization/initialize \
-  autoware_adapi_v1_msgs/srv/InitializeLocalization "{}"          
+```
 
+### 3. 组合导航定位（GNSS/INS）
+
+先启动组合导航定位：
+
+```bash
 source /opt/ros/humble/setup.bash
 source ~/livox_ws/install/setup.bash
 source ~/gins2000_ws/install/setup.bash
@@ -71,11 +95,20 @@ ros2 launch autoware_launch autoware.launch.xml \
   automatic_pose_initializer_enabled:=false \
   use_sim_time:=false \
   system_run_mode:=online
+```
 
---------------------------------------------------------------------------
-# 上位机连接9090
---------------------------------------------------------------------------
+系统启动完成后，再手动触发定位初始化：
 
+```bash
+ros2 service call /api/localization/initialize \
+  autoware_adapi_v1_msgs/srv/InitializeLocalization "{}"
+```
+
+## 二、上位机与网络连接
+
+### 1. 启动 Rosbridge WebSocket（9090 端口）
+
+```bash
 source /opt/ros/humble/setup.bash
 source ~/livox_ws/install/setup.bash
 source ~/gins2000_ws/install/setup.bash
@@ -87,31 +120,55 @@ export ROS_DOMAIN_ID=0
 export ROS_LOCALHOST_ONLY=0
 export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 unset CYCLONEDDS_URI
-ros2 launch rosbridge_server rosbridge_websocket_launch.xml address:=0.0.0.0 port:=9090
 
---------------------------------------------------------------------------
-# UDP 传输
---------------------------------------------------------------------------
+ros2 launch rosbridge_server rosbridge_websocket_launch.xml \
+  address:=0.0.0.0 port:=9090
+```
+
+如果上位机无法连接，检查本机地址和防火墙：
+
+```bash
+hostname -I
+sudo ufw allow 9090/tcp
+sudo ufw allow 9090
+```
+
+### 2. UDP 位姿传输
+
+```bash
 cd ~/tsy
 python3 ros_udp_pose_relay.py --ros-args \
   -p target_port:=15000 \
   -p max_rate_hz:=0.0
+```
 
-未成功：
-hostname -I
-sudo ufw allow 9090/tcp
-sudo ufw allow 9090
+## 三、相机检测与融合结果查看
 
---------------------------------------------------------------------------
-# 启动相机检测
---------------------------------------------------------------------------
+### 1. 启动相机检测流
+
+```bash
 cd /home/tang/autoware/vision_detection_ws
 ./run_camera_stream.sh
+```
 
+### 2. 查看图像
 
---------------------------------------------------------------------------
-# 仿真环境 
---------------------------------------------------------------------------
+```bash
+ros2 run rqt_image_view rqt_image_view
+```
+
+常用图像话题：
+
+```text
+/vision_detection/debug/image
+/perception/object_recognition/detection/clustering/camera_lidar_fusion/roi_cluster_fusion/debug/image_raw0
+```
+
+## 四、仿真
+
+### 1. 启动 Planning Simulator
+
+```bash
 source /opt/ros/humble/setup.bash
 source ~/livox_ws/install/setup.bash
 source ~/gins2000_ws/install/setup.bash
@@ -127,246 +184,208 @@ ros2 launch autoware_launch planning_simulator.launch.xml \
   initial_engage_state:=true \
   enable_all_modules_auto_mode:=true \
   use_sim_time:=false
+```
 
---------------------------------------------------------------------------
-# 仿真设置UNKNOWN障碍物
+### 2. 在仿真中设置 UNKNOWN 障碍物
+
+```bash
 source ~/autoware/install/setup.bash
 cd ~/tsy
 python3 click_obstacle.py
---------------------------------------------------------------------------
-#激光雷达建图结果保存
+```
+
+## 五、常用操作、建图与调试
+
+### 常用的两个操作
+
+#### 1. 录制轨迹包，用于生成车道
+
+```bash
+cd /home/tang/tsy
+bash record_indoor_route.sh /home/tang/tsy/indoor_route_11201511
+```
+
+该命令录制室内路线轨迹包，输出到 `/home/tang/tsy/indoor_route_11201511`，后续用于生成或调整车道。
+
+#### 2. 清理开机自启动的 Autoware 会话
+
+```bash
+tmux kill-session -t autoware
+```
+
+该命令结束开机自启动创建的 `autoware` tmux 会话，从而停止会话内运行的 Autoware 进程。它不会删除开机自启动配置，仅清理当前会话。
+
+### 建图与地图查看
+
+#### 1. 保存激光雷达建图结果
+
+```bash
 ros2 service call /map_save std_srvs/srv/Trigger "{}"
-查看PCD建图结果：pcl_viewer ~/PCD/名字.pcd
---------------------------------------------------------------------------
-# 需要开机自启动，三个终端打开
+```
+
+#### 2. 查看 PCD 地图
+
+```bash
+pcl_viewer ~/PCD/地图文件名.pcd
+```
+
+### 进程与 ROS 2 Daemon 管理
+
+#### 1. 启动三个 Autoware 终端
+
+```bash
 cd /home/tang/autoware
 ./scripts/start_autoware_three_terminals.sh
---------------------------------------------------------------------------
-# 停掉所有节点
+```
+
+#### 2. 停止所有 ROS 2 节点
+
+> [!CAUTION]
+> 以下命令会终止当前用户的 ROS 2 进程，请确认没有其他任务正在运行。
+
+```bash
 pkill -f ros2
-# !rclpy.ok() ROS2 daemon 挂了
-# 1. 停掉 daemon
+```
+
+#### 3. 修复 `!rclpy.ok()` 或 ROS 2 Daemon 异常
+
+```bash
 ros2 daemon stop
-# 2. 强杀所有 daemon 相关进程
 pkill -9 -f _ros2_daemon
 pkill -9 -f ros2cli
-# 3. 重启 daemon
 ros2 daemon start
-# 4. 再试
 ros2 topic list
---------------------------------------------------------------------------
+```
 
+### 车辆运行与调试
 
-sudo bash /home/tang/autoware/vision_detection_ws/scripts/enable_camera_frp_tunnels.sh
+#### 1. 查看 Autoware 定位输出
 
-# 查看检测视图  /vision_detection/debug/image
-ros2 run rqt_image_view rqt_image_view 
-
-# lidar_camera_fusion /debug/lidar_camera_overlay
-/perception/object_recognition/detection/clustering/camera_lidar_fusion/roi_cluster_fusion/debug/image_raw0
---------------------------------------------------------------------------
-# Autoware 的定位输出
+```bash
 ros2 topic echo /localization/kinematic_state --once
---------------------------------------------------------------------------
-#查看局部位置
+```
+
+仅查看局部位置：
+
+```bash
 ros2 topic echo /localization/kinematic_state --field pose.pose.position
---------------------------------------------------------------------------
-# 设置两个终点循环绕圈  
+```
+
+#### 2. 设置两个终点循环绕圈
+
+```bash
 cd /home/tang/autoware/scripts
-python3 loop_checkpoint.py --ros-args   -p max_loops:=8   -p loop_interval:=0.0
---------------------------------------------------------------------------
-# 报错 ： 车辆没有停止  
-ros2 topic pub -r 10   /sensing/vehicle_velocity_converter/twist_with_covariance   geometry_msgs/msg/TwistWithCovarianceStamped   "{header: auto, twist: {twist: {linear: {x: 0.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}}}"
---------------------------------------------------------------------------
-# 设置最大速度 单位 m/s
-ros2 topic pub --once /planning/scenario_planning/max_velocity autoware_internal_planning_msgs/msg/VelocityLimit \
-"{stamp: {sec: 0, nanosec: 0}, max_velocity: 1.39, use_constraints: false}"
---------------------------------------------------------------------------
-# 查看实时速度
-ros2 topic echo /vehicle/status/velocity_status --field longitudinal_velocity
---------------------------------------------------------------------------
-# 编译
-cd ~/autoware
-colcon build --packages-select autoware_launch --symlink-install
-source install/setup.bash
---------------------------------------------------------------------------
-# 设置途经点 停入车库
+python3 loop_checkpoint.py --ros-args \
+  -p max_loops:=8 \
+  -p loop_interval:=0.0
+```
+
+#### 3. 处理“车辆没有停止”报错
+
+```bash
+ros2 topic pub -r 10 \
+  /sensing/vehicle_velocity_converter/twist_with_covariance \
+  geometry_msgs/msg/TwistWithCovarianceStamped \
+  "{header: auto, twist: {twist: {linear: {x: 0.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}}}"
+```
+
+#### 4. 设置最大速度
+
+单位为 m/s；下面的 `1.39` 约等于 5 km/h。
+
+```bash
+ros2 topic pub --once \
+  /planning/scenario_planning/max_velocity \
+  autoware_internal_planning_msgs/msg/VelocityLimit \
+  "{stamp: {sec: 0, nanosec: 0}, max_velocity: 1.39, use_constraints: false}"
+```
+
+#### 5. 查看实时速度
+
+```bash
+ros2 topic echo /vehicle/status/velocity_status \
+  --field longitudinal_velocity
+```
+
+#### 6. 设置途经点并停入车库
+
+```bash
 cd ~/autoware/scripts
 python3 loop_checkpoint.py --ros-args -p num_waypoints:=1
---------------------------------------------------------------------------
-# 查看停车框  
-python3 ~/tsy/parking_lot_rviz_marker.py   --ros-args   -p osm_path:=/home/tang/autoware_map/map_task4/lanelet2_map.osm
---------------------------------------------------------------------------
-#查看can
+```
+
+#### 7. 在 RViz 中查看停车框
+
+```bash
+python3 ~/tsy/parking_lot_rviz_marker.py --ros-args \
+  -p osm_path:=/home/tang/autoware_map/map_task4/lanelet2_map.osm
+```
+
+### 底盘与 CAN 调试
+
+#### 1. 查看 CAN 报文
+
+```bash
 candump -L can0,121:7FF can1,121:7FF
-# 编译
+```
+
+#### 2. 编译底盘驱动
+
+请在包含 `chassis_driver` 的工作区执行：
+
+```bash
 colcon build --packages-select chassis_driver --symlink-install
 source install/setup.bash
-# 启动底盘
+```
+
+#### 3. 启动底盘
+
+```bash
 source /opt/ros/humble/setup.bash
 source /home/tang/yunle_chassis-main/install/setup.bash
 ros2 launch chassis_driver chassis_driver.launch.py
---------------------------------------------------------------------------
-# 录制分析精度
+```
+
+### 编译 Autoware Launch
+
+```bash
+cd ~/autoware
+colcon build --packages-select autoware_launch --symlink-install
+source install/setup.bash
+```
+
+### 轨迹精度数据录制与回放
+
+#### 1. 录制轨迹、定位与感知数据
+
+```bash
 cd /home/tang/autoware
 
 ./scripts/record_trajectory_localization_perception.sh \
   ~/autoware_bag \
   tracking_test_01
-  
+```
+
+相关输出目录：
+
+```text
 ~/autoware_bag/tracking_test_01/
 ~/autoware_bag/plots/
 ~/autoware_bag/experiment_metadata/tracking_test_01/
---------------------------------------------------------------------------
-# 回放rosbag
+```
+
+#### 2. 回放和检查 ROS bag
+
+```bash
 ros2 bag play ~/autoware_bag/tracking_test_04
-ros2 bag info ~/autoware_bag/tracking_test_04 | grep -E "behavior_planning/path|scenario_planning/trajectory"
---------------------------------------------------------------------------
-# 实验
-ros2 run fj_experiment runner run \
-  --name small_obstacle \
-  --scenarios S1 \
-  --methods M0 M1_N5 M1_N10 M2 M3 \
-  --seeds 0 \
-  --overwrite
---------------------------------------------------------------------------
-起点
-attitude:
-  x: -0.582275390625
-  y: 0.52734375
-  z: 40.1220703125
-angular_velocity:
-  x: -0.00047936899621426287
-  y: 0.0
-  z: 0.00047936899621426287
-linear_acceleration:
-  x: 0.10120605468749999
-  y: 0.086748046875
-  z: 9.898916015625
-latitude: 31.9338166
-longitude: 118.63309299999999
-altitude: 6.889
 
+ros2 bag info ~/autoware_bag/tracking_test_04 | \
+  grep -E "behavior_planning/path|scenario_planning/trajectory"
+```
 
-x: -1.820917821857547
-y: -3.8826371092313425
-z: -0.4806007989828534
+### 安全提示
 
-attitude:
-  x: -0.933837890625
-  y: 0.823974609375
-  z: 48.93310546875
-angular_velocity:
-  x: 0.00023968449810713143
-  y: 0.0007190534943213944
-  z: 0.0
-linear_acceleration:
-  x: 0.1156640625
-  y: 0.1108447265625
-  z: 9.8651806640625
-latitude: 31.933830999999998
-longitude: 118.63313219999999
-altitude: 6.875
-
-
-
-x: 43.955233971886265
-y: -4.143704256407572
-z: -2.3764789719165336
-
-attitude:
-  x: 0.15380859375
-  y: 0.362548828125
-  z: 30.574951171875
-angular_velocity:
-  x: 0.00023968449810713143
-  y: 0.0007190534943213944
-  z: 0.0
-linear_acceleration:
-  x: -0.0385546875
-  y: 0.033735351562499995
-  z: 9.87
-latitude: 31.934146199999997
-longitude: 118.63281819999999
-altitude: 6.877
-
-
-
-x: 78.26959951303796
-y: -78.79715761154159
-z: -4.386193412795472
-attitude:
-  x: 0.274658203125
-  y: -0.263671875
-  z: 44.12109375
-angular_velocity:
-  x: -0.0007190534943213944
-  y: 0.0
-  z: 0.0009587379924285257
-linear_acceleration:
-  x: -0.0819287109375
-  y: -0.0433740234375
-  z: 9.8651806640625
-latitude: 31.9348195
-longitude: 118.63317459999999
-
-x: 149.75100736602872
-y: -75.2143930547291
-z: -7.683990602697111
-attitude:
-  x: -0.692138671875
-  y: 0.0
-  z: 44.01123046875
-angular_velocity:
-  x: 0.0023968449810713144
-  y: -0.00023968449810713143
-  z: -0.00023968449810713143
-linear_acceleration:
-  x: 0.07229003906249999
-  y: -0.0048193359375
-  z: 9.821806640624999
-latitude: 31.9352825
-longitude: 118.6326488
-altitude: 6.814
-
-
-x: 179.06244719244887
-y: -80.34305132241612
-z: -9.043812730281783
-attitude:
-  x: -0.263671875
-  y: 0.10986328125
-  z: -40.045166015625
-angular_velocity:
-  x: -0.00023968449810713143
-  y: 0.00023968449810713143
-  z: -0.00023968449810713143
-linear_acceleration:
-  x: 0.024096679687499997
-  y: 0.0048193359375
-  z: 9.860361328124998
-latitude: 31.9355105
-longitude: 118.63248809999999
-
-
-x: 29.85972234485006
-y: -80.00232842090935
-z: -1.9742286090410566
-attitude:
-  x: -0.02197265625
-  y: 0.054931640625
-  z: -142.525634765625
-angular_velocity:
-  x: 0.0007190534943213944
-  y: 0.00047936899621426287
-  z: 0.0
-linear_acceleration:
-  x: -0.07229003906249999
-  y: 0.0
-  z: 9.87
-latitude: 31.9344936
-longitude: 118.6335251
-altitude: 6.854
-
-
-
+- 实车启动前确认车辆周围安全，并准备好急停。
+- 不要同时启动多套定位或车辆控制节点。
+- `pkill` 和防火墙命令会影响系统中其他进程或网络服务。
+- 修改速度、循环终点和途经点后，应先在仿真或封闭场地验证。
